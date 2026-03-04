@@ -8,59 +8,61 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
         body { background: #020617; font-family: 'Plus Jakarta Sans', sans-serif; color: white; margin: 0; padding: 0; overflow: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
         .mandala-rotate { animation: rotate 100s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 5px #22d3ee); }
-        .view-container { height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        nav button { -webkit-tap-highlight-color: transparent; }
+        .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 8px #22d3ee); }
+        .view-container { height: calc(100vh - 160px); overflow-y: auto; }
+        .btn-active:active { transform: scale(0.95); background: rgba(34, 211, 238, 0.2); }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        const Icon = ({ name, className }) => {
-            useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [name]);
-            return <i data-lucide={name.toLowerCase().replace(/([a-z0-9])([A-Z])/g, '$1-$2')} className={className}></i>;
-        };
+        const { useState } = React;
 
         const SKILLS = [
-            { id: 'logic', n: 'Logic', i: 'cpu', c: 'text-cyan-400' },
-            { id: 'empathy', n: 'Empathy', i: 'heart', c: 'text-pink-400' },
-            { id: 'discipline', n: 'Discipline', i: 'shield', c: 'text-orange-400' },
-            { id: 'reg', n: 'Regulation', i: 'wind', c: 'text-blue-400' },
-            { id: 'int', n: 'Integrity', i: 'anchor', c: 'text-green-400' }
+            { id: 'logic', n: 'Logic', desc: 'Deconstructing reality via First Principles.', sub: 'Socratic Inquiry' },
+            { id: 'empathy', n: 'Empathy', desc: 'Cognitive mapping of internal worlds.', sub: 'Perspective Shifting' },
+            { id: 'discipline', n: 'Discipline', desc: 'Subordinating impulse to strategy.', sub: 'Dopamine Control' },
+            { id: 'reg', n: 'Regulation', desc: 'Buffer zone between stimulus and response.', sub: 'Stoic Breath' },
+            { id: 'int', n: 'Integrity', n: 'Integrity', desc: 'Alignment of values and actions.', sub: 'Radical Honesty' }
         ];
 
         function App() {
             const [tab, setTab] = useState('dashboard');
             const [stats, setStats] = useState({ kScore: 527, xp: 420, level: 1, streak: 12 });
+            const [activeSkill, setActiveSkill] = useState(null);
 
-            const addXP = (amt) => {
-                setStats(s => ({...s, xp: s.xp + amt, kScore: s.kScore + Math.floor(amt/5)}));
-            };
+            const addXP = (amt) => setStats(s => ({...s, xp: s.xp + amt, kScore: s.kScore + Math.floor(amt/5)}));
 
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative">
-                    {/* Fixed Header */}
+                    {/* Header */}
                     <header className="p-6 flex justify-between items-center bg-slate-950/90 border-b border-white/5 z-50">
                         <span className="font-black italic text-cyan-400 tracking-tighter">K-SCORE OS</span>
                         <div className="flex gap-2">
-                            <div className="glass px-3 py-1 rounded-full text-[10px] font-bold text-amber-400">
-                                <Icon name="Zap" className="w-3 h-3 inline mr-1" /> {stats.kScore}
-                            </div>
-                            <div className="bg-cyan-500 px-3 py-1 rounded-full text-[10px] font-black text-slate-900">LVL {stats.level}</div>
+                            <div className="glass px-3 py-1 rounded-full text-[10px] font-bold text-amber-400">⚡ {stats.kScore}</div>
+                            <div className="bg-cyan-500 px-3 py-1 rounded-full text-[10px] font-black text-slate-900 uppercase">Lvl {stats.level}</div>
                         </div>
                     </header>
 
-                    {/* Content Area */}
+                    {/* Skill Info Overlay */}
+                    {activeSkill && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950/90 flex items-center justify-center p-6 backdrop-blur-md">
+                            <div className="glass p-8 rounded-[3rem] border border-cyan-500/30 w-full text-center">
+                                <h3 className="text-3xl font-800 text-cyan-400 mb-2">{activeSkill.n}</h3>
+                                <p className="text-slate-300 italic mb-4">"{activeSkill.desc}"</p>
+                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-6 underline decoration-cyan-500/30">Mastering: {activeSkill.sub}</p>
+                                <button onClick={() => setActiveSkill(null)} className="w-full py-4 bg-slate-800 rounded-2xl font-black text-xs uppercase tracking-widest">Close Interface</button>
+                            </div>
+                        </div>
+                    )}
+
                     <main className="view-container">
                         {tab === 'dashboard' && (
                             <div className="p-6 space-y-6">
@@ -75,20 +77,21 @@
                         )}
 
                         {tab === 'tree' && (
-                            <div className="h-full w-full flex items-center justify-center relative overflow-hidden pt-10">
+                            <div className="h-full w-full flex items-center justify-center relative pt-10">
                                 <div className="absolute mandala-rotate w-72 h-72 border border-white/5 rounded-full"></div>
-                                <div className="z-10 w-20 h-20 glass rounded-full flex items-center justify-center border-2 border-cyan-500 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
-                                    <span className="font-black text-[10px]">CORE</span>
+                                <div className="z-10 w-20 h-20 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-500 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+                                    <span className="font-black text-[8px] text-slate-500 uppercase">Neural</span>
+                                    <span className="font-black text-xs">CORE</span>
                                 </div>
                                 {SKILLS.map((s, i) => {
                                     const angle = (i * 72) * (Math.PI / 180);
                                     const x = Math.cos(angle) * 120;
                                     const y = Math.sin(angle) * 120;
                                     return (
-                                        <div key={s.id} 
+                                        <div key={s.id} onClick={() => setActiveSkill(s)}
                                              style={{ transform: `translate(${x}px, ${y}px)` }}
-                                             className="absolute glass w-14 h-14 rounded-2xl flex items-center justify-center border border-white/10 shadow-lg">
-                                            <Icon name={s.i} className={`w-6 h-6 ${s.c}`} />
+                                             className="absolute glass w-14 h-14 rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:border-cyan-400 transition-all">
+                                            <span className="text-lg uppercase font-black text-cyan-400">{s.n[0]}</span>
                                         </div>
                                     );
                                 })}
@@ -97,51 +100,50 @@
 
                         {tab === 'dilemmas' && (
                             <div className="p-6 space-y-4">
-                                <h2 className="text-2xl font-800 text-amber-500">Moral Library</h2>
-                                <div className="glass p-6 rounded-3xl border-l-4 border-amber-500">
+                                <h2 className="text-2xl font-800 text-amber-500 tracking-tight">Moral Library</h2>
+                                <div className="glass p-6 rounded-3xl border-l-4 border-amber-500 relative group">
                                     <h4 className="font-bold text-lg">The Hospital Choice</h4>
-                                    <p className="text-sm text-slate-400 mt-2 italic leading-relaxed">A surgeon must decide between the one and the many.</p>
-                                    <button onClick={() => addXP(100)} className="mt-4 px-6 py-3 bg-amber-500 text-slate-950 rounded-xl font-black text-[10px] uppercase">Analyze</button>
+                                    <p className="text-sm text-slate-400 mt-2 italic">Five patients vs One traveler.</p>
+                                    <button onClick={() => {alert("Moral Analysis Initializing..."); addXP(100);}} 
+                                            className="mt-4 w-full py-4 bg-amber-500/10 text-amber-500 rounded-xl font-black text-[10px] uppercase border border-amber-500/30 btn-active">
+                                        Begin Analysis
+                                    </button>
                                 </div>
                             </div>
                         )}
 
                         {tab === 'challenges' && (
                             <div className="p-6 space-y-4">
-                                <h2 className="text-2xl font-800 text-green-400">Daily Tasks</h2>
-                                <div className="glass p-8 rounded-3xl">
-                                    <p className="font-bold text-slate-300 leading-relaxed mb-8">"Journal for 10 minutes on personal integrity today."</p>
-                                    <button onClick={() => addXP(50)} className="w-full py-5 bg-green-500 text-slate-950 rounded-2xl font-black shadow-lg">LOG COMPLETION</button>
+                                <h2 className="text-2xl font-800 text-green-400">Daily Task</h2>
+                                <div className="glass p-8 rounded-3xl text-center">
+                                    <p className="font-bold text-slate-200 leading-relaxed mb-8 italic">"Log 10 minutes of disciplined reflection."</p>
+                                    <button onClick={() => addXP(50)} className="w-full py-5 bg-green-500 text-slate-950 rounded-2xl font-black shadow-lg btn-active">
+                                        LOG COMPLETION
+                                    </button>
                                 </div>
-                            </div>
-                        )}
-
-                        {(tab === 'lessons' || tab === 'mind') && (
-                            <div className="p-10 text-center text-slate-500 mt-20 italic">
-                                Content initializing... (23 modules required)
                             </div>
                         )}
                     </main>
 
-                    {/* Fixed Navbar - Buttons are large and clickable */}
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-2 z-[60]">
-                        <button onClick={() => setTab('dashboard')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'dashboard' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Home" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Dash</span>
+                    {/* Navigation Bar */}
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950/95 border-t border-white/10 flex justify-around items-center px-1 z-[60]">
+                        <button onClick={() => setTab('dashboard')} className={`flex flex-col items-center flex-1 ${tab === 'dashboard' ? 'tab-active' : 'text-slate-600'}`}>
+                            <span className="text-xs font-black uppercase">Dash</span>
                         </button>
-                        <button onClick={() => setTab('dilemmas')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'dilemmas' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Scale" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Moral</span>
+                        <button onClick={() => setTab('dilemmas')} className={`flex flex-col items-center flex-1 ${tab === 'dilemmas' ? 'tab-active' : 'text-slate-600'}`}>
+                            <span className="text-xs font-black uppercase">Moral</span>
                         </button>
-                        <button onClick={() => setTab('lessons')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'lessons' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Book" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Learn</span>
+                        <button onClick={() => setTab('lessons')} className={`flex flex-col items-center flex-1 ${tab === 'lessons' ? 'tab-active' : 'text-slate-600'}`}>
+                            <span className="text-xs font-black uppercase">Learn</span>
                         </button>
-                        <button onClick={() => setTab('tree')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'tree' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="GitBranch" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Tree</span>
+                        <button onClick={() => setTab('tree')} className={`flex flex-col items-center flex-1 ${tab === 'tree' ? 'tab-active' : 'text-slate-600'}`}>
+                            <span className="text-xs font-black uppercase">Tree</span>
                         </button>
-                        <button onClick={() => setTab('challenges')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'challenges' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Zap" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Task</span>
+                        <button onClick={() => setTab('challenges')} className={`flex flex-col items-center flex-1 ${tab === 'challenges' ? 'tab-active' : 'text-slate-600'}`}>
+                            <span className="text-xs font-black uppercase">Task</span>
                         </button>
-                        <button onClick={() => setTab('mind')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'mind' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Heart" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Mind</span>
+                        <button onClick={() => setTab('mind')} className={`flex flex-col items-center flex-1 ${tab === 'mind' ? 'tab-active' : 'text-slate-600'}`}>
+                            <span className="text-xs font-black uppercase">Mind</span>
                         </button>
                     </nav>
                 </div>
