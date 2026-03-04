@@ -139,3 +139,4 @@ window.KScoreApp = function KScoreApp() {
     </div>
   );
 };
+window.KScoreApp = KScoreApp;
