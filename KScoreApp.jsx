@@ -1,3 +1,6 @@
+Copy this entire code. Replace everything in your index.html:
+
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -262,216 +265,20 @@
         ];
 
         const DILEMMAS = [
-            {
-                id: 1,
-                title: "The Trolley Problem",
-                scenario: "A runaway trolley is heading toward five people tied to the track. You stand next to a large man on a bridge. The only way to stop the trolley is to push him off. Do you push him to save five people?",
-                questions: [
-                    { q: "What was your instinctive reaction?", choices: ["Push him", "Don't push", "Not sure"] },
-                    { q: "Does intent matter more than outcomes?", choices: ["Yes, intent is everything", "No, results matter most", "Both equally"] },
-                    { q: "Is it ever ok to use someone as a tool?", choices: ["Never", "If it saves lives", "Context dependent"] }
-                ],
-                psychology: {
-                    "Push him": "You prioritize utilitarianism—the greatest good for the greatest number. You're results-focused and can make tough calls. Watch: don't override ethics for efficiency.",
-                    "Don't push": "You follow deontological ethics—some acts are wrong regardless of outcome. You respect human dignity. Watch: ensure your principles don't paralyze you.",
-                    "Not sure": "You're conflicted between duty and consequences. This is philosophical maturity. Trust this tension."
-                }
-            },
-            {
-                id: 2,
-                title: "The Lie That Saves",
-                scenario: "Your friend confesses they cheated on their partner. You know the partner would want to know. But telling them would destroy their relationship. Do you tell the partner?",
-                questions: [
-                    { q: "What matters more?", choices: ["Truth above all", "Protecting happiness", "The relationship's integrity"] },
-                    { q: "Is withholding truth a lie?", choices: ["Yes, always", "Only if asked directly", "Depends on context"] },
-                    { q: "Whose life is it to manage?", choices: ["The partner's (they deserve to know)", "My friend's (their secret)", "The relationship's (we all own it)"] }
-                ],
-                psychology: {
-                    "Truth above all": "You value radical honesty. This builds trust but can hurt unnecessarily. Question: Is truth always kind?",
-                    "Protecting happiness": "You prioritize wellbeing over facts. Watch: you might enable harm by your silence.",
-                    "The relationship's integrity": "You see interconnection. Wise. But ensure you're not playing god."
-                }
-            },
-            {
-                id: 3,
-                title: "The Unfair Advantage",
-                scenario: "You discover a loophole in a system that would give you unfair advantage over competitors. No one would know. The system is rigged anyway. Do you exploit it?",
-                questions: [
-                    { q: "Does a rigged system justify gaming it?", choices: ["Yes, level the playing field", "No, two wrongs don't make right", "Only if you expose it first"] },
-                    { q: "What defines integrity?", choices: ["Never breaking rules", "Acting by your values regardless of rules", "Questioning unfair rules"] },
-                    { q: "What's your relationship to winning?", choices: ["Winning is everything", "The process matters more", "Winning with integrity only"] }
-                ],
-                psychology: {
-                    "Yes, level the playing field": "You see systemic injustice and justify fighting fire with fire. Watch: you might become what you hate.",
-                    "No, two wrongs don't make right": "You hold yourself to high standards. Question: Does your purity actually change the system?",
-                    "Only if you expose it first": "Wise. You change the game instead of just playing it. This is leadership."
-                }
-            },
-            {
-                id: 4,
-                title: "The Mercy Question",
-                scenario: "Your terminally ill parent is in excruciating pain with weeks to live. They beg you to help them die. Assisted dying is illegal where you live. Do you help?",
-                questions: [
-                    { q: "Whose life is it?", choices: ["Their life, their choice", "It's sacred regardless", "Shared responsibility"] },
-                    { q: "Does suffering have meaning?", choices: ["Always", "Sometimes", "No, it's just pain"] },
-                    { q: "Can love mean letting go?", choices: ["Yes, always", "Only in extreme cases", "No, you fight death"] }
-                ],
-                psychology: {
-                    "Their life, their choice": "You honor autonomy absolutely. This is compassion. Question: Does compassion ever conflict with autonomy?",
-                    "It's sacred regardless": "You believe in life's inherent value. Noble. But does sacred include suffering?",
-                    "Shared responsibility": "You see the relational nature of death. Mature. This is where real ethics live."
-                }
-            },
-            {
-                id: 5,
-                title: "The Unfaithful Silence",
-                scenario: "Your sibling is having an affair. Their spouse is your best friend. Your friend keeps asking if you know anything. Do you tell?",
-                questions: [
-                    { q: "Where is your loyalty?", choices: ["To blood family", "To your best friend", "To truth itself"] },
-                    { q: "Are you responsible for others' knowledge?", choices: ["Yes, if you know", "No, it's not your story", "Only if directly asked"] },
-                    { q: "What will create less harm?", choices: ["Silence (protect the marriage)", "Truth (honor friendship)", "Confronting sibling first"] }
-                ],
-                psychology: {
-                    "To blood family": "You prioritize family bonds. Watch: this might enable harm and betray your friend.",
-                    "To your best friend": "You value chosen family. But are you respecting your friend's autonomy to choose ignorance?",
-                    "To truth itself": "You're a truth-teller. Question: Is truth-telling always the most loving act?"
-                }
-            },
-            {
-                id: 6,
-                title: "The Abandoned Child",
-                scenario: "You find an abandoned infant with a note: 'I can't care for them.' You could call authorities (system is broken) or raise them yourself (life changes forever). What do you do?",
-                questions: [
-                    { q: "Are you responsible for problems you didn't create?", choices: ["Yes, if you can help", "No, that's on society", "Only partially"] },
-                    { q: "Does love require sacrifice?", choices: ["Always", "Never", "Sometimes"] },
-                    { q: "What's the child's best chance?", choices: ["With you and your love", "In the system, properly resourced", "With a family equipped for it"] }
-                ],
-                psychology: {
-                    "Yes, if you can help": "You feel radical responsibility. Noble. But ensure you're not rescuing to avoid your own life.",
-                    "No, that's on society": "You maintain boundaries. Question: Does this boundary serve the child?",
-                    "Only partially": "You see complexity. This is wisdom. You're balancing compassion with realism."
-                }
-            },
-            {
-                id: 7,
-                title: "The Anonymous Donor",
-                scenario: "You could donate anonymously to a cause you believe in, but public donation would inspire others (and boost your image). Do you donate publicly or anonymously?",
-                questions: [
-                    { q: "Does motivation matter?", choices: ["Pure motives only", "Any donation is good", "Mixed motives are honest"] },
-                    { q: "Can influence be ethical?", choices: ["Only if invisible", "Yes, if sincere", "Influence is always manipulation"] },
-                    { q: "What's your ego's role?", choices: ["Suppress it", "Let it contribute", "Separate from it"] }
-                ],
-                psychology: {
-                    "Pure motives only": "You demand purity from yourself. Admirable. But can anything be purely motivated?",
-                    "Any donation is good": "You're pragmatic. The world gets helped. Question: Are you using others' admiration?",
-                    "Mixed motives are honest": "You accept human complexity. This is mature. Your impact is real regardless of your ego."
-                }
-            },
-            {
-                id: 8,
-                title: "The Corporate Whistleblower",
-                scenario: "You discover your company is causing environmental harm. Reporting means losing your job, harming your family's security. Do you blow the whistle?",
-                questions: [
-                    { q: "Who's your primary responsibility to?", choices: ["Your family", "Society", "Your conscience"] },
-                    { q: "Is there a threshold for speaking up?", choices: ["Any wrongdoing", "Only severe harm", "Only if you're safe"] },
-                    { q: "Can you be a whistleblower safely?", choices: ["Build alliances first", "Gather airtight evidence first", "Expose it immediately"] }
-                ],
-                psychology: {
-                    "Your family": "You prioritize security. Question: What message does silence send to your children?",
-                    "Society": "You're civic-minded. Ensure you're not sacrificing your family for principles.",
-                    "Your conscience": "You follow your inner compass. This is integrity. But consider: Can you help others if you're destroyed?"
-                }
-            },
-            {
-                id: 9,
-                title: "The Relationship Ultimatum",
-                scenario: "Your partner refuses therapy to address their issues. You love them but you're drowning. Do you leave or stay and suffer?",
-                questions: [
-                    { q: "Can you change someone who doesn't want to change?", choices: ["No, stop trying", "Maybe, with enough love", "Only they can change themselves"] },
-                    { q: "Is staying martyrdom or loyalty?", choices: ["Martyrdom (unhealthy)", "Loyalty (healthy)", "Depends on what you get back"] },
-                    { q: "What do you owe each other?", choices: ["Everything", "Honesty and effort", "Respect their autonomy"] }
-                ],
-                psychology: {
-                    "No, stop trying": "You're setting boundaries. Essential. But are you also running from difficulty?",
-                    "Maybe, with enough love": "You believe in transformation. Beautiful. Question: Is their growth your responsibility?",
-                    "Only they can change themselves": "You understand autonomy. This is wisdom. Now: Can you stay without drowning?"
-                }
-            },
-            {
-                id: 10,
-                title: "The Expensive Treatment",
-                scenario: "Your aging parent needs expensive medical treatment not covered by insurance. It would bankrupt you. Do you do it or let nature take its course?",
-                questions: [
-                    { q: "What's the purpose of life extension?", choices: ["Maximize days alive", "Maximize quality of life", "Accept natural timing"] },
-                    { q: "Is financial ruin for family acceptable?", choices: ["Yes, for a parent", "No, protect the family", "Try every option first"] },
-                    { q: "What would your parent want?", choices: ["Full treatment", "No heroics", "Whatever doesn't burden children"] }
-                ],
-                psychology: {
-                    "Maximize days alive": "You fight death. Question: Are you honoring their life or denying their mortality?",
-                    "Maximize quality": "You prioritize wellbeing. Wise. This includes financial and emotional wellbeing.",
-                    "Accept natural timing": "You accept impermanence. This is peace. But ensure it's acceptance, not avoidance."
-                }
-            },
-            {
-                id: 11,
-                title: "The Unfair Success",
-                scenario: "You got a major opportunity because of connections, not merit. Someone more qualified didn't. Do you take it, refuse it, or share it?",
-                questions: [
-                    { q: "Is privilege a responsibility?", choices: ["Yes, use it to help others", "No, you earned it somehow", "Complicated"] },
-                    { q: "Can you compensate for unfairness?", choices: ["Yes, by elevating others", "No, systems need fixing", "Only partially"] },
-                    { q: "What would you do if positions reversed?", choices: ["Demand the fair choice", "Take what's offered", "Question the system"] }
-                ],
-                psychology: {
-                    "Yes, use it to help others": "You see privilege as opportunity. Question: Does this ease your guilt or change systems?",
-                    "No, you earned it somehow": "You're rationalizing. Be honest: What role did luck play?",
-                    "Complicated": "You see nuance. Good. Now: What will you actually do with this opportunity?"
-                }
-            },
-            {
-                id: 12,
-                title: "The Dangerous Truth",
-                scenario: "You learn something true that, if public, would destroy an innocent person's reputation. Should you keep it secret?",
-                questions: [
-                    { q: "Does harm justify silence?", choices: ["Always—don't harm", "Never—truth always", "Only if you're certain"] },
-                    { q: "Is reputation deserved?", choices: ["Yes, it reflects reality", "No, it's constructed", "Sometimes both"] },
-                    { q: "Who decides what's 'public'?", choices: ["You do", "Society does", "It's not your choice"] }
-                ],
-                psychology: {
-                    "Always—don't harm": "You prioritize harm reduction. Question: Does your silence enable worse harm later?",
-                    "Never—truth always": "You're a truth absolutist. But truth without compassion is violence.",
-                    "Only if you're certain": "You want certainty before acting. Wise. But can you ever be fully certain?"
-                }
-            },
-            {
-                id: 13,
-                title: "The Selfish Dream",
-                scenario: "Your dream career would require leaving behind your aging parents and responsibilities. The opportunity won't come again. Do you go?",
-                questions: [
-                    { q: "Are you responsible for your parents?", choices: ["Yes, always", "No, they're adults", "Depends on their needs"] },
-                    { q: "Is your dream worth the guilt?", choices: ["Yes, you can live with it", "No, guilt would destroy it", "Guilt is the price of autonomy"] },
-                    { q: "What does love require?", choices: ["Sacrifice", "Honesty", "Both"] }
-                ],
-                psychology: {
-                    "Yes, always": "You carry filial duty. Question: At what cost to yourself?",
-                    "No, they're adults": "You honor autonomy. But consider: Do parents ever stop needing us?",
-                    "Depends on their needs": "You're assessing context. Now: Are you honest about their actual needs vs. your guilt?"
-                }
-            },
-            {
-                id: 14,
-                title: "The Complicit Silence",
-                scenario: "Your best friend is abusing their partner. They confided in you. You promised confidentiality. But the abuse is escalating. Do you break confidence and report?",
-                questions: [
-                    { q: "When does confidentiality break?", choices: ["Never", "When someone's in danger", "When asked directly"] },
-                    { q: "Are you complicit in silence?", choices: ["Yes, always", "No, it's not your responsibility", "Yes, if you could prevent harm"] },
-                    { q: "What does friendship actually require?", choices: ["Loyalty above all", "Honesty, even hard", "Preventing harm"] }
-                ],
-                psychology: {
-                    "Never": "You honor confidentiality absolutely. Question: Does this ever enable harm?",
-                    "When someone's in danger": "You'll break silence to save lives. This is courage. Question: How certain must you be?",
-                    "When asked directly": "You see nuance. But consider: Does waiting for permission delay necessary action?"
-                }
-            }
+            { id: 1, title: "The Trolley Problem", scenario: "A runaway trolley is heading toward five people tied to the track. You stand next to a large man on a bridge. The only way to stop the trolley is to push him off. Do you push him to save five people?", questions: [{ q: "What was your instinctive reaction?", choices: ["Push him", "Don't push", "Not sure"] }, { q: "Does intent matter more than outcomes?", choices: ["Yes, intent is everything", "No, results matter most", "Both equally"] }, { q: "Is it ever ok to use someone as a tool?", choices: ["Never", "If it saves lives", "Context dependent"] }], psychology: { "Push him": "You prioritize utilitarianism—the greatest good for the greatest number. You're results-focused and can make tough calls. Watch: don't override ethics for efficiency.", "Don't push": "You follow deontological ethics—some acts are wrong regardless of outcome. You respect human dignity. Watch: ensure your principles don't paralyze you.", "Not sure": "You're conflicted between duty and consequences. This is philosophical maturity. Trust this tension." } },
+            { id: 2, title: "The Lie That Saves", scenario: "Your friend confesses they cheated on their partner. You know the partner would want to know. But telling them would destroy their relationship. Do you tell the partner?", questions: [{ q: "What matters more?", choices: ["Truth above all", "Protecting happiness", "The relationship's integrity"] }, { q: "Is withholding truth a lie?", choices: ["Yes, always", "Only if asked directly", "Depends on context"] }, { q: "Whose life is it to manage?", choices: ["The partner's (they deserve to know)", "My friend's (their secret)", "The relationship's (we all own it)"] }], psychology: { "Truth above all": "You value radical honesty. This builds trust but can hurt unnecessarily. Question: Is truth always kind?", "Protecting happiness": "You prioritize wellbeing over facts. Watch: you might enable harm by your silence.", "The relationship's integrity": "You see interconnection. Wise. But ensure you're not playing god." } },
+            { id: 3, title: "The Unfair Advantage", scenario: "You discover a loophole in a system that would give you unfair advantage over competitors. No one would know. The system is rigged anyway. Do you exploit it?", questions: [{ q: "Does a rigged system justify gaming it?", choices: ["Yes, level the playing field", "No, two wrongs don't make right", "Only if you expose it first"] }, { q: "What defines integrity?", choices: ["Never breaking rules", "Acting by your values regardless of rules", "Questioning unfair rules"] }, { q: "What's your relationship to winning?", choices: ["Winning is everything", "The process matters more", "Winning with integrity only"] }], psychology: { "Yes, level the playing field": "You see systemic injustice and justify fighting fire with fire. Watch: you might become what you hate.", "No, two wrongs don't make right": "You hold yourself to high standards. Question: Does your purity actually change the system?", "Only if you expose it first": "Wise. You change the game instead of just playing it. This is leadership." } },
+            { id: 4, title: "The Mercy Question", scenario: "Your terminally ill parent is in excruciating pain with weeks to live. They beg you to help them die. Assisted dying is illegal where you live. Do you help?", questions: [{ q: "Whose life is it?", choices: ["Their life, their choice", "It's sacred regardless", "Shared responsibility"] }, { q: "Does suffering have meaning?", choices: ["Always", "Sometimes", "No, it's just pain"] }, { q: "Can love mean letting go?", choices: ["Yes, always", "Only in extreme cases", "No, you fight death"] }], psychology: { "Their life, their choice": "You honor autonomy absolutely. This is compassion. Question: Does compassion ever conflict with autonomy?", "It's sacred regardless": "You believe in life's inherent value. Noble. But does sacred include suffering?", "Shared responsibility": "You see the relational nature of death. Mature. This is where real ethics live." } },
+            { id: 5, title: "The Unfaithful Silence", scenario: "Your sibling is having an affair. Their spouse is your best friend. Your friend keeps asking if you know anything. Do you tell?", questions: [{ q: "Where is your loyalty?", choices: ["To blood family", "To your best friend", "To truth itself"] }, { q: "Are you responsible for others' knowledge?", choices: ["Yes, if you know", "No, it's not your story", "Only if directly asked"] }, { q: "What will create less harm?", choices: ["Silence (protect the marriage)", "Truth (honor friendship)", "Confronting sibling first"] }], psychology: { "To blood family": "You prioritize family bonds. Watch: this might enable harm and betray your friend.", "To your best friend": "You value chosen family. But are you respecting your friend's autonomy to choose ignorance?", "To truth itself": "You're a truth-teller. Question: Is truth-telling always the most loving act?" } },
+            { id: 6, title: "The Abandoned Child", scenario: "You find an abandoned infant with a note: 'I can't care for them.' You could call authorities (system is broken) or raise them yourself (life changes forever). What do you do?", questions: [{ q: "Are you responsible for problems you didn't create?", choices: ["Yes, if you can help", "No, that's on society", "Only partially"] }, { q: "Does love require sacrifice?", choices: ["Always", "Never", "Sometimes"] }, { q: "What's the child's best chance?", choices: ["With you and your love", "In the system, properly resourced", "With a family equipped for it"] }], psychology: { "Yes, if you can help": "You feel radical responsibility. Noble. But ensure you're not rescuing to avoid your own life.", "No, that's on society": "You maintain boundaries. Question: Does this boundary serve the child?", "Only partially": "You see complexity. This is wisdom. You're balancing compassion with realism." } },
+            { id: 7, title: "The Anonymous Donor", scenario: "You could donate anonymously to a cause you believe in, but public donation would inspire others (and boost your image). Do you donate publicly or anonymously?", questions: [{ q: "Does motivation matter?", choices: ["Pure motives only", "Any donation is good", "Mixed motives are honest"] }, { q: "Can influence be ethical?", choices: ["Only if invisible", "Yes, if sincere", "Influence is always manipulation"] }, { q: "What's your ego's role?", choices: ["Suppress it", "Let it contribute", "Separate from it"] }], psychology: { "Pure motives only": "You demand purity from yourself. Admirable. But can anything be purely motivated?", "Any donation is good": "You're pragmatic. The world gets helped. Question: Are you using others' admiration?", "Mixed motives are honest": "You accept human complexity. This is mature. Your impact is real regardless of your ego." } },
+            { id: 8, title: "The Corporate Whistleblower", scenario: "You discover your company is causing environmental harm. Reporting means losing your job, harming your family's security. Do you blow the whistle?", questions: [{ q: "Who's your primary responsibility to?", choices: ["Your family", "Society", "Your conscience"] }, { q: "Is there a threshold for speaking up?", choices: ["Any wrongdoing", "Only severe harm", "Only if you're safe"] }, { q: "Can you be a whistleblower safely?", choices: ["Build alliances first", "Gather airtight evidence first", "Expose it immediately"] }], psychology: { "Your family": "You prioritize security. Question: What message does silence send to your children?", "Society": "You're civic-minded. Ensure you're not sacrificing your family for principles.", "Your conscience": "You follow your inner compass. This is integrity. But consider: Can you help others if you're destroyed?" } },
+            { id: 9, title: "The Relationship Ultimatum", scenario: "Your partner refuses therapy to address their issues. You love them but you're drowning. Do you leave or stay and suffer?", questions: [{ q: "Can you change someone who doesn't want to change?", choices: ["No, stop trying", "Maybe, with enough love", "Only they can change themselves"] }, { q: "Is staying martyrdom or loyalty?", choices: ["Martyrdom (unhealthy)", "Loyalty (healthy)", "Depends on what you get back"] }, { q: "What do you owe each other?", choices: ["Everything", "Honesty and effort", "Respect their autonomy"] }], psychology: { "No, stop trying": "You're setting boundaries. Essential. But are you also running from difficulty?", "Maybe, with enough love": "You believe in transformation. Beautiful. Question: Is their growth your responsibility?", "Only they can change themselves": "You understand autonomy. This is wisdom. Now: Can you stay without drowning?" } },
+            { id: 10, title: "The Expensive Treatment", scenario: "Your aging parent needs expensive medical treatment not covered by insurance. It would bankrupt you. Do you do it or let nature take its course?", questions: [{ q: "What's the purpose of life extension?", choices: ["Maximize days alive", "Maximize quality of life", "Accept natural timing"] }, { q: "Is financial ruin for family acceptable?", choices: ["Yes, for a parent", "No, protect the family", "Try every option first"] }, { q: "What would your parent want?", choices: ["Full treatment", "No heroics", "Whatever doesn't burden children"] }], psychology: { "Maximize days alive": "You fight death. Question: Are you honoring their life or denying their mortality?", "Maximize quality": "You prioritize wellbeing. Wise. This includes financial and emotional wellbeing.", "Accept natural timing": "You accept impermanence. This is peace. But ensure it's acceptance, not avoidance." } },
+            { id: 11, title: "The Unfair Success", scenario: "You got a major opportunity because of connections, not merit. Someone more qualified didn't. Do you take it, refuse it, or share it?", questions: [{ q: "Is privilege a responsibility?", choices: ["Yes, use it to help others", "No, you earned it somehow", "Complicated"] }, { q: "Can you compensate for unfairness?", choices: ["Yes, by elevating others", "No, systems need fixing", "Only partially"] }, { q: "What would you do if positions reversed?", choices: ["Demand the fair choice", "Take what's offered", "Question the system"] }], psychology: { "Yes, use it to help others": "You see privilege as opportunity. Question: Does this ease your guilt or change systems?", "No, you earned it somehow": "You're rationalizing. Be honest: What role did luck play?", "Complicated": "You see nuance. Good. Now: What will you actually do with this opportunity?" } },
+            { id: 12, title: "The Dangerous Truth", scenario: "You learn something true that, if public, would destroy an innocent person's reputation. Should you keep it secret?", questions: [{ q: "Does harm justify silence?", choices: ["Always—don't harm", "Never—truth always", "Only if you're certain"] }, { q: "Is reputation deserved?", choices: ["Yes, it reflects reality", "No, it's constructed", "Sometimes both"] }, { q: "Who decides what's 'public'?", choices: ["You do", "Society does", "It's not your choice"] }], psychology: { "Always—don't harm": "You prioritize harm reduction. Question: Does your silence enable worse harm later?", "Never—truth always": "You're a truth absolutist. But truth without compassion is violence.", "Only if you're certain": "You want certainty before acting. Wise. But can you ever be fully certain?" } },
+            { id: 13, title: "The Selfish Dream", scenario: "Your dream career would require leaving behind your aging parents and responsibilities. The opportunity won't come again. Do you go?", questions: [{ q: "Are you responsible for your parents?", choices: ["Yes, always", "No, they're adults", "Depends on their needs"] }, { q: "Is your dream worth the guilt?", choices: ["Yes, you can live with it", "No, guilt would destroy it", "Guilt is the price of autonomy"] }, { q: "What does love require?", choices: ["Sacrifice", "Honesty", "Both"] }], psychology: { "Yes, always": "You carry filial duty. Question: At what cost to yourself?", "No, they're adults": "You honor autonomy. But consider: Do parents ever stop needing us?", "Depends on their needs": "You're assessing context. Now: Are you honest about their actual needs vs. your guilt?" } },
+            { id: 14, title: "The Complicit Silence", scenario: "Your best friend is abusing their partner. They confided in you. You promised confidentiality. But the abuse is escalating. Do you break confidence and report?", questions: [{ q: "When does confidentiality break?", choices: ["Never", "When someone's in danger", "When asked directly"] }, { q: "Are you complicit in silence?", choices: ["Yes, always", "No, it's not your responsibility", "Yes, if you could prevent harm"] }, { q: "What does friendship actually require?", choices: ["Loyalty above all", "Honesty, even hard", "Preventing harm"] }], psychology: { "Never": "You honor confidentiality absolutely. Question: Does this ever enable harm?", "When someone's in danger": "You'll break silence to save lives. This is courage. Question: How certain must you be?", "When asked directly": "You see nuance. But consider: Does waiting for permission delay necessary action?" } }
         ];
 
         function App() {
@@ -560,11 +367,7 @@
                                 <h2 className="text-3xl font-black mb-6">📚 Deep Curriculum (14 Lessons)</h2>
                                 <div className="grid gap-4">
                                     {LESSONS.map(lesson => (
-                                        <button
-                                            key={lesson.id}
-                                            onClick={() => startLesson(lesson)}
-                                            className="glass p-6 rounded-xl border-l-4 border-cyan-400 hover:bg-slate-800 transition text-left"
-                                        >
+                                        <button key={lesson.id} onClick={() => startLesson(lesson)} className="glass p-6 rounded-xl border-l-4 border-cyan-400 hover:bg-slate-800 transition text-left">
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <h3 className="text-xl font-bold mb-2">{lesson.id}. {lesson.title}</h3>
@@ -586,11 +389,7 @@
                                 <h2 className="text-3xl font-black mb-6">⚡ Ethical Dilemmas (14)</h2>
                                 <div className="grid gap-4">
                                     {DILEMMAS.map(dilemma => (
-                                        <button
-                                            key={dilemma.id}
-                                            onClick={() => startDilemma(dilemma.id)}
-                                            className="glass p-6 rounded-xl border-l-4 border-red-500 hover:bg-slate-800 transition text-left"
-                                        >
+                                        <button key={dilemma.id} onClick={() => startDilemma(dilemma.id)} className="glass p-6 rounded-xl border-l-4 border-red-500 hover:bg-slate-800 transition text-left">
                                             <h3 className="text-xl font-bold mb-2 text-red-400">{dilemma.id}. {dilemma.title}</h3>
                                             <p className="text-sm text-slate-400">{dilemma.scenario.substring(0, 100)}...</p>
                                             <p className="text-xs text-red-400 mt-2">+250 XP</p>
@@ -605,11 +404,7 @@
                                 <h2 className="text-3xl font-black mb-8">⚛ Neural Mandala</h2>
                                 <div className="grid grid-cols-2 gap-4">
                                     {skills.map(skill => (
-                                        <button
-                                            key={skill.id}
-                                            onClick={() => setActiveSkill(skill)}
-                                            className="glass p-6 rounded-xl border border-slate-700 hover:border-cyan-400 transition"
-                                        >
+                                        <button key={skill.id} onClick={() => setActiveSkill(skill)} className="glass p-6 rounded-xl border border-slate-700 hover:border-cyan-400 transition">
                                             <div className="text-4xl mb-2">{skill.icon}</div>
                                             <h3 className="font-bold text-sm">{skill.title}</h3>
                                             <p className="text-xs text-slate-400 mt-1">{skill.desc}</p>
@@ -624,19 +419,12 @@
                                 <h2 className="text-3xl font-black text-green-400 mb-6">✓ Daily Tasks</h2>
                                 <div className="glass p-6 rounded-xl">
                                     <p className="mb-4">Log 10 minutes of reflection today</p>
-                                    <button
-                                        onClick={() => setXp(xp + 50)}
-                                        className="w-full bg-green-500 text-slate-900 font-bold py-2 rounded-lg hover:bg-green-600"
-                                    >
-                                        Log Task +50 XP
-                                    </button>
+                                    <button onClick={() => setXp(xp + 50)} className="w-full bg-green-500 text-slate-900 font-bold py-2 rounded-lg hover:bg-green-600">Log Task +50 XP</button>
                                 </div>
                             </div>
                         )}
 
-                        {tab === 'mind' && (
-                            <div className="text-center text-slate-500 mt-20">Coming soon...</div>
-                        )}
+                        {tab === 'mind' && <div className="text-center text-slate-500 mt-20">Coming soon...</div>}
                     </main>
 
                     {lessonPage >= 0 && currentLesson && (
@@ -675,26 +463,14 @@
                                             <p className="font-bold mb-3">{q.q}</p>
                                             <div className="space-y-2">
                                                 {q.choices.map((choice, cidx) => (
-                                                    <button
-                                                        key={cidx}
-                                                        onClick={() => answerDilemmaQuestion(idx, choice)}
-                                                        className={`w-full p-3 rounded-lg font-bold text-sm transition ${dilemmaAnswers[idx] === choice ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-                                                    >
-                                                        {choice}
-                                                    </button>
+                                                    <button key={cidx} onClick={() => answerDilemmaQuestion(idx, choice)} className={`w-full p-3 rounded-lg font-bold text-sm transition ${dilemmaAnswers[idx] === choice ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>{choice}</button>
                                                 ))}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
-                            <button
-                                onClick={dilemmaAnalysis ? () => setActiveDilemmaId(null) : completeDilemma}
-                                disabled={!dilemmaAnalysis && Object.keys(dilemmaAnswers).length < currentDilemma.questions.length}
-                                className="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 disabled:opacity-50"
-                            >
-                                {dilemmaAnalysis ? 'Close' : 'Get Analysis (+250 XP)'}
-                            </button>
+                            <button onClick={dilemmaAnalysis ? () => setActiveDilemmaId(null) : completeDilemma} disabled={!dilemmaAnalysis && Object.keys(dilemmaAnswers).length < currentDilemma.questions.length} className="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 disabled:opacity-50">{dilemmaAnalysis ? 'Close' : 'Get Analysis (+250 XP)'}</button>
                         </div>
                     )}
 
@@ -710,21 +486,8 @@
                     )}
 
                     <nav className="bg-slate-900 border-t border-slate-700 flex justify-around items-center h-20">
-                        {[
-                            { label: 'Dashboard', id: 'dashboard' },
-                            { label: 'Dilemmas', id: 'dilemmas' },
-                            { label: 'Lessons', id: 'lessons' },
-                            { label: 'Skills', id: 'tree' },
-                            { label: 'Tasks', id: 'tasks' },
-                            { label: 'Mind', id: 'mind' }
-                        ].map(item => (
-                            <button
-                                key={item.id}
-                                onClick={() => setTab(item.id)}
-                                className={`flex-1 py-2 text-xs font-bold transition ${tab === item.id ? 'active-nav' : 'text-slate-500'}`}
-                            >
-                                {item.label}
-                            </button>
+                        {[{ label: 'Dashboard', id: 'dashboard' }, { label: 'Dilemmas', id: 'dilemmas' }, { label: 'Lessons', id: 'lessons' }, { label: 'Skills', id: 'tree' }, { label: 'Tasks', id: 'tasks' }, { label: 'Mind', id: 'mind' }].map(item => (
+                            <button key={item.id} onClick={() => setTab(item.id)} className={`flex-1 py-2 text-xs font-bold transition ${tab === item.id ? 'active-nav' : 'text-slate-500'}`}>{item.label}</button>
                         ))}
                     </nav>
                 </div>
