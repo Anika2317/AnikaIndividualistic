@@ -9,3 +9,31 @@
     <p>Welcome to my project. My React code is in KScoreApp.jsx</p>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Score App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-950">
+    <div id="root"></div>
+
+    <script type="text/babel" src="KScoreApp.jsx"></script>
+
+    <script type="text/babel">
+        // This initializes the app once KScoreApp.jsx is loaded
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        // We wait a tiny bit for the file to load
+        setTimeout(() => {
+            root.render(<KScoreApp />);
+            lucide.createIcons();
+        }, 100);
+    </script>
+</body>
+</html>
