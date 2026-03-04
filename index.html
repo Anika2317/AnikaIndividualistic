@@ -8,142 +8,156 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
         body { background: #020617; font-family: 'Plus Jakarta Sans', sans-serif; color: white; margin: 0; padding: 0; overflow: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); }
-        .mandala-inner { animation: rotate 120s linear infinite; }
-        .mandala-outer { animation: rotate 80s linear infinite reverse; }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+        .mandala-rotate { animation: rotate 100s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 12px #22d3ee); }
-        .view-container { height: calc(100vh - 160px); overflow-y: auto; padding-bottom: 40px; }
-        .lesson-card { border-left: 4px solid #1e293b; transition: all 0.3s; }
-        .lesson-card.completed { border-left-color: #22c55e; opacity: 0.7; }
-        .lesson-card.active { border-left-color: #06b6d4; }
+        .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 8px #22d3ee); border-top: 2px solid #22d3ee; }
+        .view-container { height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .btn-press:active { transform: scale(0.95); opacity: 0.8; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState } = React;
 
-        const Icon = ({ name, className }) => {
-            useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [name]);
-            return <i data-lucide={name.toLowerCase()} className={className}></i>;
+        const SKILL_DATA = {
+            logic: { title: "Strategic Logic", color: "text-cyan-400", summary: "First Principles thinking. Deconstructing reality to find objective truth.", sub: "Socratic Inquiry" },
+            empathy: { title: "Radical Empathy", color: "text-pink-400", summary: "Cognitive mapping of others' internal worlds.", sub: "Shadow Work" },
+            discipline: { title: "Iron Discipline", color: "text-orange-400", summary: "Subordinating impulse to the long-term strategic self.", sub: "Dopamine Control" },
+            regulation: { title: "Regulation", color: "text-blue-400", summary: "The buffer zone between stimulus and response.", sub: "Stoic Breath" },
+            integrity: { title: "Total Integrity", color: "text-green-400", summary: "Absolute alignment of values, words, and actions.", sub: "Radical Honesty" }
         };
 
-        const LESSONS = [
-            { id: 1, cat: "Stoicism", title: "Dichotomy of Control", skill: "Regulation", body: "The root of all suffering is the attempt to control the uncontrollable. Epictetus argues we only control our own opinions, intentions, and desires. Everything else—reputation, wealth, others—is 'externals.'", xp: 150 },
-            { id: 2, cat: "Psychology", title: "The Jungian Shadow", skill: "Empathy", body: "The Shadow is the 'dark side' of your personality. To become a whole individual, you must not suppress it, but integrate it. What you hate in others is often what you haven't accepted in yourself.", xp: 200 },
-            { id: 3, cat: "Logic", title: "First Principles Thinking", skill: "Logic", body: "A physics-first approach to problem solving. Break a process down to the fundamental truths and build up from there, rather than reasoning by analogy.", xp: 180 },
-            { id: 4, cat: "Existentialism", title: "The Myth of Sisyphus", skill: "Discipline", body: "Camus suggests that the struggle itself toward the heights is enough to fill a man's heart. We must imagine Sisyphus happy as he pushes the boulder, finding meaning in the effort.", xp: 220 },
-            { id: 5, cat: "Ethics", title: "The Categorical Imperative", skill: "Integrity", body: "Kant's rule: Act only according to that maxim whereby you can, at the same time, will that it should become a universal law. Integrity is acting as if your choice defines the world's rules.", xp: 250 }
-        ];
-
         function App() {
-            const [tab, setTab] = useState('lessons');
+            const [tab, setTab] = useState('dashboard');
+            const [activeSkill, setActiveSkill] = useState(null);
             const [activeLesson, setActiveLesson] = useState(null);
             const [stats, setStats] = useState({ kScore: 527, xp: 420, level: 1, streak: 12 });
-            const [completed, setCompleted] = useState([]);
+            const [completedLessons, setCompletedLessons] = useState([]);
 
             const addXP = (amt, id) => {
-                if(!completed.includes(id)) {
-                    setStats(s => ({...s, xp: s.xp + amt, kScore: s.kScore + Math.floor(amt/5)}));
-                    setCompleted([...completed, id]);
-                }
+                if (id && completedLessons.includes(id)) return;
+                setStats(s => ({...s, xp: s.xp + amt, kScore: s.kScore + Math.floor(amt/5)}));
+                if (id) setCompletedLessons([...completedLessons, id]);
                 setActiveLesson(null);
             };
 
             return (
-                <div className="max-w-md mx-auto h-screen flex flex-col relative overflow-hidden">
-                    {/* Lesson Detail Modal */}
-                    {activeLesson && (
-                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col page-transition">
-                            <button onClick={() => setActiveLesson(null)} className="mb-8 text-slate-500"><Icon name="X" className="w-6 h-6"/></button>
-                            <div className="flex-1 overflow-y-auto">
-                                <span className="text-cyan-400 font-black text-[10px] tracking-widest uppercase">{activeLesson.cat}</span>
-                                <h2 className="text-4xl font-800 mb-6 leading-tight">{activeLesson.title}</h2>
-                                <p className="text-slate-300 text-lg leading-relaxed glass p-6 rounded-3xl mb-6 italic border-l-4 border-cyan-500">"{activeLesson.body}"</p>
-                                <div className="p-4 glass rounded-2xl border border-white/5">
-                                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Neural Connection</p>
-                                    <p className="font-bold text-cyan-400">+10% Growth in {activeLesson.skill}</p>
-                                </div>
+                <div className="max-w-md mx-auto h-screen flex flex-col relative bg-slate-950">
+                    
+                    {/* SKILL DOSSIER OVERLAY */}
+                    {activeSkill && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-6">
+                            <div className="glass p-8 rounded-[3rem] border border-cyan-500/30 w-full text-center shadow-2xl">
+                                <h3 className={`text-3xl font-800 ${activeSkill.color} mb-4`}>{activeSkill.title}</h3>
+                                <p className="text-slate-300 italic mb-6 leading-relaxed">"{activeSkill.summary}"</p>
+                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-[0.3em] mb-8">NEXUS: {activeSkill.sub}</p>
+                                <button onClick={() => setActiveSkill(null)} className="w-full py-4 bg-slate-800 rounded-2xl font-black uppercase text-xs tracking-widest btn-press">Close Dossier</button>
                             </div>
-                            <button 
-                                onClick={() => addXP(activeLesson.xp, activeLesson.id)}
-                                className={`w-full py-5 rounded-2xl font-black text-xl mt-6 ${completed.includes(activeLesson.id) ? 'bg-slate-800 text-slate-500' : 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'}`}
-                            >
-                                {completed.includes(activeLesson.id) ? 'ALREADY MASTERED' : `COMPLETE MODULE +${activeLesson.xp} XP`}
+                        </div>
+                    )}
+
+                    {/* LESSON STUDY OVERLAY */}
+                    {activeLesson && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col overflow-y-auto">
+                            <button onClick={() => setActiveLesson(null)} className="mb-8 text-slate-500 font-bold uppercase text-xs tracking-widest flex items-center gap-2">← Back to Learn</button>
+                            <h2 className="text-4xl font-800 mb-6 leading-tight">{activeLesson.title}</h2>
+                            <div className="glass p-8 rounded-[2.5rem] text-lg leading-relaxed text-slate-200 border-l-4 border-cyan-500 mb-10 italic">
+                                "{activeLesson.body}"
+                            </div>
+                            <button onClick={() => addXP(activeLesson.xp, activeLesson.id)} className="w-full py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black text-xl shadow-lg btn-press">
+                                {completedLessons.includes(activeLesson.id) ? 'ALREADY MASTERED' : `COMPLETE +${activeLesson.xp} XP`}
                             </button>
                         </div>
                     )}
 
-                    <header className="p-6 flex justify-between items-center bg-slate-950/90 border-b border-white/5 z-50">
-                        <span className="font-black italic text-cyan-400 tracking-tighter text-xl uppercase">K-SCORE OS</span>
-                        <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400 flex items-center gap-1">⚡ {stats.kScore}</div>
+                    {/* HEADER */}
+                    <header className="p-6 flex justify-between items-center bg-slate-950 border-b border-white/5 z-50">
+                        <span className="font-black italic text-cyan-400 tracking-tighter text-xl">K-SCORE OS</span>
+                        <div className="flex gap-2">
+                            <div className="glass px-3 py-1 rounded-full text-[10px] font-bold text-amber-400">⚡ {stats.kScore}</div>
+                            <div className="bg-cyan-500 px-3 py-1 rounded-full text-[10px] font-black text-slate-900 uppercase">LVL {stats.level}</div>
+                        </div>
                     </header>
 
                     <main className="view-container">
-                        {tab === 'lessons' && (
-                            <div className="p-6 space-y-4 animate-in fade-in">
-                                <div className="mb-6">
-                                    <h2 className="text-3xl font-800 tracking-tighter">Curriculum</h2>
-                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{completed.length}/25 MODULES UNLOCKED</p>
-                                </div>
-                                {LESSONS.map(l => (
-                                    <div key={l.id} 
-                                         onClick={() => setActiveLesson(l)}
-                                         className={`glass p-6 rounded-3xl lesson-card cursor-pointer ${completed.includes(l.id) ? 'completed' : 'active'}`}>
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{l.cat}</p>
-                                                <h4 className="font-bold text-lg leading-tight">{l.title}</h4>
-                                            </div>
-                                            {completed.includes(l.id) && <Icon name="CheckCircle" className="w-5 h-5 text-green-500" />}
-                                        </div>
+                        {tab === 'dashboard' && (
+                            <div className="p-6 space-y-6">
+                                <div className="glass p-10 rounded-[3rem] text-center border-b-4 border-cyan-500/20">
+                                    <h1 className="text-5xl font-800 italic uppercase mb-2">ANIKA</h1>
+                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.4em] mb-6">{stats.streak} DAY STREAK</p>
+                                    <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
+                                        <div className="h-full bg-cyan-400" style={{width: '45%'}}></div>
                                     </div>
-                                ))}
+                                </div>
+                                <div className="glass p-6 rounded-3xl">
+                                    <p className="text-xs font-black uppercase text-slate-500 mb-2">Daily Directive</p>
+                                    <p className="font-bold text-lg leading-tight">Master 3 Philosophy modules to unlock Level 2.</p>
+                                </div>
                             </div>
                         )}
 
                         {tab === 'tree' && (
                             <div className="h-full w-full flex items-center justify-center relative pt-10">
-                                <div className="absolute mandala-inner w-[300px] h-[300px] border border-white/5 rounded-full"></div>
-                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400/40 node-pulse">
-                                    <span className="text-xl font-800 italic uppercase tracking-tighter">ANIKA</span>
+                                <div className="absolute mandala-rotate w-80 h-80 border border-white/5 rounded-full"></div>
+                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-500 shadow-2xl">
+                                    <span className="text-xl font-800 italic uppercase">CORE</span>
                                 </div>
-                                <p className="absolute bottom-10 text-[10px] font-black text-slate-500 uppercase tracking-widest">Neural Mandala Initialized</p>
+                                {Object.entries(SKILL_DATA).map(([key, data], i) => {
+                                    const angle = (i * 72) * (Math.PI / 180);
+                                    const x = Math.cos(angle) * 135;
+                                    const y = Math.sin(angle) * 135;
+                                    return (
+                                        <div key={key} onClick={() => setActiveSkill(data)}
+                                             style={{ transform: `translate(${x}px, ${y}px)` }}
+                                             className="absolute glass w-16 h-16 rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:border-cyan-400 shadow-xl transition-all btn-press">
+                                            <span className={`text-xl font-black ${data.color}`}>{key[0].toUpperCase()}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
 
-                        {tab === 'dashboard' && (
-                            <div className="p-8 space-y-6 animate-in fade-in">
-                                <div className="glass p-10 rounded-[3.5rem] text-center border-b-8 border-cyan-500/10 shadow-2xl">
-                                    <h1 className="text-5xl font-800 italic uppercase mb-2 tracking-tighter">STATUS</h1>
-                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.6em] mb-8 tracking-widest uppercase tracking-[0.4em]">{stats.streak} DAY STREAK</p>
-                                    <div className="h-1 w-full bg-slate-900 rounded-full"><div className="h-full bg-cyan-400" style={{width: `${(completed.length / 25) * 100}%`}}></div></div>
-                                    <p className="text-[9px] mt-4 font-black text-slate-500 uppercase tracking-widest">Evolution Level 1</p>
+                        {tab === 'lessons' && (
+                            <div className="p-6 space-y-4">
+                                <h2 className="text-2xl font-800 mb-6">Learning Path</h2>
+                                {[
+                                    { id: 1, title: 'The Control Dichotomy', xp: 150, body: 'We only control our thoughts and actions. Everything else is external noise.' },
+                                    { id: 2, title: 'Jungian Shadow Integration', xp: 200, body: 'You must face the parts of yourself you have hidden to become a whole individual.' },
+                                    { id: 3, title: 'First Principles Logic', xp: 180, body: 'Break every problem down into its fundamental truths and build from there.' }
+                                ].map(l => (
+                                    <div key={l.id} onClick={() => setActiveLesson(l)} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 flex justify-between items-center btn-press">
+                                        <div><h4 className="font-bold text-lg">{l.title}</h4><p className="text-xs text-slate-500 tracking-widest uppercase mt-1">+{l.xp} XP</p></div>
+                                        {completedLessons.includes(l.id) && <span className="text-green-500 font-black">✓</span>}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {tab === 'challenges' && (
+                            <div className="p-6 space-y-4">
+                                <h2 className="text-2xl font-800 text-green-400">Daily Task</h2>
+                                <div className="glass p-8 rounded-3xl text-center">
+                                    <p className="font-bold text-slate-200 leading-relaxed mb-8 italic">"Log 10 minutes of disciplined meditation or reflection."</p>
+                                    <button onClick={() => addXP(50)} className="w-full py-5 bg-green-500 text-slate-950 rounded-2xl font-black shadow-lg btn-press">LOG COMPLETION +50 XP</button>
                                 </div>
                             </div>
                         )}
                     </main>
 
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-2 z-[60] backdrop-blur-xl">
-                        {[
-                            {id: 'dashboard', n: 'Home', i: 'Home'},
-                            {id: 'dilemmas', n: 'Moral', i: 'Scale'},
-                            {id: 'lessons', n: 'Learn', i: 'Book'},
-                            {id: 'tree', n: 'Tree', i: 'GitBranch'},
-                            {id: 'challenges', n: 'Task', i: 'Zap'},
-                            {id: 'mind', n: 'Mind', i: 'Heart'}
-                        ].map(t => (
-                            <button key={t.id} onClick={() => setTab(t.id)} className={`flex flex-col items-center flex-1 transition-all ${tab === t.id ? 'tab-active' : 'text-slate-600'}`}>
-                                <Icon name={t.i} className="w-5 h-5 mb-1" />
-                                <span className="text-[7px] font-black uppercase tracking-tighter">{t.n}</span>
-                            </button>
-                        ))}
+                    {/* FIXED NAVIGATION */}
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-2 z-[60]">
+                        <button onClick={() => setTab('dashboard')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'dashboard' ? 'tab-active' : 'text-slate-600'}`}><span className="text-[9px] font-black uppercase">Dash</span></button>
+                        <button onClick={() => setTab('dilemmas')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'dilemmas' ? 'tab-active' : 'text-slate-600'}`}><span className="text-[9px] font-black uppercase">Moral</span></button>
+                        <button onClick={() => setTab('lessons')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'lessons' ? 'tab-active' : 'text-slate-600'}`}><span className="text-[9px] font-black uppercase">Learn</span></button>
+                        <button onClick={() => setTab('tree')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'tree' ? 'tab-active' : 'text-slate-600'}`}><span className="text-[9px] font-black uppercase">Tree</span></button>
+                        <button onClick={() => setTab('challenges')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'challenges' ? 'tab-active' : 'text-slate-600'}`}><span className="text-[9px] font-black uppercase">Task</span></button>
+                        <button onClick={() => setTab('mind')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'mind' ? 'tab-active' : 'text-slate-600'}`}><span className="text-[9px] font-black uppercase">Mind</span></button>
                     </nav>
                 </div>
             );
