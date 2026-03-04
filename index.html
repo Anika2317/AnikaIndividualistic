@@ -16,7 +16,11 @@
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 10px #22d3ee); border-top: 2px solid #22d3ee; }
         .view-container { height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .btn-press:active { transform: scale(0.98); opacity: 0.9; }
+        .node-pulse { animation: pulse 3s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.2); } 70% { box-shadow: 0 0 0 20px rgba(34, 211, 238, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); } }
+        .flow-line { width: 2px; background: linear-gradient(to bottom, #22d3ee, transparent); height: 40px; margin: 0 auto; }
+        .branch-enter { animation: branchPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes branchPop { from { opacity: 0; transform: scale(0.8) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
 </head>
 <body>
@@ -24,136 +28,152 @@
     <script type="text/babel">
         const { useState } = React;
 
-        const SKILLS = {
-            logic: { title: "Strategic Logic", icon: "⚛", color: "text-cyan-400", summary: "First Principles thinking.", sub: "Socratic Inquiry" },
-            empathy: { title: "Radical Empathy", icon: "♥", color: "text-pink-400", summary: "Mapping internal states.", sub: "Shadow Work" },
-            discipline: { title: "Iron Discipline", icon: "🛡", color: "text-orange-400", summary: "Subordinating impulse.", sub: "Dopamine Control" },
-            regulation: { title: "Mind Regulation", icon: "≋", color: "text-blue-400", summary: "Stimulus-response buffer.", sub: "Metacognition" },
-            integrity: { title: "Total Integrity", icon: "⚓", color: "text-green-400", summary: "Values alignment.", sub: "Radical Honesty" }
-        };
-
         const LESSONS = [
-            { id: 1, title: "Control Dichotomy", pages: [{h:"01. What",b:"Separating controllable internal states from external noise."}, {h:"02. Who",b:"Marcus Aurelius & Epictetus."}, {h:"03. When",b:"300 BC Athens."}, {h:"04. Where",b:"The Painted Porch."}, {h:"05. Why",b:"To reach Ataraxia."}, {h:"06. Step 1",b:"Identify the stressor."}, {h:"07. Step 2",b:"Audit the control."}, {h:"08. Step 3",b:"Withdraw emotional energy."}, {h:"09. Exercise",b:"Imagine losing a comfort."}, {h:"10. End",b:"Self-mastery unlocked. +500 XP"}] },
-            { id: 2, title: "First Principles", pages: [{h:"01. What",b:"Breaking down assumptions to atomic truths."}, {h:"02. Who",b:"Aristotle and Elon Musk."}, {h:"03. When",b:"Classical logic revival."}, {h:"04. Where",b:"Silicon Valley engineering."}, {h:"05. Why",b:"To avoid reasoning by analogy."}, {h:"06. Step 1",b:"Identify assumptions."}, {h:"07. Step 2",b:"Break down to physics."}, {h:"08. Step 3",b:"Rebuild from scratch."}, {h:"09. Exercise",b:"Deconstruct your diet."}, {h:"10. End",b:"Clarity achieved. +500 XP"}] },
-            { id: 3, title: "Socratic Method", pages: [{h:"01. What",b:"Dialogue through relentless questioning."}, {h:"02. Who",b:"Socrates."}, {h:"03. When",b:"470 BC."}, {h:"04. Where",b:"Athens Agora."}, {h:"05. Why",b:"To expose ignorance."}, {h:"06. Step 1",b:"Ask for a definition."}, {h:"07. Step 2",b:"Find the contradiction."}, {h:"08. Step 3",b:"Refine the truth."}, {h:"09. Exercise",b:"Ask 'Why' 5 times."}, {h:"10. End",b:"Intellectual humility. +500 XP"}] },
-            { id: 4, title: "Cognitive Mapping", pages: [{h:"01. What",b:"Mapping the mind's internal connections."}, {h:"02. Who",b:"Edward Tolman."}, {h:"03. When",b:"1948."}, {h:"04. Where",b:"Neural networks."}, {h:"05. Why",b:"To navigate triggers."}, {h:"06. Step 1",b:"Identify an emotion."}, {h:"07. Step 2",b:"Trace its source."}, {h:"08. Step 3",b:"Map the exit."}, {h:"09. Exercise",b:"Map your anger."}, {h:"10. End",b:"Internal GPS active. +500 XP"}] },
-            { id: 5, title: "Shadow Work", pages: [{h:"01. What",b:"Integrating repressed traits."}, {h:"02. Who",b:"Carl Jung."}, {h:"03. When",b:"1945."}, {h:"04. Where",b:"Unconscious mind."}, {h:"05. Why",b:"To stop projection."}, {h:"06. Step 1",b:"Notice a trigger."}, {h:"07. Step 2",b:"Own the trait."}, {h:"08. Step 3",b:"Integrate energy."}, {h:"09. Exercise",b:"Mirror reflection."}, {h:"10. End",b:"Wholeness. +500 XP"}] },
-            { id: 6, title: "Impulse Pause", pages: [{h:"01. What",b:"The gap between stimulus and response."}, {h:"02. Who",b:"Viktor Frankl."}, {h:"03. When",b:"Neuro-era."}, {h:"04. Where",b:"Prefrontal Cortex."}, {h:"05. Why",b:"To regain control."}, {h:"06. Step 1",b:"Stop breathing."}, {h:"07. Step 2",b:"Count to five."}, {h:"08. Step 3",b:"Choose move."}, {h:"09. Exercise",b:"The 10s wait."}, {h:"10. End",b:"Reactionary death. +500 XP"}] },
-            { id: 7, title: "Atomic Habits", pages: [{h:"01. What",b:"Compound interest of small actions."}, {h:"02. Who",b:"James Clear."}, {h:"03. When",b:"2018."}, {h:"04. Where",b:"Daily routine."}, {h:"05. Why",b:"Systems over goals."}, {h:"06. Step 1",b:"2-minute rule."}, {h:"07. Step 2",b:"Habit stacking."}, {h:"08. Step 3",b:"Environment design."}, {h:"09. Exercise",b:"Stack meditaton."}, {h:"10. End",b:"Repetition is key. +500 XP"}] },
-            { id: 8, title: "Dopamine Master", pages: [{h:"01. What",b:"Regulating your neuro-rewards."}, {h:"02. Who",b:"Andrew Huberman."}, {h:"03. When",b:"2023."}, {h:"04. Where",b:"Nucleus Accumbens."}, {h:"05. Why",b:"To stop scrolling."}, {h:"06. Step 1",b:"Morning delay."}, {h:"07. Step 2",b:"Boredom practice."}, {h:"08. Step 3",b:"Cold exposure."}, {h:"09. Exercise",b:"No-phone walk."}, {h:"10. End",b:"Focus reclaimed. +500 XP"}] },
-            { id: 9, title: "Stimulus Buffer", pages: [{h:"01. What",b:"Neutralizing emotional triggers."}, {h:"02. Who",b:"Stoic sages."}, {h:"03. When",b:"Eternal."}, {h:"04. Where",b:"Perception layer."}, {h:"05. Why",b:"Impenetrable peace."}, {h:"06. Step 1",b:"Label trigger."}, {h:"07. Step 2",b:"Remove judgment."}, {h:"08. Step 3",b:"Observe breath."}, {h:"09. Exercise",b:"Cold water face."}, {h:"10. End",b:"Trigger proof. +500 XP"}] },
-            { id: 10, title: "Metacognition", pages: [{h:"01. What",b:"Thinking about thinking."}, {h:"02. Who",b:"John Flavell."}, {h:"03. When",b:"1979."}, {h:"04. Where",b:"Higher mind."}, {h:"05. Why",b:"Correcting bias."}, {h:"06. Step 1",b:"Observe thought."}, {h:"07. Step 2",b:"Analyze root."}, {h:"08. Step 3",b:"Redirect path."}, {h:"09. Exercise",b:"Thought labeling."}, {h:"10. End",b:"Logic over fear. +500 XP"}] },
-            { id: 11, title: "Value Alignment", pages: [{h:"01. What",b:"Syncing code to action."}, {h:"02. Who",b:"Aristotle."}, {h:"03. When",b:"Virtue era."}, {h:"04. Where",b:"Behavior."}, {h:"05. Why",b:"Internal peace."}, {h:"06. Step 1",b:"Define core."}, {h:"07. Step 2",b:"Audit time."}, {h:"08. Step 3",b:"Cut noise."}, {h:"09. Exercise",b:"Top 3 list."}, {h:"10. End",b:"Integrity. +500 XP"}] },
-            { id: 12, title: "Radical Honesty", pages: [{h:"01. What",b:"Total transparency."}, {h:"02. Who",b:"Brad Blanton."}, {h:"03. When",b:"1996."}, {h:"04. Where",b:"Communication."}, {h:"05. Why",b:" PSY-integrity."}, {h:"06. Step 1",b:"Stop lies."}, {h:"07. Step 2",b:"Share feeling."}, {h:"08. Step 3",b:"Admit fault."}, {h:"09. Exercise",b:"The true secret."}, {h:"10. End",b:"Pure psyche. +500 XP"}] },
-            { id: 13, title: "Identity Design", pages: [{h:"01. What",b:"Deciding who you are."}, {h:"02. Who",b:"Self-architects."}, {h:"03. When",b:"Now."}, {h:"04. Where",b:"Narrative."}, {h:"05. Why",b:"Belief drives act."}, {h:"06. Step 1",b:"Delete label."}, {h:"07. Step 2",b:"Write future."}, {h:"08. Step 3",b:"Act as if."}, {h:"09. Exercise",b:"New habit."}, {h:"10. End",b:"Reborn. +500 XP"}] },
-            { id: 14, title: "The Integration", pages: [{h:"01. What",b:"Becoming a whole system."}, {h:"02. Who",b:"Anika 2.0."}, {h:"03. When",b:"Lvl 2 Threshold."}, {h:"04. Where",b:"Total self."}, {h:"05. Why",b:"Unified OS."}, {h:"06. Step 1",b:"Review nodes."}, {h:"07. Step 2",b:"Heal gaps."}, {h:"08. Step 3",b:"Live OS."}, {h:"09. Exercise",b:"The synthesis."}, {h:"10. End",b:"Integration. +1000 XP"}] }
+            { id: 1, title: "Control Dichotomy", pages: [{h:"01. What",b:"Separating internal states from external noise."}, {h:"02. Who",b:"Marcus Aurelius."}, {h:"03. When",b:"300 BC."}, {h:"04. Where",b:"Athens."}, {h:"05. Why",b:"Ataraxia."}, {h:"06. How",b:"Audit stress."}, {h:"07. How",b:"Stop validation."}, {h:"08. How",b:"Own effort."}, {h:"09. Exercise",b:"Worst case prep."}, {h:"10. End",b:"Mastery. +500 XP"}] },
+            { id: 2, title: "First Principles", pages: Array(10).fill({h:"Logic", b:"Break down to atoms."}) },
+            { id: 3, title: "Socratic Method", pages: Array(10).fill({h:"Inquiry", b:"Question assumptions."}) },
+            { id: 4, title: "Cognitive Mapping", pages: Array(10).fill({h:"Mapping", b:"Visualize the mind."}) },
+            { id: 5, title: "Shadow Work", pages: Array(10).fill({h:"Jung", b:"Integrate darkness."}) },
+            { id: 6, title: "Impulse Pause", pages: Array(10).fill({h:"Biology", b:"Master the gap."}) },
+            { id: 7, title: "Atomic Habits", pages: Array(10).fill({h:"Systems", b:"1% daily compound."}) },
+            { id: 8, title: "Dopamine Master", pages: Array(10).fill({h:"Reward", b:"Reclaim focus."}) },
+            { id: 9, title: "Stimulus Buffer", pages: Array(10).fill({h:"Regulation", b:"Neutralize triggers."}) },
+            { id: 10, title: "Metacognition", pages: Array(10).fill({h:"Awareness", b:"Watch thoughts."}) },
+            { id: 11, title: "Value Alignment", pages: Array(10).fill({h:"Integrity", b:"Sync acts to code."}) },
+            { id: 12, title: "Radical Honesty", pages: Array(10).fill({h:"Truth", b:"No social masks."}) },
+            { id: 13, title: "Identity Design", pages: Array(10).fill({h:"Story", b:"Architect your self."}) },
+            { id: 14, title: "The Integration", pages: Array(10).fill({h:"Whole", b:"Unified system."}) }
         ];
 
-        const DILEMMAS = [
-            { id: 1, title: "The Trolley Lever", scenario: "A train is heading for 5 workers. You can pull a lever to switch it to a track with 1 worker. Do you pull it?", options: [
-                { text: "Pull the lever", result: "Utilitarianism: You prioritize the 'Greatest Good.' You are mathematically logical but may overlook individual rights in favor of outcomes." },
-                { text: "Do nothing", result: "Deontology: You refuse to play god. You believe that killing is wrong, even to save others. You prioritize moral purity over numbers." }
-            ]},
-            { id: 2, title: "The Lifeboat", scenario: "The boat is sinking. You must throw one person overboard to save the rest. An elderly doctor or a healthy child?", options: [
-                { text: "Throw the Doctor", result: "Future Value Focus: You prioritize potential and longevity. You see the child's life as a blank canvas with more 'time-wealth'." },
-                { text: "Throw the Child", result: "Immediate Utility: You prioritize current skills. The doctor can save others right now. You value proven competence over potential." }
-            ]}
+        const MORAL_FLOWS = [
+            {
+                id: 1,
+                title: "The Trolley Paradox",
+                start: "A train is accelerating toward 5 victims. You hold the lever.",
+                steps: [
+                    {
+                        question: "Step 1: Do you pull the lever to kill 1 and save 5?",
+                        options: [
+                            { text: "Yes (Pull)", next: "util", label: "Utility Path" },
+                            { text: "No (Wait)", next: "deon", label: "Duty Path" }
+                        ]
+                    }
+                ],
+                results: {
+                    util: { archetype: "The Utilitarian", analysis: "You view life as a mathematical equation. You believe the 'Greater Good' justifies the heavy cost of individual sacrifice." },
+                    deon: { archetype: "The Deontologist", analysis: "You believe rules are absolute. You refuse to 'play God,' believing that an evil act is never justified, even for a better outcome." }
+                }
+            }
         ];
 
         function App() {
             const [tab, setTab] = useState('dashboard');
-            const [activeSkill, setActiveSkill] = useState(null);
+            const [stats, setStats] = useState({ kScore: 527, xp: 420 });
             const [activeLesson, setActiveLesson] = useState(null);
-            const [activeMoral, setActiveMoral] = useState(null);
-            const [moralResult, setMoralResult] = useState(null);
-            const [page, setPage] = useState(0);
-            const [stats, setStats] = useState({ kScore: 527, streak: 12 });
-            const [mastered, setMastered] = useState([]);
+            const [lessonPage, setLessonPage] = useState(0);
+            const [activeFlow, setActiveFlow] = useState(null);
+            const [flowStep, setFlowStep] = useState(0);
+            const [flowPath, setFlowPath] = useState([]);
+            const [finalResult, setFinalResult] = useState(null);
 
-            const next = () => page < 9 && setPage(page + 1);
-            const prev = () => page > 0 && setPage(page - 1);
-            const master = (id) => {
-                if(!mastered.includes(id)) setStats(s => ({...s, kScore: s.kScore + 100}));
-                setMastered([...mastered, id]);
-                setActiveLesson(null);
-                setPage(0);
-            };
-
-            const selectMoral = (result) => {
-                setMoralResult(result);
-                setStats(s => ({...s, kScore: s.kScore + 25}));
+            const handleFlowOption = (option) => {
+                setFlowPath([...flowPath, option.text]);
+                if (activeFlow.results[option.next]) {
+                    setFinalResult(activeFlow.results[option.next]);
+                    setStats(s => ({...s, kScore: s.kScore + 50}));
+                } else {
+                    setFlowStep(flowStep + 1);
+                }
             };
 
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative bg-slate-950">
                     
-                    {/* LESSON ENGINE */}
-                    {activeLesson && (
-                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col">
-                            <div className="flex justify-between items-center mb-10">
-                                <span className="text-cyan-400 font-black text-xs uppercase">Slide {page + 1} / 10</span>
-                                <button onClick={() => {setActiveLesson(null); setPage(0);}} className="text-slate-500 font-bold uppercase text-xs">Exit</button>
+                    {/* MORAL FLOW CHART MODAL */}
+                    {activeFlow && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col overflow-y-auto">
+                            <div className="flex justify-between mb-8">
+                                <span className="text-red-400 font-black text-xs uppercase tracking-widest">Ethical Lab</span>
+                                <button onClick={() => {setActiveFlow(null); setFinalResult(null); setFlowPath([]);}} className="text-slate-500">Exit</button>
                             </div>
-                            <div className="flex-1">
-                                <h2 className="text-4xl font-800 mb-6 text-white uppercase tracking-tighter">{activeLesson.pages[page].h}</h2>
-                                <div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-500 text-xl italic text-slate-200">
-                                    "{activeLesson.pages[page].b}"
+
+                            <div className="flex flex-col items-center space-y-4">
+                                <div className="glass p-6 rounded-3xl w-full text-center border-red-500/20">
+                                    <p className="text-xs text-slate-500 uppercase mb-2">Scenario</p>
+                                    <p className="italic font-semibold leading-relaxed">"{activeFlow.start}"</p>
                                 </div>
-                            </div>
-                            <div className="flex gap-4 mt-8">
-                                {page > 0 && <button onClick={prev} className="flex-1 py-5 glass rounded-2xl font-black uppercase text-xs">Back</button>}
-                                {page < 9 ? (
-                                    <button onClick={next} className="flex-2 py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Next</button>
+
+                                {flowPath.map((choice, i) => (
+                                    <React.Fragment key={i}>
+                                        <div className="flow-line"></div>
+                                        <div className="glass px-4 py-2 rounded-full border-cyan-500/50 text-[10px] font-black text-cyan-400 branch-enter">
+                                            {choice}
+                                        </div>
+                                    </React.Fragment>
+                                ))}
+
+                                {!finalResult ? (
+                                    <React.Fragment>
+                                        <div className="flow-line"></div>
+                                        <div className="w-full space-y-4 branch-enter">
+                                            <p className="text-center text-sm font-bold mb-4">{activeFlow.steps[flowStep].question}</p>
+                                            {activeFlow.steps[flowStep].options.map((opt, idx) => (
+                                                <button key={idx} onClick={() => handleFlowOption(opt)} className="w-full py-4 glass rounded-2xl border-red-500/20 text-red-400 font-black text-xs hover:bg-red-500/10 transition-all">
+                                                    {opt.text}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </React.Fragment>
                                 ) : (
-                                    <button onClick={() => master(activeLesson.id)} className="flex-2 py-5 bg-green-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Master</button>
+                                    <React.Fragment>
+                                        <div className="flow-line"></div>
+                                        <div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-400 w-full branch-enter">
+                                            <p className="text-[10px] text-cyan-400 font-black uppercase mb-2">Neural Archetype</p>
+                                            <h3 className="text-2xl font-800 mb-4">{finalResult.archetype}</h3>
+                                            <p className="text-sm text-slate-300 leading-relaxed italic">"{finalResult.analysis}"</p>
+                                            <button onClick={() => {setActiveFlow(null); setFinalResult(null); setFlowPath([]);}} className="mt-8 w-full py-4 bg-cyan-500 text-slate-950 rounded-2xl font-black text-xs uppercase">Integrate & Exit</button>
+                                        </div>
+                                    </React.Fragment>
                                 )}
                             </div>
                         </div>
                     )}
 
-                    {/* MORAL ENGINE */}
-                    {activeMoral && (
-                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col overflow-y-auto">
+                    {/* LESSON ENGINE (10 Pages) */}
+                    {activeLesson && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col">
                             <div className="flex justify-between items-center mb-10">
-                                <span className="text-red-400 font-black text-xs uppercase">Moral Deconstruction</span>
-                                <button onClick={() => {setActiveMoral(null); setMoralResult(null);}} className="text-slate-500 font-bold text-xs uppercase">Exit</button>
+                                <span className="text-cyan-400 font-black text-xs">SLIDE {lessonPage + 1} / 10</span>
+                                <button onClick={() => {setActiveLesson(null); setLessonPage(0);}} className="text-slate-500 font-bold uppercase text-xs">Exit</button>
                             </div>
-                            <h2 className="text-3xl font-800 mb-6 text-white uppercase tracking-tighter">{activeMoral.title}</h2>
-                            <div className="glass p-8 rounded-[2rem] text-lg mb-8 italic text-slate-300 leading-relaxed">
-                                "{activeMoral.scenario}"
+                            <div className="flex-1">
+                                <h2 className="text-4xl font-800 mb-6 text-white uppercase">{activeLesson.pages[lessonPage].h}</h2>
+                                <div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-500 text-xl italic text-slate-200">
+                                    "{activeLesson.pages[lessonPage].b}"
+                                </div>
                             </div>
-                            
-                            {!moralResult ? (
-                                <div className="space-y-4">
-                                    {activeMoral.options.map((opt, i) => (
-                                        <button key={i} onClick={() => selectMoral(opt.result)} className="w-full py-5 glass rounded-2xl font-bold text-sm text-red-400 border border-red-500/20 btn-press">
-                                            {opt.text}
-                                        </button>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="space-y-6">
-                                    <div className="glass p-6 rounded-3xl border-l-4 border-cyan-500">
-                                        <h4 className="text-cyan-400 font-black text-[10px] uppercase mb-2">Neural Analysis</h4>
-                                        <p className="text-sm leading-relaxed">{moralResult}</p>
-                                    </div>
-                                    <button onClick={() => {setActiveMoral(null); setMoralResult(null);}} className="w-full py-4 bg-slate-800 rounded-2xl font-black uppercase text-xs">Analysis Logged</button>
-                                </div>
-                            )}
+                            <div className="flex gap-4 mt-8">
+                                {lessonPage > 0 && <button onClick={() => setLessonPage(lessonPage - 1)} className="flex-1 py-5 glass rounded-2xl font-black uppercase text-xs">Back</button>}
+                                {lessonPage < 9 ? (
+                                    <button onClick={() => setLessonPage(lessonPage + 1)} className="flex-2 py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Next</button>
+                                ) : (
+                                    <button onClick={() => {setActiveLesson(null); setStats(s => ({...s, kScore: s.kScore + 100}));}} className="flex-2 py-5 bg-green-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Complete</button>
+                                )}
+                            </div>
                         </div>
                     )}
 
                     <header className="p-6 flex justify-between items-center bg-slate-950 border-b border-white/5 z-50">
                         <span className="font-black italic text-cyan-400 text-2xl tracking-tighter">K-SCORE OS</span>
-                        <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400 flex items-center gap-1">⚡ {stats.kScore}</div>
+                        <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400">⚡ {stats.kScore}</div>
                     </header>
 
                     <main className="view-container">
                         {tab === 'dashboard' && (
                             <div className="p-6">
-                                <div className="glass p-10 rounded-[3.5rem] text-center border-b-4 border-cyan-500/20 shadow-2xl">
+                                <div className="glass p-10 rounded-[3.5rem] text-center border-b-4 border-cyan-500/20">
                                     <h1 className="text-5xl font-800 uppercase italic tracking-tighter mb-2">ANIKA</h1>
-                                    <p className="text-cyan-400 font-bold text-xs uppercase tracking-widest leading-tight">{stats.streak} DAY STREAK</p>
+                                    <p className="text-cyan-400 font-bold text-xs uppercase tracking-widest leading-tight">12 DAY STREAK 🔥</p>
                                 </div>
                             </div>
                         )}
@@ -161,20 +181,20 @@
                             <div className="p-6 space-y-4">
                                 <h2 className="text-3xl font-800 mb-6 uppercase tracking-tighter">Curriculum</h2>
                                 {LESSONS.map(l => (
-                                    <div key={l.id} onClick={() => {setActiveLesson(l); setPage(0);}} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 cursor-pointer active:scale-95 transition-all">
-                                        <h4 className="font-bold text-lg uppercase tracking-tight">{l.id}. {l.title}</h4>
-                                        <p className="text-[10px] text-slate-500 uppercase mt-2 tracking-widest">10 Pages • +500 XP {mastered.includes(l.id) && "✓"}</p>
+                                    <div key={l.id} onClick={() => setActiveLesson(l)} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 cursor-pointer active:scale-95 transition-all">
+                                        <h4 className="font-bold text-lg">{l.id}. {l.title}</h4>
+                                        <p className="text-[10px] text-slate-500 uppercase mt-2">10 Pages • +500 XP</p>
                                     </div>
                                 ))}
                             </div>
                         )}
                         {tab === 'moral' && (
                             <div className="p-6 space-y-4">
-                                <h2 className="text-3xl font-800 mb-6 uppercase tracking-tighter text-red-500">Moral Nexus</h2>
-                                {DILEMMAS.map(d => (
-                                    <div key={d.id} onClick={() => setActiveMoral(d)} className="glass p-6 rounded-3xl border-l-4 border-red-500 cursor-pointer active:scale-95 transition-all">
-                                        <h4 className="font-bold text-lg uppercase tracking-tighter">{d.title}</h4>
-                                        <p className="text-[10px] text-slate-500 mt-2 font-black uppercase tracking-widest">Interactive Analysis</p>
+                                <h2 className="text-3xl font-800 mb-6 uppercase tracking-tighter text-red-500">Ethical Flows</h2>
+                                {MORAL_FLOWS.map(f => (
+                                    <div key={f.id} onClick={() => setActiveFlow(f)} className="glass p-6 rounded-3xl border-l-4 border-red-500 cursor-pointer active:scale-95 transition-all">
+                                        <h4 className="font-bold text-lg uppercase">{f.title}</h4>
+                                        <p className="text-[10px] text-slate-500 mt-2 font-black uppercase tracking-widest">Open Logic Chart</p>
                                     </div>
                                 ))}
                             </div>
@@ -182,28 +202,27 @@
                         {tab === 'tree' && (
                             <div className="h-[450px] w-full flex items-center justify-center relative pt-10">
                                 <div className="absolute mandala-rotate w-80 h-80 border border-white/5 rounded-full"></div>
-                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400 node-pulse"><span className="text-xl font-800 italic uppercase">CORE</span></div>
-                                {Object.entries(SKILLS).map(([key, data], i) => {
+                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400 node-pulse uppercase font-black text-xs">Core</div>
+                                {['⚛', '♥', '🛡', '≋', '⚓'].map((icon, i) => {
                                     const angle = (i * 72) * (Math.PI / 180);
                                     return (
-                                        <div key={key} onClick={() => setActiveSkill(data)}
-                                             style={{ transform: `translate(${Math.cos(angle)*135}px, ${Math.sin(angle)*135}px)` }}
-                                             className="absolute glass w-16 h-16 rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:border-cyan-400"><span className={`text-2xl font-black ${data.color}`}>{data.icon}</span></div>
+                                        <div key={i} style={{ transform: `translate(${Math.cos(angle)*130}px, ${Math.sin(angle)*130}px)` }}
+                                             className="absolute glass w-14 h-14 rounded-2xl flex items-center justify-center border border-white/10 text-2xl">{icon}</div>
                                     );
                                 })}
                             </div>
                         )}
                         {tab === 'task' && (
                             <div className="p-6">
-                                <button onClick={() => setStats(s => ({...s, kScore: s.kScore + 50}))} className="w-full py-6 bg-green-500 text-slate-950 rounded-3xl font-black uppercase text-xs shadow-lg btn-press">Log Completion +50 XP</button>
+                                <button onClick={() => setStats(s => ({...s, kScore: s.kScore + 50}))} className="w-full py-6 bg-green-500 text-slate-950 rounded-3xl font-black uppercase text-xs">Log Reflection +50 XP</button>
                             </div>
                         )}
                     </main>
 
                     <nav className="fixed bottom-0 left-0 right-0 h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-2 z-[60] backdrop-blur-xl">
                         {['Dash', 'Moral', 'Learn', 'Tree', 'Task', 'Mind'].map((t) => (
-                            <button key={t} onClick={() => setTab(t.toLowerCase() === 'dash' ? 'dashboard' : t.toLowerCase() === 'learn' ? 'lessons' : t.toLowerCase() === 'task' ? 'task' : t.toLowerCase())} 
-                                    className={`flex-1 h-full font-black text-[10px] uppercase ${tab.includes(t.toLowerCase()) || (t === 'Dash' && tab === 'dashboard') || (t === 'Task' && tab === 'task') || (t === 'Learn' && tab === 'lessons') ? 'tab-active' : 'text-slate-600'}`}>{t}</button>
+                            <button key={t} onClick={() => setTab(t.toLowerCase() === 'dash' ? 'dashboard' : t.toLowerCase() === 'learn' ? 'lessons' : t.toLowerCase())} 
+                                    className={`flex-1 h-full font-black text-[10px] uppercase ${tab.includes(t.toLowerCase()) || (t === 'Dash' && tab === 'dashboard') || (t === 'Learn' && tab === 'lessons') ? 'tab-active' : 'text-slate-600'}`}>{t}</button>
                         ))}
                     </nav>
                 </div>
