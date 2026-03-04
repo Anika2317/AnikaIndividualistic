@@ -12,13 +12,15 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
         body { background: #020617; font-family: 'Plus Jakarta Sans', sans-serif; color: white; margin: 0; padding: 0; overflow: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
-        .mandala-rotate { animation: rotate 100s linear infinite; }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); }
+        .mandala-inner { animation: rotate 120s linear infinite; }
+        .mandala-outer { animation: rotate 80s linear infinite reverse; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 8px #22d3ee); }
+        .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 12px #22d3ee); }
         .view-container { height: calc(100vh - 160px); overflow-y: auto; }
-        .node-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(34, 211, 238, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); } }
+        .node-pulse { animation: pulse 3s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.2); } 70% { box-shadow: 0 0 0 20px rgba(34, 211, 238, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); } }
+        .connector-line { stroke: rgba(34, 211, 238, 0.1); stroke-dasharray: 4; }
     </style>
 </head>
 <body>
@@ -28,46 +30,62 @@
         const { useState, useEffect } = React;
 
         const Icon = ({ name, className }) => {
-            useEffect(() => { if(window.lucide) lucide.createIcons(); }, [name]);
+            useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [name]);
             return <i data-lucide={name.toLowerCase().replace(/([a-z0-9])([A-Z])/g, '$1-$2')} className={className}></i>;
         };
 
-        const SKILL_DATA = {
-            logic: { title: "Strategic Logic", icon: "cpu", color: "text-cyan-400", summary: "Deconstructing reality via First Principles.", importance: "Without logic, you are a slave to mood.", sub: ["Socratic Inquiry", "Bias Detection", "Formal Logic"] },
-            empathy: { title: "Radical Empathy", icon: "heart", color: "text-pink-400", summary: "Cognitive mapping of internal worlds.", importance: "Predict behavior via deep understanding.", sub: ["Active Listening", "Perspective Shifting", "Mirroring"] },
-            discipline: { title: "Iron Discipline", icon: "shield", color: "text-orange-400", summary: "Subordinating impulse to strategy.", importance: "The bridge between a thought and a result.", sub: ["Dopamine Control", "Atomic Habits", "Grit"] },
-            regulation: { title: "Regulation", icon: "wind", color: "text-blue-400", summary: "Buffer zone between stimulus and response.", importance: "Control your triggers, control your life.", sub: ["Stoic Breath", "Metacognition", "Vagus Nerve Control"] },
-            integrity: { title: "Total Integrity", icon: "anchor", color: "text-green-400", summary: "Alignment of values and actions.", importance: "Removes the leakage of double-mindedness.", sub: ["Radical Honesty", "Value Auditing", "Boundary Setting"] }
+        const SKILL_MAP = {
+            logic: { 
+                title: "Strategic Logic", icon: "cpu", color: "text-cyan-400", 
+                nexus: "Connects to: Moral Dilemmas (Deontology vs Utilitarianism)",
+                sub: ["First Principles", "Cognitive Bias", "Boolean Ethics"] 
+            },
+            empathy: { 
+                title: "Radical Empathy", icon: "heart", color: "text-pink-400", 
+                nexus: "Connects to: Social Insights (Jungian Shadows)",
+                sub: ["Mirroring", "Active Listening", "Shadow Work"] 
+            },
+            discipline: { 
+                title: "Iron Discipline", icon: "shield", color: "text-orange-400", 
+                nexus: "Connects to: Daily Tasks (Dopamine Regulation)",
+                sub: ["Atomic Action", "Grit Scale", "Delay of Gratification"] 
+            },
+            regulation: { 
+                title: "Mind Regulation", icon: "wind", color: "text-blue-400", 
+                nexus: "Connects to: Mind Affirmations (Stoic Breathwork)",
+                sub: ["Metacognition", "Vagus Reset", "Pulse Control"] 
+            },
+            integrity: { 
+                title: "Total Integrity", icon: "anchor", color: "text-green-400", 
+                nexus: "Connects to: Character Building (Kant's Imperative)",
+                sub: ["Radical Honesty", "Value Auditing", "Code of Silence"] 
+            }
         };
 
         function App() {
-            const [tab, setTab] = useState('dashboard');
+            const [tab, setTab] = useState('tree');
             const [activeSkill, setActiveSkill] = useState(null);
             const [stats, setStats] = useState({ kScore: 527, xp: 420, level: 1, streak: 12 });
 
             const addXP = (amt) => setStats(s => ({...s, xp: s.xp + amt, kScore: s.kScore + Math.floor(amt/5)}));
 
-            const SkillModal = () => (
-                <div className={`fixed inset-0 z-[100] glass flex items-center justify-center p-6 transition-all ${activeSkill ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <div className="bg-slate-950 w-full max-w-sm rounded-[3rem] p-8 border border-cyan-500/30 relative shadow-2xl">
-                        <button onClick={() => setActiveSkill(null)} className="absolute top-6 right-6 text-slate-500"><Icon name="X" /></button>
+            const DetailDossier = () => (
+                <div className={`fixed inset-0 z-[100] glass flex items-center justify-center p-6 transition-all duration-500 ${activeSkill ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <div className="bg-slate-950 w-full max-w-sm rounded-[3.5rem] p-8 border border-cyan-500/40 relative shadow-2xl">
+                        <button onClick={() => setActiveSkill(null)} className="absolute top-8 right-8 text-slate-500 hover:text-white"><Icon name="X" /></button>
                         {activeSkill && (
                             <div className="space-y-6">
-                                <h2 className={`text-3xl font-800 ${activeSkill.color}`}>{activeSkill.title}</h2>
-                                <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 underline decoration-cyan-500/20">Summary</p>
-                                    <p className="text-slate-300 italic leading-relaxed">"{activeSkill.summary}"</p>
+                                <h2 className={`text-4xl font-800 tracking-tighter ${activeSkill.color}`}>{activeSkill.title}</h2>
+                                <p className="text-cyan-400 font-black text-[10px] tracking-widest uppercase">{activeSkill.nexus}</p>
+                                <div className="glass p-5 rounded-3xl space-y-4 border border-white/5">
+                                    <p className="text-slate-300 italic text-sm leading-relaxed">"Mastering this node unlocks the ability to navigate complex ethical scenarios in the Moral tab."</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {activeSkill.sub.map(s => (
+                                            <span key={s} className="px-3 py-1 bg-white/5 rounded-full text-[9px] font-bold text-slate-400 border border-white/10 uppercase">{s}</span>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 underline decoration-cyan-500/20">Importance</p>
-                                    <p className="text-slate-400 text-sm leading-relaxed">{activeSkill.importance}</p>
-                                </div>
-                                <div className="flex flex-wrap gap-2 pt-4">
-                                    {activeSkill.sub.map(s => (
-                                        <span key={s} className="px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-[10px] font-bold text-cyan-400 uppercase tracking-tighter">{s}</span>
-                                    ))}
-                                </div>
-                                <button onClick={() => setActiveSkill(null)} className="w-full py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black mt-4 shadow-lg shadow-cyan-500/20">INITIATE TRAINING</button>
+                                <button onClick={() => setActiveSkill(null)} className="w-full py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">SYNCHRONIZE PATH</button>
                             </div>
                         )}
                     </div>
@@ -76,102 +94,91 @@
 
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative overflow-hidden">
-                    <SkillModal />
+                    <DetailDossier />
                     <header className="p-6 flex justify-between items-center bg-slate-950/90 border-b border-white/5 z-50">
-                        <span className="font-black italic text-cyan-400 tracking-tighter">K-SCORE OS</span>
+                        <span className="font-black italic text-cyan-400 tracking-tighter text-xl">K-SCORE OS</span>
                         <div className="flex gap-2">
-                            <div className="glass px-3 py-1 rounded-full text-[10px] font-bold text-amber-400 flex items-center gap-1">⚡ {stats.kScore}</div>
-                            <div className="bg-cyan-500 px-3 py-1 rounded-full text-[10px] font-black text-slate-900 uppercase tracking-tighter">LVL {stats.level}</div>
+                            <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400 flex items-center gap-1">⚡ {stats.kScore}</div>
                         </div>
                     </header>
 
                     <main className="view-container">
-                        {tab === 'dashboard' && (
-                            <div className="p-6 space-y-6 animate-in fade-in">
-                                <div className="glass p-10 rounded-[3rem] text-center border-b-4 border-cyan-500/20 shadow-2xl">
-                                    <h1 className="text-5xl font-800 italic uppercase mb-2 tracking-tighter">ANIKA</h1>
-                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.4em] mb-6 uppercase tracking-[0.4em]">{stats.streak} DAY STREAK</p>
-                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]" style={{width: '45%'}}></div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                         {tab === 'tree' && (
-                            <div className="h-full w-full flex items-center justify-center relative pt-10">
-                                <div className="absolute mandala-rotate w-[340px] h-[340px] border border-white/5 rounded-full"></div>
-                                <div className="absolute mandala-rotate w-[280px] h-[280px] border border-cyan-500/5 rounded-full" style={{animationDirection: 'reverse'}}></div>
+                            <div className="h-full w-full flex items-center justify-center relative">
+                                <div className="absolute mandala-inner w-[300px] h-[300px] border border-white/5 rounded-full"></div>
+                                <div className="absolute mandala-outer w-[380px] h-[380px] border border-cyan-500/10 rounded-full"></div>
                                 
-                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400/50 node-pulse">
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest">Neural</span>
+                                <div className="z-10 w-28 h-28 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400/40 node-pulse">
+                                    <Icon name="Activity" className="w-5 h-5 text-cyan-400 mb-1" />
                                     <span className="text-xl font-800 italic">CORE</span>
                                 </div>
 
-                                {Object.entries(SKILL_DATA).map(([key, data], i) => {
+                                {Object.entries(SKILL_MAP).map(([key, data], i) => {
                                     const angle = (i * 72) * (Math.PI / 180);
-                                    const x = Math.cos(angle) * 140;
-                                    const y = Math.sin(angle) * 140;
+                                    const x = Math.cos(angle) * 135;
+                                    const y = Math.sin(angle) * 135;
+                                    
                                     return (
-                                        <div key={key} onClick={() => setActiveSkill(data)}
+                                        <div key={key} 
+                                             onClick={() => setActiveSkill(data)}
                                              style={{ transform: `translate(${x}px, ${y}px)` }}
-                                             className="absolute glass w-16 h-16 rounded-[1.25rem] flex items-center justify-center cursor-pointer border border-white/10 hover:border-cyan-400 transition-all z-20 shadow-2xl hover:scale-110 active:scale-95">
-                                            <Icon name={data.icon} className={`w-7 h-7 ${data.color}`} />
+                                             className="absolute group cursor-pointer flex items-center justify-center z-20">
+                                            <div className="w-16 h-16 glass rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-cyan-400 transition-all shadow-xl group-hover:scale-110">
+                                                <Icon name={data.icon} className={`w-7 h-7 ${data.color}`} />
+                                            </div>
+                                            
+                                            {/* Sub-Orbital Orbs */}
+                                            {data.sub.map((_, j) => {
+                                                const subAngle = (j * 120) * (Math.PI / 180);
+                                                const sx = Math.cos(subAngle) * 45;
+                                                const sy = Math.sin(subAngle) * 45;
+                                                return (
+                                                    <div key={j} style={{ transform: `translate(${sx}px, ${sy}px)` }} 
+                                                         className={`absolute w-1.5 h-1.5 rounded-full ${data.color} opacity-40 shadow-sm shadow-current`}></div>
+                                                );
+                                            })}
                                         </div>
                                     );
                                 })}
                             </div>
                         )}
 
+                        {tab === 'dashboard' && (
+                            <div className="p-8 space-y-6">
+                                <div className="glass p-10 rounded-[3.5rem] text-center border-b-8 border-cyan-500/10 shadow-2xl">
+                                    <h1 className="text-5xl font-800 italic uppercase mb-2 tracking-tighter">ANIKA</h1>
+                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.6em] mb-8">{stats.streak} DAY STREAK</p>
+                                    <div className="h-1 w-full bg-slate-900 rounded-full"><div className="h-full bg-cyan-400" style={{width: '60%'}}></div></div>
+                                </div>
+                            </div>
+                        )}
+
                         {tab === 'dilemmas' && (
-                            <div className="p-6 space-y-4 animate-in fade-in">
-                                <h2 className="text-2xl font-800 text-amber-500 tracking-tight">Moral Library</h2>
-                                <div className="glass p-7 rounded-[2rem] border-l-4 border-amber-500">
-                                    <h4 className="font-bold text-xl">The Hospital Choice</h4>
-                                    <p className="text-sm text-slate-400 mt-2 italic leading-relaxed">A surgeon must decide between the one and the many. High-consequence logic required.</p>
-                                    <button onClick={() => addXP(100)} className="mt-6 w-full py-4 bg-amber-500 text-slate-950 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-amber-500/20">Begin Analysis</button>
+                            <div className="p-6 space-y-4">
+                                <h2 className="text-3xl font-800 text-amber-500 tracking-tighter">Moral Nexus</h2>
+                                <div className="glass p-8 rounded-[2.5rem] border-l-8 border-amber-500">
+                                    <h4 className="font-bold text-xl mb-2">The Surgeon's Burden</h4>
+                                    <p className="text-sm text-slate-400 italic mb-6">Mastering "Boolean Ethics" in your Skill Tree is recommended before beginning.</p>
+                                    <button onClick={() => addXP(100)} className="w-full py-4 bg-amber-500 text-slate-950 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">Begin Deconstruction</button>
                                 </div>
-                            </div>
-                        )}
-
-                        {tab === 'challenges' && (
-                            <div className="p-6 space-y-4 animate-in fade-in">
-                                <h2 className="text-2xl font-800 text-green-400 tracking-tight">Daily Task</h2>
-                                <div className="glass p-8 rounded-[2rem] text-center border-t-2 border-green-500/20">
-                                    <Icon name="Zap" className="w-8 h-8 text-green-500 mx-auto mb-4" />
-                                    <p className="font-bold text-slate-200 text-lg leading-relaxed mb-8 italic">"Log 10 minutes of disciplined reflection today."</p>
-                                    <button onClick={() => addXP(50)} className="w-full py-5 bg-green-500 text-slate-950 rounded-2xl font-black shadow-lg shadow-green-500/20 active:scale-95 transition-all">LOG COMPLETION</button>
-                                </div>
-                            </div>
-                        )}
-
-                        {(tab === 'lessons' || tab === 'mind') && (
-                            <div className="p-10 text-center text-slate-500 mt-20 italic animate-in fade-in">
-                                <Icon name="Database" className="w-10 h-10 mx-auto mb-4 opacity-20" />
-                                Archives initializing... (25 modules required)
                             </div>
                         )}
                     </main>
 
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950/95 border-t border-white/10 flex justify-around items-center px-1 z-[60] backdrop-blur-xl">
-                        <button onClick={() => setTab('dashboard')} className={`flex flex-col items-center flex-1 transition-all ${tab === 'dashboard' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Home" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Dash</span>
-                        </button>
-                        <button onClick={() => setTab('dilemmas')} className={`flex flex-col items-center flex-1 transition-all ${tab === 'dilemmas' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Scale" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase text-center">Moral</span>
-                        </button>
-                        <button onClick={() => setTab('lessons')} className={`flex flex-col items-center flex-1 transition-all ${tab === 'lessons' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Book" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Learn</span>
-                        </button>
-                        <button onClick={() => setTab('tree')} className={`flex flex-col items-center flex-1 transition-all ${tab === 'tree' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="GitBranch" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Tree</span>
-                        </button>
-                        <button onClick={() => setTab('challenges')} className={`flex flex-col items-center flex-1 transition-all ${tab === 'challenges' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Zap" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Task</span>
-                        </button>
-                        <button onClick={() => setTab('mind')} className={`flex flex-col items-center flex-1 transition-all ${tab === 'mind' ? 'tab-active' : 'text-slate-600'}`}>
-                            <Icon name="Heart" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase text-center">Mind</span>
-                        </button>
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950/95 border-t border-white/10 flex justify-around items-center px-2 z-[60] backdrop-blur-3xl">
+                        {[
+                            {id: 'dashboard', n: 'Home', i: 'home'},
+                            {id: 'dilemmas', n: 'Moral', i: 'scale'},
+                            {id: 'lessons', n: 'Learn', i: 'book'},
+                            {id: 'tree', n: 'Tree', i: 'git-branch'},
+                            {id: 'challenges', n: 'Task', i: 'zap'},
+                            {id: 'mind', n: 'Mind', i: 'heart'}
+                        ].map(t => (
+                            <button key={t.id} onClick={() => setTab(t.id)} className={`flex flex-col items-center flex-1 transition-all ${tab === t.id ? 'tab-active' : 'text-slate-600'}`}>
+                                <Icon name={t.i} className="w-5 h-5 mb-1" />
+                                <span className="text-[7px] font-black uppercase tracking-tighter">{t.n}</span>
+                            </button>
+                        ))}
                     </nav>
                 </div>
             );
