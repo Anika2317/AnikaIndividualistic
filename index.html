@@ -16,8 +16,7 @@
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 10px #22d3ee); border-top: 2px solid #22d3ee; }
         .view-container { height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .node-pulse { animation: pulse 3s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.2); } 70% { box-shadow: 0 0 0 20px rgba(34, 211, 238, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); } }
+        .btn-press:active { transform: scale(0.98); opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -34,173 +33,30 @@
         };
 
         const LESSONS = [
-            { id: 1, title: "Control Dichotomy", pages: [
-                {h: "01. What", b: "Separating controllable internal states from external noise."},
-                {h: "02. Who", b: "Epictetus, Marcus Aurelius, and Seneca."},
-                {h: "03. When", b: "300 BC Athens to the Fall of Rome."},
-                {h: "04. Where", b: "The Stoa Poikile, or the Painted Porch."},
-                {h: "05. Why", b: "To achieve total mental independence from external chaos."},
-                {h: "06. How: Step 1", b: "Label every frustration as 'Controllable' or 'Not Controllable'."},
-                {h: "07. How: Step 2", b: "Cease all emotional investment in things you cannot change."},
-                {h: "08. How: Step 3", b: "Double down on your own character choices."},
-                {h: "09. Exercise", b: "Pre-meditatio Malorum: Imagine losing a possession today."},
-                {h: "10. Synthesis", b: "Invincibility comes from owning only the self. +500 XP"}
+            { id: 1, title: "Control Dichotomy", pages: [{h:"01. What",b:"Separating controllable internal states from external noise."}, {h:"02. Who",b:"Marcus Aurelius & Epictetus."}, {h:"03. When",b:"300 BC Athens."}, {h:"04. Where",b:"The Painted Porch."}, {h:"05. Why",b:"To reach Ataraxia."}, {h:"06. Step 1",b:"Identify the stressor."}, {h:"07. Step 2",b:"Audit the control."}, {h:"08. Step 3",b:"Withdraw emotional energy."}, {h:"09. Exercise",b:"Imagine losing a comfort."}, {h:"10. End",b:"Self-mastery unlocked. +500 XP"}] },
+            { id: 2, title: "First Principles", pages: [{h:"01. What",b:"Breaking down assumptions to atomic truths."}, {h:"02. Who",b:"Aristotle and Elon Musk."}, {h:"03. When",b:"Classical logic revival."}, {h:"04. Where",b:"Silicon Valley engineering."}, {h:"05. Why",b:"To avoid reasoning by analogy."}, {h:"06. Step 1",b:"Identify assumptions."}, {h:"07. Step 2",b:"Break down to physics."}, {h:"08. Step 3",b:"Rebuild from scratch."}, {h:"09. Exercise",b:"Deconstruct your diet."}, {h:"10. End",b:"Clarity achieved. +500 XP"}] },
+            { id: 3, title: "Socratic Method", pages: [{h:"01. What",b:"Dialogue through relentless questioning."}, {h:"02. Who",b:"Socrates."}, {h:"03. When",b:"470 BC."}, {h:"04. Where",b:"Athens Agora."}, {h:"05. Why",b:"To expose ignorance."}, {h:"06. Step 1",b:"Ask for a definition."}, {h:"07. Step 2",b:"Find the contradiction."}, {h:"08. Step 3",b:"Refine the truth."}, {h:"09. Exercise",b:"Ask 'Why' 5 times."}, {h:"10. End",b:"Intellectual humility. +500 XP"}] },
+            { id: 4, title: "Cognitive Mapping", pages: [{h:"01. What",b:"Mapping the mind's internal connections."}, {h:"02. Who",b:"Edward Tolman."}, {h:"03. When",b:"1948."}, {h:"04. Where",b:"Neural networks."}, {h:"05. Why",b:"To navigate triggers."}, {h:"06. Step 1",b:"Identify an emotion."}, {h:"07. Step 2",b:"Trace its source."}, {h:"08. Step 3",b:"Map the exit."}, {h:"09. Exercise",b:"Map your anger."}, {h:"10. End",b:"Internal GPS active. +500 XP"}] },
+            { id: 5, title: "Shadow Work", pages: [{h:"01. What",b:"Integrating repressed traits."}, {h:"02. Who",b:"Carl Jung."}, {h:"03. When",b:"1945."}, {h:"04. Where",b:"Unconscious mind."}, {h:"05. Why",b:"To stop projection."}, {h:"06. Step 1",b:"Notice a trigger."}, {h:"07. Step 2",b:"Own the trait."}, {h:"08. Step 3",b:"Integrate energy."}, {h:"09. Exercise",b:"Mirror reflection."}, {h:"10. End",b:"Wholeness. +500 XP"}] },
+            { id: 6, title: "Impulse Pause", pages: [{h:"01. What",b:"The gap between stimulus and response."}, {h:"02. Who",b:"Viktor Frankl."}, {h:"03. When",b:"Neuro-era."}, {h:"04. Where",b:"Prefrontal Cortex."}, {h:"05. Why",b:"To regain control."}, {h:"06. Step 1",b:"Stop breathing."}, {h:"07. Step 2",b:"Count to five."}, {h:"08. Step 3",b:"Choose move."}, {h:"09. Exercise",b:"The 10s wait."}, {h:"10. End",b:"Reactionary death. +500 XP"}] },
+            { id: 7, title: "Atomic Habits", pages: [{h:"01. What",b:"Compound interest of small actions."}, {h:"02. Who",b:"James Clear."}, {h:"03. When",b:"2018."}, {h:"04. Where",b:"Daily routine."}, {h:"05. Why",b:"Systems over goals."}, {h:"06. Step 1",b:"2-minute rule."}, {h:"07. Step 2",b:"Habit stacking."}, {h:"08. Step 3",b:"Environment design."}, {h:"09. Exercise",b:"Stack meditaton."}, {h:"10. End",b:"Repetition is key. +500 XP"}] },
+            { id: 8, title: "Dopamine Master", pages: [{h:"01. What",b:"Regulating your neuro-rewards."}, {h:"02. Who",b:"Andrew Huberman."}, {h:"03. When",b:"2023."}, {h:"04. Where",b:"Nucleus Accumbens."}, {h:"05. Why",b:"To stop scrolling."}, {h:"06. Step 1",b:"Morning delay."}, {h:"07. Step 2",b:"Boredom practice."}, {h:"08. Step 3",b:"Cold exposure."}, {h:"09. Exercise",b:"No-phone walk."}, {h:"10. End",b:"Focus reclaimed. +500 XP"}] },
+            { id: 9, title: "Stimulus Buffer", pages: [{h:"01. What",b:"Neutralizing emotional triggers."}, {h:"02. Who",b:"Stoic sages."}, {h:"03. When",b:"Eternal."}, {h:"04. Where",b:"Perception layer."}, {h:"05. Why",b:"Impenetrable peace."}, {h:"06. Step 1",b:"Label trigger."}, {h:"07. Step 2",b:"Remove judgment."}, {h:"08. Step 3",b:"Observe breath."}, {h:"09. Exercise",b:"Cold water face."}, {h:"10. End",b:"Trigger proof. +500 XP"}] },
+            { id: 10, title: "Metacognition", pages: [{h:"01. What",b:"Thinking about thinking."}, {h:"02. Who",b:"John Flavell."}, {h:"03. When",b:"1979."}, {h:"04. Where",b:"Higher mind."}, {h:"05. Why",b:"Correcting bias."}, {h:"06. Step 1",b:"Observe thought."}, {h:"07. Step 2",b:"Analyze root."}, {h:"08. Step 3",b:"Redirect path."}, {h:"09. Exercise",b:"Thought labeling."}, {h:"10. End",b:"Logic over fear. +500 XP"}] },
+            { id: 11, title: "Value Alignment", pages: [{h:"01. What",b:"Syncing code to action."}, {h:"02. Who",b:"Aristotle."}, {h:"03. When",b:"Virtue era."}, {h:"04. Where",b:"Behavior."}, {h:"05. Why",b:"Internal peace."}, {h:"06. Step 1",b:"Define core."}, {h:"07. Step 2",b:"Audit time."}, {h:"08. Step 3",b:"Cut noise."}, {h:"09. Exercise",b:"Top 3 list."}, {h:"10. End",b:"Integrity. +500 XP"}] },
+            { id: 12, title: "Radical Honesty", pages: [{h:"01. What",b:"Total transparency."}, {h:"02. Who",b:"Brad Blanton."}, {h:"03. When",b:"1996."}, {h:"04. Where",b:"Communication."}, {h:"05. Why",b:" PSY-integrity."}, {h:"06. Step 1",b:"Stop lies."}, {h:"07. Step 2",b:"Share feeling."}, {h:"08. Step 3",b:"Admit fault."}, {h:"09. Exercise",b:"The true secret."}, {h:"10. End",b:"Pure psyche. +500 XP"}] },
+            { id: 13, title: "Identity Design", pages: [{h:"01. What",b:"Deciding who you are."}, {h:"02. Who",b:"Self-architects."}, {h:"03. When",b:"Now."}, {h:"04. Where",b:"Narrative."}, {h:"05. Why",b:"Belief drives act."}, {h:"06. Step 1",b:"Delete label."}, {h:"07. Step 2",b:"Write future."}, {h:"08. Step 3",b:"Act as if."}, {h:"09. Exercise",b:"New habit."}, {h:"10. End",b:"Reborn. +500 XP"}] },
+            { id: 14, title: "The Integration", pages: [{h:"01. What",b:"Becoming a whole system."}, {h:"02. Who",b:"Anika 2.0."}, {h:"03. When",b:"Lvl 2 Threshold."}, {h:"04. Where",b:"Total self."}, {h:"05. Why",b:"Unified OS."}, {h:"06. Step 1",b:"Review nodes."}, {h:"07. Step 2",b:"Heal gaps."}, {h:"08. Step 3",b:"Live OS."}, {h:"09. Exercise",b:"The synthesis."}, {h:"10. End",b:"Integration. +1000 XP"}] }
+        ];
+
+        const DILEMMAS = [
+            { id: 1, title: "The Trolley Lever", scenario: "A train is heading for 5 workers. You can pull a lever to switch it to a track with 1 worker. Do you pull it?", options: [
+                { text: "Pull the lever", result: "Utilitarianism: You prioritize the 'Greatest Good.' You are mathematically logical but may overlook individual rights in favor of outcomes." },
+                { text: "Do nothing", result: "Deontology: You refuse to play god. You believe that killing is wrong, even to save others. You prioritize moral purity over numbers." }
             ]},
-            { id: 2, title: "First Principles", pages: [
-                {h: "01. The What", b: "Breaking a problem down to the physics and rebuilding from scratch."},
-                {h: "02. The Who", b: "Aristotle and Elon Musk."},
-                {h: "03. The When", b: "Classic Logic era revived by modern engineering."},
-                {h: "04. The Where", b: "Scientific circles and Silicon Valley."},
-                {h: "05. Why", b: "To avoid the trap of 'reasoning by analogy' (imitating others)."},
-                {h: "06. How: Start", b: "Identify the current assumptions you are making."},
-                {h: "07. How: Middle", b: "Deconstruct them until you hit a basic, undeniable fact."},
-                {h: "08. How: End", b: "Reconstruct your solution using only those core facts."},
-                {h: "09. Exercise", b: "Analyze why you follow your current career/school path."},
-                {h: "10. Synthesis", b: "Truth is found in atoms, not opinions. +500 XP"}
-            ]},
-            { id: 3, title: "Socratic Method", pages: [
-                {h: "01. The What", b: "The art of cooperative argumentative dialogue."},
-                {h: "02. The Who", b: "Socrates, the Gadfly of Athens."},
-                {h: "03. The When", b: "470 BC Athens."},
-                {h: "04. The Where", b: "The public Agora market squares."},
-                {h: "05. Why", b: "To strip away false knowledge and reach true wisdom."},
-                {h: "06. How: Start", b: "Ask a question that defines a term (What is courage?)."},
-                {h: "07. How: Middle", b: "Find a case where that definition fails or contradicts."},
-                {h: "08. How: End", b: "Reform the definition to be more accurate."},
-                {h: "09. Exercise", b: "Ask 'Why?' five times to your biggest goal today."},
-                {h: "10. Synthesis", b: "Questions are more valuable than answers. +500 XP"}
-            ]},
-            { id: 4, title: "Cognitive Mapping", pages: [
-                {h: "01. The What", b: "Visualizing the mental landscape of yourself and others."},
-                {h: "02. The Who", b: "Psychologist Edward Tolman."},
-                {h: "03. The When", b: "1940s Behavioral Science."},
-                {h: "04. Where", b: "Internal neural representations of reality."},
-                {h: "05. Why", b: "To predict behavior and understand hidden motivations."},
-                {h: "06. How: Start", b: "Locate a recurring emotional trigger (e.g., envy)."},
-                {h: "07. How: Middle", b: "Identify the belief node it's attached to."},
-                {h: "08. How: End", b: "Draft a new 'route' on your map to avoid that trigger."},
-                {h: "09. Exercise", b: "Draw a literal map of your morning routine's friction."},
-                {h: "10. Synthesis", b: "If you change the map, you change the destination. +500 XP"}
-            ]},
-            { id: 5, title: "Shadow Work", pages: [
-                {h: "01. The What", b: "Integrating the repressed parts of your personality."},
-                {h: "02. The Who", b: "Carl Jung."},
-                {h: "03. The When", b: "1940s Analytic Psychology."},
-                {h: "04. Where", b: "The boundary between the ego and the unconscious."},
-                {h: "05. Why", b: "Unintegrated traits manifest as destructive projections."},
-                {h: "06. How: Start", b: "Identify what you judge most harshly in others."},
-                {h: "07. How: Middle", b: "Find where you possess that same trait in secret."},
-                {h: "08. How: End", b: "Acknowledge the trait's energy and use it consciously."},
-                {h: "09. Exercise", b: "Write down the one thing you'd hate others to know."},
-                {h: "10. Synthesis", b: "Wholeness requires light and dark. +500 XP"}
-            ]},
-            { id: 6, title: "Impulse Pause", pages: [
-                {h: "01. The What", b: "Managing the 600ms gap in brain firing."},
-                {h: "02. Biology", b: "The Amygdala (reflex) vs Prefrontal Cortex (choice)."},
-                {h: "03. The Why", b: "Reclaiming power from biological instincts."},
-                {h: "04. The When", b: "Crucial during high-stress social interactions."},
-                {h: "05. Where", b: "The synapse between stimulus and action."},
-                {h: "06. How: Start", b: "Feel the physical 'hit' of an impulse in your gut."},
-                {h: "07. How: Middle", b: "Force a physical count of four seconds."},
-                {h: "08. How: End", b: "Act according to values, not the chemical surge."},
-                {h: "09. Exercise", b: "Wait 15 seconds before checking your phone next time."},
-                {h: "10. Synthesis", b: "Discipline is the expansion of time. +500 XP"}
-            ]},
-            { id: 7, title: "Atomic Habits", pages: [
-                {h: "01. The What", b: "Small repeatable actions that compound exponentially."},
-                {h: "02. The Who", b: "James Clear."},
-                {h: "03. The Math", b: "1% better every day results in 37x growth in a year."},
-                {h: "04. When", b: "Daily application at the micro-level."},
-                {h: "05. Why", b: "Motivation is unreliable; systems are bulletproof."},
-                {h: "06. How: Start", b: "Make a desired habit unavoidable in your environment."},
-                {h: "07. How: Middle", b: "Shrink the action until it takes less than 2 minutes."},
-                {h: "08. How: End", b: "Stack the new habit onto an existing one (Habit Stacking)."},
-                {h: "09. Exercise", b: "Put your gym shoes on top of your phone tonight."},
-                {h: "10. Synthesis", b: "Identity is built by repetitions. +500 XP"}
-            ]},
-            { id: 8, title: "Dopamine Master", pages: [
-                {h: "01. The What", b: "Reclaiming your reward system from cheap stimulation."},
-                {h: "02. Biology", b: "The Nucleus Accumbens and variable rewards."},
-                {h: "03. The Why", b: "Infinite scrolling creates a focused baseline of zero."},
-                {h: "04. When", b: "Critical in the digital era of 2026."},
-                {h: "05. Where", b: "Your attention-span circuitry."},
-                {h: "06. How: Start", b: "Eliminate digital noise for the first hour of sleep."},
-                {h: "07. How: Middle", b: "Switch to high-effort dopamine (reading/creating)."},
-                {h: "08. How: End", b: "Engage in deliberate boredom to reset thresholds."},
-                {h: "09. Exercise", b: "Sit for 5 minutes with no stimulation at all."},
-                {h: "10. Synthesis", b: "Focused attention is the only true wealth. +500 XP"}
-            ]},
-            { id: 9, title: "Stimulus Buffer", pages: [
-                {h: "01. The What", b: "Creating a mental firewall against external triggers."},
-                {h: "02. The Who", b: "Viktor Frankl (Logotherapy)."},
-                {h: "03. The Why", b: "To prevent others from controlling your emotional state."},
-                {h: "04. When", b: "Whenever you encounter criticism or hostility."},
-                {h: "05. Where", b: "The internal narrative layer of your mind."},
-                {h: "06. How: Start", b: "Identify your top 3 current triggers."},
-                {h: "07. How: Middle", b: "Re-label triggers as 'data' instead of 'threats'."},
-                {h: "08. How: End", b: "Choose a neutral response to that data."},
-                {h: "09. Exercise", b: "Read a hateful comment and practice zero-reaction."},
-                {h: "10. Synthesis", b: "You are the mountain, triggers are the wind. +500 XP"}
-            ]},
-            { id: 10, title: "Metacognition", pages: [
-                {h: "01. The What", b: "The ability to think about your own thinking process."},
-                {h: "02. Biology", b: "Prefrontal cortex activity during self-monitoring."},
-                {h: "03. The Why", b: "You cannot change a behavior you don't notice."},
-                {h: "04. When", b: "Best practiced during 'thought-loops' or anxiety."},
-                {h: "05. Where", b: "The 'Observer' position in the mind."},
-                {h: "06. How: Start", b: "Label your thoughts (e.g., 'Planning', 'Worrying')."},
-                {h: "07. How: Middle", b: "Ask if the current thought is based on fact or fear."},
-                {h: "08. How: End", b: "Return focus to the breath or external reality."},
-                {h: "09. Exercise", b: "Narrate your internal thoughts out loud for 1 minute."},
-                {h: "10. Synthesis", b: "If you can see the thought, you aren't the thought. +500 XP"}
-            ]},
-            { id: 11, title: "Value Alignment", pages: [
-                {h: "01. The What", b: "Syncing actions to a hierarchy of internal values."},
-                {h: "02. The Why", b: "Cognitive dissonance is the primary source of misery."},
-                {h: "03. The When", b: "Every decision point in your day."},
-                {h: "04. Where", b: "The intersection of belief and behavior."},
-                {h: "05. Who", b: "Aristotelian Virtue Ethics."},
-                {h: "06. How: Start", b: "Rank your top 3 non-negotiable values."},
-                {h: "07. How: Middle", b: "Audit your past 24 hours for alignment."},
-                {h: "08. How: End", b: "Delete one task that violates your top values."},
-                {h: "09. Exercise", b: "Say 'No' to one request today based on values."},
-                {h: "10. Synthesis", b: "Alignment is the end of internal friction. +500 XP"}
-            ]},
-            { id: 12, title: "Radical Honesty", pages: [
-                {h: "01. The What", b: "Total transparency of internal states to yourself and others."},
-                {h: "02. The Who", b: "Brad Blanton."},
-                {h: "03. The Why", b: "Lying creates a split psyche and social masks."},
-                {h: "04. When", b: "In all social and intimate interactions."},
-                {h: "05. Where", b: "Communication and internal dialogue."},
-                {h: "06. How: Start", b: "Cease telling 'white lies' to avoid social friction."},
-                {h: "07. How: Middle", b: "Express your actual emotion (anger, fear, joy) directly."},
-                {h: "08. How: End", b: "Observe the trust and simplicity that results."},
-                {h: "09. Exercise", b: "Tell one truth you've been avoiding for a week."},
-                {h: "10. Synthesis", b: "Truth simplifies the complexity of reality. +500 XP"}
-            ]},
-            { id: 13, title: "Identity Design", pages: [
-                {h: "01. The What", b: "Consciously choosing your self-narrative."},
-                {h: "02. The Who", b: "Benjamin Hardy and modern psychologists."},
-                {h: "03. The Why", b: "You act according to who you think you are."},
-                {h: "04. When", b: "During periods of life transition."},
-                {h: "05. Where", b: "The story you tell yourself about your past/future."},
-                {h: "06. How: Start", b: "Discard old labels (e.g., 'I am not a math person')."},
-                {h: "07. How: Middle", b: "Write a profile of your 'Level 10' self."},
-                {h: "08. How: End", b: "Act 'as if' you are that version right now."},
-                {h: "09. Exercise", b: "Change one small way you dress or speak today."},
-                {h: "10. Synthesis", b: "You are the architect of your own character. +500 XP"}
-            ]},
-            { id: 14, title: "The Integration", pages: [
-                {h: "01. The What", b: "Fusing Logic, Empathy, and Discipline into a whole self."},
-                {h: "02. The Goal", b: "Psychological Individuation."},
-                {h: "03. The Why", b: "A fragmented mind cannot achieve greatness."},
-                {h: "04. When", b: "The final step of Tier 1 progression."},
-                {h: "05. Where", b: "The synthesis of all Skill Tree nodes."},
-                {h: "06. How: Start", b: "Audit which nodes on the tree are weakest."},
-                {h: "07. How: Middle", b: "Intensively focus on the gap (e.g., Empathy)."},
-                {h: "08. How: End", b: "Observe how skills from one node feed another."},
-                {h: "09. Exercise", b: "Solve a Logic problem using an Empathy mapping."},
-                {h: "10. Synthesis", b: "You are now a unified operating system. +1000 XP"}
+            { id: 2, title: "The Lifeboat", scenario: "The boat is sinking. You must throw one person overboard to save the rest. An elderly doctor or a healthy child?", options: [
+                { text: "Throw the Doctor", result: "Future Value Focus: You prioritize potential and longevity. You see the child's life as a blank canvas with more 'time-wealth'." },
+                { text: "Throw the Child", result: "Immediate Utility: You prioritize current skills. The doctor can save others right now. You value proven competence over potential." }
             ]}
         ];
 
@@ -208,6 +64,8 @@
             const [tab, setTab] = useState('dashboard');
             const [activeSkill, setActiveSkill] = useState(null);
             const [activeLesson, setActiveLesson] = useState(null);
+            const [activeMoral, setActiveMoral] = useState(null);
+            const [moralResult, setMoralResult] = useState(null);
             const [page, setPage] = useState(0);
             const [stats, setStats] = useState({ kScore: 527, streak: 12 });
             const [mastered, setMastered] = useState([]);
@@ -221,6 +79,11 @@
                 setPage(0);
             };
 
+            const selectMoral = (result) => {
+                setMoralResult(result);
+                setStats(s => ({...s, kScore: s.kScore + 25}));
+            };
+
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative bg-slate-950">
                     
@@ -228,7 +91,7 @@
                     {activeLesson && (
                         <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col">
                             <div className="flex justify-between items-center mb-10">
-                                <span className="text-cyan-400 font-black text-xs">SLIDE {page + 1} / 10</span>
+                                <span className="text-cyan-400 font-black text-xs uppercase">Slide {page + 1} / 10</span>
                                 <button onClick={() => {setActiveLesson(null); setPage(0);}} className="text-slate-500 font-bold uppercase text-xs">Exit</button>
                             </div>
                             <div className="flex-1">
@@ -242,59 +105,61 @@
                                 {page < 9 ? (
                                     <button onClick={next} className="flex-2 py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Next</button>
                                 ) : (
-                                    <button onClick={() => master(activeLesson.id)} className="flex-2 py-5 bg-green-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Claim Mastery</button>
+                                    <button onClick={() => master(activeLesson.id)} className="flex-2 py-5 bg-green-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Master</button>
                                 )}
                             </div>
                         </div>
                     )}
 
-                    {/* SKILL DOSSIER */}
-                    {activeSkill && (
-                        <div className="fixed inset-0 z-[100] bg-slate-950/95 flex items-center justify-center p-6 backdrop-blur-md">
-                            <div className="glass p-8 rounded-[3rem] border border-cyan-500/30 w-full text-center shadow-2xl">
-                                <h3 className={`text-3xl font-800 ${activeSkill.color} mb-4 uppercase tracking-tighter`}>{activeSkill.title}</h3>
-                                <p className="text-slate-300 italic mb-6">"{activeSkill.summary}"</p>
-                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-8">NEXUS: {activeSkill.sub}</p>
-                                <button onClick={() => setActiveSkill(null)} className="w-full py-4 bg-slate-800 rounded-2xl font-black uppercase text-xs">Close</button>
+                    {/* MORAL ENGINE */}
+                    {activeMoral && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col overflow-y-auto">
+                            <div className="flex justify-between items-center mb-10">
+                                <span className="text-red-400 font-black text-xs uppercase">Moral Deconstruction</span>
+                                <button onClick={() => {setActiveMoral(null); setMoralResult(null);}} className="text-slate-500 font-bold text-xs uppercase">Exit</button>
                             </div>
+                            <h2 className="text-3xl font-800 mb-6 text-white uppercase tracking-tighter">{activeMoral.title}</h2>
+                            <div className="glass p-8 rounded-[2rem] text-lg mb-8 italic text-slate-300 leading-relaxed">
+                                "{activeMoral.scenario}"
+                            </div>
+                            
+                            {!moralResult ? (
+                                <div className="space-y-4">
+                                    {activeMoral.options.map((opt, i) => (
+                                        <button key={i} onClick={() => selectMoral(opt.result)} className="w-full py-5 glass rounded-2xl font-bold text-sm text-red-400 border border-red-500/20 btn-press">
+                                            {opt.text}
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="glass p-6 rounded-3xl border-l-4 border-cyan-500">
+                                        <h4 className="text-cyan-400 font-black text-[10px] uppercase mb-2">Neural Analysis</h4>
+                                        <p className="text-sm leading-relaxed">{moralResult}</p>
+                                    </div>
+                                    <button onClick={() => {setActiveMoral(null); setMoralResult(null);}} className="w-full py-4 bg-slate-800 rounded-2xl font-black uppercase text-xs">Analysis Logged</button>
+                                </div>
+                            )}
                         </div>
                     )}
 
                     <header className="p-6 flex justify-between items-center bg-slate-950 border-b border-white/5 z-50">
                         <span className="font-black italic text-cyan-400 text-2xl tracking-tighter">K-SCORE OS</span>
-                        <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400">⚡ {stats.kScore}</div>
+                        <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400 flex items-center gap-1">⚡ {stats.kScore}</div>
                     </header>
 
                     <main className="view-container">
                         {tab === 'dashboard' && (
                             <div className="p-6">
-                                <div className="glass p-10 rounded-[3.5rem] text-center border-b-4 border-cyan-500/20">
+                                <div className="glass p-10 rounded-[3.5rem] text-center border-b-4 border-cyan-500/20 shadow-2xl">
                                     <h1 className="text-5xl font-800 uppercase italic tracking-tighter mb-2">ANIKA</h1>
                                     <p className="text-cyan-400 font-bold text-xs uppercase tracking-widest leading-tight">{stats.streak} DAY STREAK</p>
                                 </div>
                             </div>
                         )}
-                        {tab === 'tree' && (
-                            <div className="h-[450px] w-full flex items-center justify-center relative pt-10">
-                                <div className="absolute mandala-rotate w-80 h-80 border border-white/5 rounded-full"></div>
-                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400">
-                                    <span className="text-xl font-800 italic uppercase">CORE</span>
-                                </div>
-                                {Object.entries(SKILLS).map(([key, data], i) => {
-                                    const angle = (i * 72) * (Math.PI / 180);
-                                    return (
-                                        <div key={key} onClick={() => setActiveSkill(data)}
-                                             style={{ transform: `translate(${Math.cos(angle)*135}px, ${Math.sin(angle)*135}px)` }}
-                                             className="absolute glass w-16 h-16 rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:border-cyan-400 transition-all">
-                                            <span className={`text-2xl font-black ${data.color}`}>{data.icon}</span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
                         {tab === 'lessons' && (
                             <div className="p-6 space-y-4">
-                                <h2 className="text-3xl font-800 tracking-tighter mb-6 uppercase">Curriculum</h2>
+                                <h2 className="text-3xl font-800 mb-6 uppercase tracking-tighter">Curriculum</h2>
                                 {LESSONS.map(l => (
                                     <div key={l.id} onClick={() => {setActiveLesson(l); setPage(0);}} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 cursor-pointer active:scale-95 transition-all">
                                         <h4 className="font-bold text-lg uppercase tracking-tight">{l.id}. {l.title}</h4>
@@ -303,20 +168,42 @@
                                 ))}
                             </div>
                         )}
-                        {tab === 'tasks' && (
-                            <div className="p-6">
-                                <button onClick={() => setStats(s => ({...s, kScore: s.kScore + 50}))} className="w-full py-6 bg-green-500 text-slate-950 rounded-3xl font-black uppercase text-xs shadow-lg shadow-green-500/20 active:scale-95 transition-all">Log Completion +50 XP</button>
+                        {tab === 'moral' && (
+                            <div className="p-6 space-y-4">
+                                <h2 className="text-3xl font-800 mb-6 uppercase tracking-tighter text-red-500">Moral Nexus</h2>
+                                {DILEMMAS.map(d => (
+                                    <div key={d.id} onClick={() => setActiveMoral(d)} className="glass p-6 rounded-3xl border-l-4 border-red-500 cursor-pointer active:scale-95 transition-all">
+                                        <h4 className="font-bold text-lg uppercase tracking-tighter">{d.title}</h4>
+                                        <p className="text-[10px] text-slate-500 mt-2 font-black uppercase tracking-widest">Interactive Analysis</p>
+                                    </div>
+                                ))}
                             </div>
                         )}
-                        {(tab === 'moral' || tab === 'mind') && (
-                            <div className="p-10 text-center text-slate-500 italic mt-20">Archives Loading... (Level 2 Required)</div>
+                        {tab === 'tree' && (
+                            <div className="h-[450px] w-full flex items-center justify-center relative pt-10">
+                                <div className="absolute mandala-rotate w-80 h-80 border border-white/5 rounded-full"></div>
+                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400 node-pulse"><span className="text-xl font-800 italic uppercase">CORE</span></div>
+                                {Object.entries(SKILLS).map(([key, data], i) => {
+                                    const angle = (i * 72) * (Math.PI / 180);
+                                    return (
+                                        <div key={key} onClick={() => setActiveSkill(data)}
+                                             style={{ transform: `translate(${Math.cos(angle)*135}px, ${Math.sin(angle)*135}px)` }}
+                                             className="absolute glass w-16 h-16 rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:border-cyan-400"><span className={`text-2xl font-black ${data.color}`}>{data.icon}</span></div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        {tab === 'task' && (
+                            <div className="p-6">
+                                <button onClick={() => setStats(s => ({...s, kScore: s.kScore + 50}))} className="w-full py-6 bg-green-500 text-slate-950 rounded-3xl font-black uppercase text-xs shadow-lg btn-press">Log Completion +50 XP</button>
+                            </div>
                         )}
                     </main>
 
                     <nav className="fixed bottom-0 left-0 right-0 h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-2 z-[60] backdrop-blur-xl">
                         {['Dash', 'Moral', 'Learn', 'Tree', 'Task', 'Mind'].map((t) => (
-                            <button key={t} onClick={() => setTab(t.toLowerCase() === 'dash' ? 'dashboard' : t.toLowerCase() === 'learn' ? 'lessons' : t.toLowerCase() === 'task' ? 'tasks' : t.toLowerCase())} 
-                                    className={`flex-1 h-full font-black text-[10px] uppercase ${tab.includes(t.toLowerCase()) || (t === 'Dash' && tab === 'dashboard') || (t === 'Task' && tab === 'tasks') || (t === 'Learn' && tab === 'lessons') ? 'tab-active' : 'text-slate-600'}`}>{t}</button>
+                            <button key={t} onClick={() => setTab(t.toLowerCase() === 'dash' ? 'dashboard' : t.toLowerCase() === 'learn' ? 'lessons' : t.toLowerCase() === 'task' ? 'task' : t.toLowerCase())} 
+                                    className={`flex-1 h-full font-black text-[10px] uppercase ${tab.includes(t.toLowerCase()) || (t === 'Dash' && tab === 'dashboard') || (t === 'Task' && tab === 'task') || (t === 'Learn' && tab === 'lessons') ? 'tab-active' : 'text-slate-600'}`}>{t}</button>
                         ))}
                     </nav>
                 </div>
