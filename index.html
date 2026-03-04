@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-SCORE OS | Level 1</title>
+    <title>K-SCORE | Neural OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
         body { background: #020617; font-family: 'Plus Jakarta Sans', sans-serif; color: white; overflow-x: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .skill-node { transition: all 0.3s ease; border: 2px solid rgba(255,255,255,0.1); }
-        .active-tab { color: #22d3ee !important; transform: translateY(-2px); }
-        .progress-bar { transition: width 1s ease-in-out; }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+        .mandala-rotate { animation: rotate 60s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .node-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(34, 211, 238, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); } }
+        .tab-active { color: #22d3ee; filter: drop-shadow(0 0 8px #22d3ee); }
     </style>
 </head>
 <body>
@@ -29,119 +31,153 @@
             return <i data-lucide={name.toLowerCase().replace(/([a-z0-9])([A-Z])/g, '$1-$2')} className={className}></i>;
         };
 
-        function App() {
-            const [tab, setTab] = useState('dashboard');
-            const [stats, setStats] = useState({ kScore: 527, xp: 420, level: 1, streak: 12, lessonCount: 0 });
+        const SKILL_DATA = {
+            logic: { 
+                title: "Strategic Logic", 
+                summary: "The ability to deconstruct complex arguments into their base components, removing emotional bias to find objective truth.",
+                importance: "Without logic, you are a slave to the rhetoric of others. Mastering this allows you to build reality from first principles.",
+                subSkills: ["Socratic Questioning", "First Principles", "Cognitive Bias Detection"]
+            },
+            empathy: { 
+                title: "Radical Empathy", 
+                summary: "Not just feeling for others, but cognitively mapping the internal world of an adversary or stranger.",
+                importance: "Empathy is a diagnostic tool. It allows you to predict behavior and build high-integrity social bonds.",
+                subSkills: ["Active Listening", "Perspective Shifting", "Compassionate Detachment"]
+            },
+            discipline: { 
+                title: "Iron Discipline", 
+                summary: "The subordination of the 'instant-gratification' self to the 'long-term' strategic self.",
+                importance: "Discipline is the only bridge between a thought and a result. It is the core of personal agency.",
+                subSkills: ["Dopamine Management", "Atomic Habits", "Pain Tolerance"]
+            },
+            regulation: { 
+                title: "Emotional Regulation", 
+                summary: "Creating a 'buffer zone' between a stimulus and your response.",
+                importance: "If you cannot control your internal state, the external world will control you via your triggers.",
+                subSkills: ["Stoic Breathwork", "Metacognition", "Response Inhibition"]
+            },
+            integrity: { 
+                title: "Total Integrity", 
+                summary: "Alignment between internal values, spoken words, and physical actions.",
+                importance: "Integrity creates a unified self. It removes the 'leakage' of guilt and double-mindedness.",
+                subSkills: ["Value Auditing", "Radical Honesty", "Ethical Consistency"]
+            }
+        };
 
-            const renderView = () => {
-                switch(tab) {
-                    case 'dashboard': return (
-                        <div className="p-6 space-y-6">
-                            <div className="glass p-8 rounded-[2.5rem] text-center border-b-4 border-cyan-500/30">
-                                <h1 className="text-4xl font-800 italic uppercase">ANIKA</h1>
-                                <p className="text-cyan-400 font-bold text-[10px] tracking-[0.4em] mt-2">K-SCORE SYSTEM ACTIVE</p>
-                                <div className="mt-8 flex justify-center gap-4">
-                                    <div className="glass px-5 py-3 rounded-2xl">
-                                        <p className="text-[10px] text-slate-500 font-bold uppercase">STREAK</p>
-                                        <p className="text-xl font-black text-orange-400">{stats.streak}D</p>
-                                    </div>
-                                    <div className="glass px-5 py-3 rounded-2xl">
-                                        <p className="text-[10px] text-slate-500 font-bold uppercase">K-SCORE</p>
-                                        <p className="text-xl font-black text-cyan-400">{stats.kScore}</p>
-                                    </div>
+        function App() {
+            const [tab, setTab] = useState('tree');
+            const [activeSkill, setActiveSkill] = useState(null);
+            const [stats] = useState({ kScore: 527, streak: 12, level: 1 });
+
+            const SkillModal = () => (
+                <div className={`fixed inset-0 z-[100] glass flex items-center justify-center p-6 transition-all ${activeSkill ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <div className="bg-slate-950 w-full max-w-sm rounded-[3rem] p-8 border border-cyan-500/30 relative shadow-2xl">
+                        <button onClick={() => setActiveSkill(null)} className="absolute top-6 right-6 text-slate-500"><Icon name="X" /></button>
+                        {activeSkill && (
+                            <div className="space-y-6">
+                                <h2 className="text-3xl font-800 text-cyan-400">{activeSkill.title}</h2>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">The Definition</p>
+                                    <p className="text-slate-300 leading-relaxed italic">"{activeSkill.summary}"</p>
                                 </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Why it Matters</p>
+                                    <p className="text-slate-300 leading-relaxed">{activeSkill.importance}</p>
+                                </div>
+                                <div className="flex flex-wrap gap-2 pt-4">
+                                    {activeSkill.subSkills.map(s => (
+                                        <span key={s} className="px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-[10px] font-bold text-cyan-400 uppercase tracking-tighter">{s}</span>
+                                    ))}
+                                </div>
+                                <button className="w-full py-4 bg-cyan-500 text-slate-950 rounded-2xl font-black mt-6 shadow-lg shadow-cyan-500/20">START TRAINING</button>
                             </div>
-                            <div className="glass p-6 rounded-3xl border-l-4 border-cyan-500">
-                                <h3 className="text-xs font-black uppercase text-cyan-500 mb-2">Today's Focus</h3>
-                                <p className="text-lg font-bold">Complete 3 Psychology modules to advance.</p>
+                        )}
+                    </div>
+                </div>
+            );
+
+            const renderTree = () => (
+                <div className="relative h-[500px] w-full flex items-center justify-center">
+                    {/* Background Ring */}
+                    <div className="absolute w-80 h-80 border border-white/5 rounded-full mandala-rotate"></div>
+                    <div className="absolute w-[400px] h-[400px] border border-cyan-500/5 rounded-full"></div>
+
+                    {/* Core Hub */}
+                    <div className="relative z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400/50 node-pulse">
+                        <span className="text-[10px] font-black uppercase tracking-tighter text-slate-500">Core</span>
+                        <span className="text-xl font-800 italic">ANIKA</span>
+                    </div>
+
+                    {/* Nodes Map */}
+                    {Object.entries(SKILL_DATA).map(([key, data], i) => {
+                        const angle = (i * 72) * (Math.PI / 180);
+                        const x = Math.cos(angle) * 130;
+                        const y = Math.sin(angle) * 130;
+                        
+                        return (
+                            <div key={key} 
+                                 onClick={() => setActiveSkill(data)}
+                                 style={{ transform: `translate(${x}px, ${y}px)` }}
+                                 className="absolute group cursor-pointer flex flex-col items-center">
+                                <div className="w-14 h-14 rounded-2xl glass border border-white/10 group-hover:border-cyan-400 flex items-center justify-center transition-all group-hover:scale-110">
+                                    <Icon name={key === 'logic' ? 'cpu' : key === 'empathy' ? 'heart' : key === 'discipline' ? 'shield' : key === 'regulation' ? 'wind' : 'anchor'} className="w-6 h-6 text-cyan-400" />
+                                </div>
+                                <span className="absolute -bottom-6 text-[8px] font-black uppercase tracking-widest whitespace-nowrap opacity-50 group-hover:opacity-100">{data.title}</span>
+                                
+                                {/* Outer Sub-Skills */}
+                                {data.subSkills.map((sub, j) => {
+                                    const subAngle = (i * 72 + (j - 1) * 20) * (Math.PI / 180);
+                                    const sx = Math.cos(subAngle) * 60;
+                                    const sy = Math.sin(subAngle) * 60;
+                                    return (
+                                        <div key={j} style={{ transform: `translate(${sx}px, ${sy}px)` }} className="absolute w-2 h-2 bg-slate-700 rounded-full"></div>
+                                    );
+                                })}
                             </div>
-                        </div>
-                    );
-                    case 'dilemmas': return (
-                        <div className="p-6 space-y-4">
-                            <h2 className="text-2xl font-800 tracking-tight">Ethical Dilemmas</h2>
-                            <div className="glass p-6 rounded-3xl border-l-4 border-amber-500">
-                                <h3 className="font-bold text-xl">The Hospital Choice</h3>
-                                <p className="text-slate-400 text-sm mt-2">Decide between the one and the many.</p>
-                            </div>
-                        </div>
-                    );
-                    case 'lessons': return (
-                        <div className="p-6 space-y-4">
-                            <h2 className="text-2xl font-800">Lessons</h2>
-                            <p className="text-xs text-slate-500 font-bold uppercase">{stats.lessonCount}/23 Until Level 2</p>
-                            <div className="glass p-5 rounded-2xl border-l-4 border-cyan-500">
-                                <h4 className="font-bold text-lg">Introduction to Stoicism</h4>
-                                <p className="text-xs text-slate-400 mt-1 italic">Micro-Lesson 1</p>
-                            </div>
-                        </div>
-                    );
-                    case 'tree': return (
-                        <div className="p-6 space-y-6">
-                            <h2 className="text-2xl font-800 tracking-tight text-cyan-400">Skill Tree</h2>
-                            <div className="grid grid-cols-1 gap-4">
-                                {['Logic', 'Empathy', 'Discipline', 'Regulation', 'Integrity'].map(skill => (
-                                    <div key={skill} className="glass p-5 rounded-2xl flex items-center justify-between">
-                                        <span className="font-bold uppercase text-xs tracking-widest">{skill}</span>
-                                        <div className="h-2 w-32 bg-slate-800 rounded-full overflow-hidden">
-                                            <div className="h-full bg-cyan-400 progress-bar" style={{width: '20%'}}></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                    case 'challenges': return (
-                        <div className="p-6 space-y-4">
-                            <h2 className="text-2xl font-800 tracking-tight text-green-400">Daily Challenges</h2>
-                            <div className="glass p-6 rounded-3xl border border-green-500/20">
-                                <p className="font-bold">Journal for 10 minutes about a moment you lacked integrity this week.</p>
-                                <button className="mt-4 w-full py-3 bg-green-500/10 text-green-400 border border-green-500/30 rounded-xl font-black">LOG COMPLETION</button>
-                            </div>
-                        </div>
-                    );
-                    case 'mind': return (
-                        <div className="p-6 space-y-4">
-                            <h2 className="text-2xl font-800 tracking-tight text-pink-400">Affirmations</h2>
-                            <div className="glass p-8 rounded-[2rem] text-center italic text-xl text-slate-200">
-                                "My internal state is governed by logic, not circumstance."
-                            </div>
-                        </div>
-                    );
-                    default: return null;
-                }
-            };
+                        );
+                    })}
+                </div>
+            );
 
             return (
                 <div className="max-w-md mx-auto min-h-screen pb-32">
-                    <header className="p-6 flex justify-between items-center sticky top-0 bg-slate-950/80 backdrop-blur-md z-50 border-b border-white/5">
-                        <span className="font-black tracking-tighter text-xl text-cyan-400 italic">K-SCORE OS</span>
-                        <div className="bg-slate-900 px-4 py-1 rounded-full text-[10px] font-black uppercase text-cyan-400 border border-cyan-400/20">LVL {stats.level}</div>
+                    <SkillModal />
+                    <header className="p-6 flex justify-between items-center border-b border-white/5 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+                        <h1 className="text-xl font-black italic tracking-tighter text-cyan-400">K-SCORE OS</h1>
+                        <div className="flex items-center gap-3">
+                            <div className="glass px-3 py-1 rounded-full flex items-center gap-2">
+                                <Icon name="Zap" className="w-3 h-3 text-amber-400" />
+                                <span className="text-[10px] font-black">{stats.kScore}</span>
+                            </div>
+                            <div className="bg-cyan-500 px-3 py-1 rounded-full text-[10px] font-black text-slate-950">LVL {stats.level}</div>
+                        </div>
                     </header>
 
-                    <div className="animate-in fade-in duration-500">
-                        {renderView()}
-                    </div>
+                    <main className="p-6">
+                        {tab === 'tree' ? (
+                            <div className="space-y-6">
+                                <div className="text-center">
+                                    <h2 className="text-2xl font-800 mb-1">Neural Mandala</h2>
+                                    <p className="text-xs text-slate-500 font-bold uppercase tracking-[0.2em]">Select a node to deconstruct</p>
+                                </div>
+                                {renderTree()}
+                            </div>
+                        ) : (
+                            <div className="h-[60vh] flex flex-col items-center justify-center text-slate-600 space-y-4">
+                                <Icon name="Construction" className="w-12 h-12" />
+                                <p className="font-black uppercase tracking-widest text-xs">Loading Deep Archives...</p>
+                                <p className="text-[10px] italic">25 lessons per tab currently initializing</p>
+                            </div>
+                        )}
+                    </main>
 
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950/90 backdrop-blur-xl border-t border-white/10 flex justify-around items-center px-2 z-50">
-                        <button onClick={() => setTab('dashboard')} className={`flex flex-col items-center flex-1 ${tab === 'dashboard' ? 'active-tab' : 'text-slate-600'}`}>
-                            <Icon name="Home" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Dash</span>
-                        </button>
-                        <button onClick={() => setTab('dilemmas')} className={`flex flex-col items-center flex-1 ${tab === 'dilemmas' ? 'active-tab' : 'text-slate-600'}`}>
-                            <Icon name="Scale" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Moral</span>
-                        </button>
-                        <button onClick={() => setTab('lessons')} className={`flex flex-col items-center flex-1 ${tab === 'lessons' ? 'active-tab' : 'text-slate-600'}`}>
-                            <Icon name="Book" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Learn</span>
-                        </button>
-                        <button onClick={() => setTab('tree')} className={`flex flex-col items-center flex-1 ${tab === 'tree' ? 'active-tab' : 'text-slate-600'}`}>
-                            <Icon name="GitBranch" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Tree</span>
-                        </button>
-                        <button onClick={() => setTab('challenges')} className={`flex flex-col items-center flex-1 ${tab === 'challenges' ? 'active-tab' : 'text-slate-600'}`}>
-                            <Icon name="Zap" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Task</span>
-                        </button>
-                        <button onClick={() => setTab('mind')} className={`flex flex-col items-center flex-1 ${tab === 'mind' ? 'active-tab' : 'text-slate-600'}`}>
-                            <Icon name="Heart" className="w-5 h-5" /><span className="text-[7px] font-black mt-1 uppercase">Mind</span>
-                        </button>
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 glass border-t border-white/10 flex justify-around items-center px-4 z-[90]">
+                        <button onClick={() => setTab('dashboard')} className={`flex flex-col items-center ${tab === 'dashboard' ? 'tab-active' : 'text-slate-600'}`}><Icon name="Home" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Dash</span></button>
+                        <button onClick={() => setTab('dilemmas')} className={`flex flex-col items-center ${tab === 'dilemmas' ? 'tab-active' : 'text-slate-600'}`}><Icon name="Scale" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Moral</span></button>
+                        <button onClick={() => setTab('lessons')} className={`flex flex-col items-center ${tab === 'lessons' ? 'tab-active' : 'text-slate-600'}`}><Icon name="Book" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Learn</span></button>
+                        <button onClick={() => setTab('tree')} className={`flex flex-col items-center ${tab === 'tree' ? 'tab-active' : 'text-slate-600'}`}><Icon name="GitBranch" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Tree</span></button>
+                        <button onClick={() => setTab('challenges')} className={`flex flex-col items-center ${tab === 'challenges' ? 'tab-active' : 'text-slate-600'}`}><Icon name="Zap" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Task</span></button>
+                        <button onClick={() => setTab('mind')} className={`flex flex-col items-center ${tab === 'mind' ? 'tab-active' : 'text-slate-600'}`}><Icon name="Heart" className="w-5 h-5" /><span className="text-[7px] font-bold mt-1 uppercase">Mind</span></button>
                     </nav>
                 </div>
             );
