@@ -16,8 +16,6 @@
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 10px #22d3ee); border-top: 2px solid #22d3ee; }
         .view-container { height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .node-pulse { animation: pulse 3s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.2); } 70% { box-shadow: 0 0 0 20px rgba(34, 211, 238, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); } }
     </style>
 </head>
 <body>
@@ -26,55 +24,60 @@
         const { useState } = React;
 
         const SKILL_DATA = {
-            logic: { title: "Strategic Logic", icon: "⚛", color: "text-cyan-400", summary: "First Principles thinking.", sub: "Socratic Inquiry" },
-            empathy: { title: "Radical Empathy", icon: "♥", color: "text-pink-400", summary: "Mapping internal states.", sub: "Shadow Work" },
-            discipline: { title: "Iron Discipline", icon: "🛡", color: "text-orange-400", summary: "Impulse control.", sub: "Dopamine Management" },
-            regulation: { title: "Mind Regulation", icon: "≋", color: "text-blue-400", summary: "Stimulus-response buffer.", sub: "Metacognition" },
-            integrity: { title: "Total Integrity", icon: "⚓", color: "text-green-400", summary: "Values alignment.", sub: "Radical Honesty" }
+            logic: { title: "Strategic Logic", icon: "⚛", color: "text-cyan-400", summary: "First Principles thinking. Deconstructing reality into atomic truths.", sub: "Socratic Inquiry" },
+            empathy: { title: "Radical Empathy", icon: "♥", color: "text-pink-400", summary: "Cognitive mapping of others' internal worlds to predict behavior.", sub: "Shadow Work" },
+            discipline: { title: "Iron Discipline", icon: "🛡", color: "text-orange-400", summary: "Subordinating impulse to long-term strategy.", sub: "Dopamine Control" },
+            regulation: { title: "Mind Regulation", icon: "≋", color: "text-blue-400", summary: "The buffer zone between stimulus and response.", sub: "Metacognition" },
+            integrity: { title: "Total Integrity", icon: "⚓", color: "text-green-400", summary: "Absolute alignment of values, words, and actions.", sub: "Radical Honesty" }
         };
 
         const LESSONS = [
-            { id: 1, title: "The Control Dichotomy", pages: [
-                {h: "01. The What", b: "Stoicism is the art of separating what we control from what we don't."},
-                {h: "02. The Who", b: "Pioneered by Epictetus, a slave, and Marcus Aurelius, an Emperor."},
-                {h: "03. The When", b: "Founded in 300 BC Athens, it is the base of modern CBT."},
-                {h: "04. The Where", b: "The 'Stoa Poikile' - a public porch in the heart of the city."},
-                {h: "05. The Why", b: "To achieve 'Ataraxia' - unshakeable mental peace."},
-                {h: "06. How: Step 1", b: "Identify if a stressor is 100% in your control. If not, ignore it."},
-                {h: "07. How: Step 2", b: "Stop seeking external validation; you are then their slave."},
-                {h: "08. How: Step 3", b: "Direct all energy into your effort, never the result."},
-                {h: "09. Exercise", b: "Imagine losing everything. Realize your character is still yours."},
-                {h: "10. End", b: "Mastery of self is the only true freedom. +500 XP"}
-            ]}
+            { id: 1, title: "The Control Dichotomy", pages: [{h:"01. What",b:"Separating controllable internal states from uncontrollable external noise."}, {h:"02. Who",b:"Marcus Aurelius & Epictetus."}, {h:"03. When",b:"300 BC Athens."}, {h:"04. Where",b:"The Painted Porch."}, {h:"05. Why",b:"To reach Ataraxia."}, {h:"06. Step 1",b:"Identify the stressor."}, {h:"07. Step 2",b:"Audit the control."}, {h:"08. Step 3",b:"Withdraw emotional energy."}, {h:"09. Exercise",b:"Imagine losing a comfort."}, {h:"10. End",b:"Self-mastery unlocked. +500 XP"}] },
+            { id: 2, title: "First Principles", pages: Array(10).fill({h:"Logic Deep Dive", b:"Deconstruct any problem to its fundamental facts."}) },
+            { id: 3, title: "Socratic Method", pages: Array(10).fill({h:"Questioning", b:"Ask 'why' until the false assumption dissolves."}) },
+            { id: 4, title: "Cognitive Mapping", pages: Array(10).fill({h:"Empathy 1.0", b:"Drawing the mental map of an adversary."}) },
+            { id: 5, title: "Shadow Work", pages: Array(10).fill({h:"Integration", b:"Face the parts of yourself you reject."}) },
+            { id: 6, title: "Impulse Pause", pages: Array(10).fill({h:"The Gap", b:"Mastering the 600ms between feeling and action."}) },
+            { id: 7, title: "Atomic Compounding", pages: Array(10).fill({h:"1% Rule", b:"Consistency beats intensity every single time."}) },
+            { id: 8, title: "Dopamine Hijack", pages: Array(10).fill({h:"Neurobiology", b:"Reclaiming your attention from variable rewards."}) },
+            { id: 9, title: "Stimulus Buffer", pages: Array(10).fill({h:"Regulation", b:"Neutralizing the triggers before they explode."}) },
+            { id: 10, title: "Metacognition", pages: Array(10).fill({h:"Awareness", b:"Observing your thoughts as if they are weather."}) },
+            { id: 11, title: "Value Alignment", pages: Array(10).fill({h:"Integrity", b:"Matching your spending and time to your core."}) },
+            { id: 12, title: "Radical Honesty", pages: Array(10).fill({h:"Truth", b:"Transparency removes internal friction."}) },
+            { id: 13, title: "Identity Architecture", pages: Array(10).fill({h:"Creation", b:"You act based on who you think you are."}) },
+            { id: 14, title: "The Integration", pages: Array(10).fill({h:"Synthesis", b:"Becoming a whole, unified individual."}) }
         ];
 
         function App() {
             const [tab, setTab] = useState('dashboard');
             const [activeSkill, setActiveSkill] = useState(null);
-            const [page, setPage] = useState(-1);
+            const [currentLesson, setCurrentLesson] = useState(null);
+            const [lessonPage, setLessonPage] = useState(0);
             const [stats, setStats] = useState({ kScore: 527, xp: 420, level: 1, streak: 12 });
+            const [mastered, setMastered] = useState([]);
 
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative bg-slate-950">
-                    {/* LESSON STUDY ENGINE */}
-                    {page >= 0 && (
+                    
+                    {/* 10-PAGE STUDY ENGINE */}
+                    {currentLesson && (
                         <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col">
-                            <div className="flex justify-between items-center mb-8">
-                                <span className="text-[10px] font-black text-cyan-400">PAGE {page + 1} / 10</span>
-                                <button onClick={() => setPage(-1)} className="text-slate-500 font-bold text-xs">EXIT</button>
+                            <div className="flex justify-between items-center mb-10">
+                                <span className="text-cyan-400 font-black text-xs">PAGE {lessonPage + 1} / 10</span>
+                                <button onClick={() => {setCurrentLesson(null); setLessonPage(0);}} className="text-slate-500 font-bold uppercase text-xs">Exit</button>
                             </div>
                             <div className="flex-1">
-                                <h2 className="text-4xl font-800 mb-6 text-white uppercase">{LESSONS[0].pages[page].h}</h2>
+                                <h2 className="text-4xl font-800 mb-6 text-white uppercase">{currentLesson.pages[lessonPage].h}</h2>
                                 <div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-500 text-xl italic text-slate-200">
-                                    "{LESSONS[0].pages[page].b}"
+                                    "{currentLesson.pages[lessonPage].b}"
                                 </div>
                             </div>
                             <div className="flex gap-4 mt-8">
-                                {page > 0 && <button onClick={() => setPage(p => p - 1)} className="flex-1 py-4 glass rounded-2xl font-black">BACK</button>}
-                                {page < 9 ? (
-                                    <button onClick={() => setPage(p => p + 1)} className="flex-2 py-4 bg-cyan-500 text-slate-950 rounded-2xl font-black">NEXT</button>
+                                {lessonPage > 0 && <button onClick={() => setLessonPage(p => p - 1)} className="flex-1 py-5 glass rounded-2xl font-black">BACK</button>}
+                                {lessonPage < 9 ? (
+                                    <button onClick={() => setLessonPage(p => p + 1)} className="flex-2 py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black">NEXT</button>
                                 ) : (
-                                    <button onClick={() => {setPage(-1); setStats(s => ({...s, kScore: s.kScore + 100}))}} className="flex-2 py-4 bg-green-500 text-slate-950 rounded-2xl font-black">MASTERED</button>
+                                    <button onClick={() => {setMastered([...mastered, currentLesson.id]); setStats(s => ({...s, kScore: s.kScore + 100})); setCurrentLesson(null); setLessonPage(0);}} className="flex-2 py-5 bg-green-500 text-slate-950 rounded-2xl font-black uppercase">Mastered</button>
                                 )}
                             </div>
                         </div>
@@ -84,32 +87,32 @@
                     {activeSkill && (
                         <div className="fixed inset-0 z-[100] bg-slate-950/95 flex items-center justify-center p-6 backdrop-blur-md">
                             <div className="glass p-8 rounded-[3rem] border border-cyan-500/30 w-full text-center shadow-2xl">
-                                <h3 className={`text-3xl font-800 ${activeSkill.color} mb-4`}>{activeSkill.title}</h3>
-                                <p className="text-slate-300 italic mb-6 leading-relaxed">"{activeSkill.summary}"</p>
-                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-8">NEXUS: {activeSkill.sub}</p>
+                                <h3 className={`text-3xl font-800 ${activeSkill.color} mb-4 uppercase`}>{activeSkill.title}</h3>
+                                <p className="text-slate-300 italic mb-6">"{activeSkill.summary}"</p>
+                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-8">FOCUS: {activeSkill.sub}</p>
                                 <button onClick={() => setActiveSkill(null)} className="w-full py-4 bg-slate-800 rounded-2xl font-black uppercase text-xs">Close</button>
                             </div>
                         </div>
                     )}
 
-                    <header className="p-6 flex justify-between items-center bg-slate-950 border-b border-white/5">
+                    <header className="p-6 flex justify-between items-center bg-slate-950 border-b border-white/5 z-50">
                         <span className="font-black italic text-cyan-400 text-2xl">K-SCORE OS</span>
                         <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400">⚡ {stats.kScore}</div>
                     </header>
 
                     <main className="view-container">
                         {tab === 'dashboard' && (
-                            <div className="p-6 space-y-6">
+                            <div className="p-6">
                                 <div className="glass p-10 rounded-[3.5rem] text-center border-b-4 border-cyan-500/20">
-                                    <h1 className="text-5xl font-800 italic mb-2">ANIKA</h1>
-                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.4em]">{stats.streak} DAY STREAK</p>
+                                    <h1 className="text-5xl font-800 uppercase italic">ANIKA</h1>
+                                    <p className="text-cyan-400 font-bold text-xs mt-2 uppercase">{stats.streak} DAY STREAK</p>
                                 </div>
                             </div>
                         )}
                         {tab === 'tree' && (
-                            <div className="h-[450px] w-full flex items-center justify-center relative">
+                            <div className="h-[450px] w-full flex items-center justify-center relative pt-10">
                                 <div className="absolute mandala-rotate w-80 h-80 border border-white/5 rounded-full"></div>
-                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400/40 node-pulse">
+                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400">
                                     <span className="text-xl font-800 italic">CORE</span>
                                 </div>
                                 {Object.entries(SKILL_DATA).map(([key, data], i) => {
@@ -117,7 +120,7 @@
                                     return (
                                         <div key={key} onClick={() => setActiveSkill(data)}
                                              style={{ transform: `translate(${Math.cos(angle)*135}px, ${Math.sin(angle)*135}px)` }}
-                                             className="absolute glass w-16 h-16 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-400 shadow-2xl transition-all">
+                                             className="absolute glass w-16 h-16 rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:border-cyan-400 active:scale-90 transition-all">
                                             <span className={`text-2xl font-black ${data.color}`}>{data.icon}</span>
                                         </div>
                                     );
@@ -126,26 +129,31 @@
                         )}
                         {tab === 'lessons' && (
                             <div className="p-6 space-y-4">
-                                <div onClick={() => setPage(0)} className="glass p-7 rounded-[2rem] border-l-4 border-cyan-500 cursor-pointer">
-                                    <h4 className="font-bold text-lg">1. The Control Dichotomy</h4>
-                                    <p className="text-[10px] text-slate-500 uppercase mt-2">10 Page Module • +500 XP</p>
-                                </div>
+                                <h2 className="text-3xl font-800 tracking-tighter mb-6 uppercase">Curriculum</h2>
+                                {LESSONS.map(l => (
+                                    <div key={l.id} onClick={() => setCurrentLesson(l)} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 cursor-pointer active:scale-95 transition-all">
+                                        <h4 className="font-bold text-lg">{l.id}. {l.title}</h4>
+                                        <p className="text-[10px] text-slate-500 uppercase mt-2">10 Pages • +500 XP {mastered.includes(l.id) && "✓"}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        {tab === 'tasks' && (
+                            <div className="p-6">
+                                <button onClick={() => setStats(s => ({...s, kScore: s.kScore+50}))} className="w-full py-6 bg-green-500 text-slate-950 rounded-3xl font-black uppercase text-xs shadow-lg shadow-green-500/20 active:scale-95 transition-all">Log Completion +50 XP</button>
                             </div>
                         )}
                     </main>
 
                     <nav className="fixed bottom-0 left-0 right-0 h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-2 z-[60]">
-                        {['Dashboard', 'Moral', 'Lessons', 'Tree', 'Tasks', 'Mind'].map((t) => (
-                            <button key={t} onClick={() => setTab(t.toLowerCase())} 
-                                    className={`flex flex-col items-center flex-1 h-full justify-center ${tab === t.toLowerCase() ? 'tab-active' : 'text-slate-600'}`}>
-                                <span className="text-[9px] font-black uppercase">{t}</span>
-                            </button>
+                        {['Dash', 'Moral', 'Learn', 'Tree', 'Task', 'Mind'].map((t) => (
+                            <button key={t} onClick={() => setTab(t.toLowerCase() === 'dash' ? 'dashboard' : t.toLowerCase() === 'learn' ? 'lessons' : t.toLowerCase() === 'task' ? 'tasks' : t.toLowerCase())} 
+                                    className={`flex-1 h-full font-black text-[10px] uppercase ${tab.includes(t.toLowerCase()) || (t === 'Dash' && tab === 'dashboard') || (t === 'Task' && tab === 'tasks') || (t === 'Learn' && tab === 'lessons') ? 'tab-active' : 'text-slate-600'}`}>{t}</button>
                         ))}
                     </nav>
                 </div>
             );
         }
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
