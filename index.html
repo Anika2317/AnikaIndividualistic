@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-SCORE | Neural Evolution</title>
+    <title>K-SCORE | Evolution</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
-        body { 
-            background-color: #020617; 
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-        }
-        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .neon-glow { box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
-        .page-transition { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { background: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+        .duo-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border-bottom-width: 4px; }
+        .duo-card:active { transform: translateY(2px); border-bottom-width: 0px; margin-bottom: 4px; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -33,113 +30,135 @@
             return <i data-lucide={name.toLowerCase().replace(/([a-z0-9])([A-Z])/g, '$1-$2')} className={className}></i>;
         };
 
-        function App() {
-            const [page, setPage] = useState('home');
-            const [stats, setStats] = useState({ kScore: 527, xp: 4200, level: 8, streak: 12 });
-            const [animating, setAnimating] = useState(false);
+        const LESSONS = [
+            { id: 1, title: 'Control vs Chaos', author: 'Marcus Aurelius', text: 'Stoicism isn’t about hiding emotions; it’s about understanding what you can change and what you must accept. Focus your energy only on your own actions.', xp: 100, color: 'border-blue-500' },
+            { id: 2, title: 'The Shadow Self', author: 'Dostoevsky', text: 'In the "Underground Man," we see that humans aren’t rational. We Sabotage ourselves just to prove we have free will. Understanding this is the first step to integrity.', xp: 200, color: 'border-purple-500' }
+        ];
 
-            const addXP = (amount) => {
-                setAnimating(true);
-                setStats(prev => ({ ...prev, kScore: prev.kScore + 5, xp: prev.xp + amount }));
-                setTimeout(() => setAnimating(false), 500);
+        const DILEMMAS = [
+            { id: 1, title: 'The Truthful Lie', scenario: 'A friend asks if you like their new art. It’s terrible. Do you stay "Integral" and hurt them, or "Empathetic" and lie?', choices: ['Be Honest', 'Be Kind'], xp: 150 }
+        ];
+
+        function App() {
+            const [view, setView] = useState('home'); // home, lesson-detail, dilemma-detail
+            const [activeItem, setActiveItem] = useState(null);
+            const [stats, setStats] = useState({ kScore: 0, level: 1, xp: 0 });
+
+            const completeTask = (xp) => {
+                setStats(prev => {
+                    const newXP = prev.xp + xp;
+                    const newLevel = Math.floor(newXP / 500) + 1;
+                    return { ...prev, xp: newXP, level: newLevel, kScore: prev.kScore + Math.floor(xp/10) };
+                });
+                setView('home');
             };
 
             return (
-                <div className="min-h-screen text-slate-100 max-w-md mx-auto relative pb-32">
-                    {/* Background Orbs */}
-                    <div className="fixed top-[-10%] left-[-20%] w-64 h-64 bg-cyan-600/20 rounded-full blur-[100px]"></div>
-                    <div className="fixed bottom-[10%] right-[-20%] w-64 h-64 bg-purple-600/20 rounded-full blur-[100px]"></div>
-
+                <div className="max-w-md mx-auto min-h-screen pb-20 relative overflow-hidden">
                     {/* Header */}
-                    <header className="sticky top-0 z-50 p-6 flex justify-between items-center bg-slate-950/50 backdrop-blur-md">
-                        <div>
-                            <h1 className="text-2xl font-black tracking-tighter bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">K-SCORE</h1>
-                            <p className="text-[10px] text-slate-500 font-bold tracking-[0.2em] uppercase">Neural Interface v2.0</p>
+                    <div className="p-6 flex justify-between items-center sticky top-0 bg-[#0f172a] z-50 border-b border-slate-800">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center font-bold text-slate-900 italic">K</div>
+                            <div className="h-3 w-32 bg-slate-800 rounded-full overflow-hidden">
+                                <div className="h-full bg-cyan-400" style={{width: `${(stats.xp % 500) / 5}%`}}></div>
+                            </div>
                         </div>
-                        <div className={`flex items-center gap-2 glass px-4 py-2 rounded-full transition-all ${animating ? 'scale-110 border-cyan-400' : ''}`}>
-                            <Icon name="Zap" className="w-4 h-4 text-cyan-400" />
-                            <span className="font-black text-sm">{stats.kScore}</span>
+                        <div className="flex items-center gap-1 text-amber-400 font-bold">
+                            <Icon name="Zap" className="w-5 h-5" /> {stats.kScore}
                         </div>
-                    </header>
+                    </div>
 
-                    {/* Content */}
-                    <main className="p-6 page-transition">
-                        {page === 'home' ? (
-                            <div className="space-y-6">
-                                {/* Level Card */}
-                                <div className="glass rounded-3xl p-8 neon-glow relative overflow-hidden">
-                                    <div className="relative z-10">
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div>
-                                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Current Rank</p>
-                                                <h2 className="text-5xl font-black">Lvl {stats.level}</h2>
-                                            </div>
-                                            <div className="bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full text-xs font-bold border border-amber-500/30">
-                                                {stats.streak} DAY STREAK
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between text-xs font-bold text-slate-500 uppercase">
-                                                <span>XP Progress</span>
-                                                <span>{stats.xp % 1000}/1000</span>
-                                            </div>
-                                            <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                                                <div className="h-full bg-gradient-to-r from-cyan-400 to-blue-600 transition-all duration-1000" style={{width: `${(stats.xp % 1000)/10}%`}}></div>
+                    {/* Home View */}
+                    {view === 'home' && (
+                        <main className="p-6 space-y-8 slide-up">
+                            <section>
+                                <h2 className="text-slate-400 text-xs font-black uppercase tracking-widest mb-4">Daily Path</h2>
+                                <div className="space-y-4">
+                                    {LESSONS.map(l => (
+                                        <div key={l.id} 
+                                             onClick={() => { setActiveItem(l); setView('lesson-detail'); }}
+                                             className={`duo-card p-5 bg-slate-800 rounded-2xl border-b-4 ${l.color} cursor-pointer hover:brightness-110 active:scale-95`}>
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <h3 className="font-bold text-lg">{l.title}</h3>
+                                                    <p className="text-sm text-slate-400">{l.author}</p>
+                                                </div>
+                                                <div className="bg-slate-900/50 p-2 rounded-lg">
+                                                    <Icon name="BookOpen" className="w-6 h-6 text-cyan-400" />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    ))}
+                                    
+                                    {DILEMMAS.map(d => (
+                                        <div key={d.id} 
+                                             onClick={() => { setActiveItem(d); setView('dilemma-detail'); }}
+                                             className="duo-card p-5 bg-slate-800 rounded-2xl border-b-4 border-amber-500 cursor-pointer">
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <h3 className="font-bold text-lg">{d.title}</h3>
+                                                    <p className="text-sm text-slate-400">Moral Choice</p>
+                                                </div>
+                                                <div className="bg-slate-900/50 p-2 rounded-lg">
+                                                    <Icon name="Scale" className="w-6 h-6 text-amber-400" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
+                            </section>
+                        </main>
+                    )}
 
-                                {/* Quick Actions */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div onClick={() => setPage('lessons')} className="glass rounded-2xl p-6 flex flex-col items-center gap-3 cursor-pointer hover:border-cyan-400/50 transition-all group">
-                                        <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <Icon name="BookOpen" className="w-6 h-6 text-cyan-400" />
-                                        </div>
-                                        <span className="font-bold text-sm">Library</span>
-                                    </div>
-                                    <div className="glass rounded-2xl p-6 flex flex-col items-center gap-3 opacity-50 cursor-not-allowed">
-                                        <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center">
-                                            <Icon name="Target" className="w-6 h-6 text-slate-400" />
-                                        </div>
-                                        <span className="font-bold text-sm">Dilemmas</span>
-                                    </div>
+                    {/* Lesson Detail View */}
+                    {view === 'lesson-detail' && activeItem && (
+                        <div className="fixed inset-0 bg-[#0f172a] z-[100] p-6 slide-up overflow-y-auto">
+                            <button onClick={() => setView('home')} className="mb-8 text-slate-400 font-bold flex items-center gap-2">
+                                <Icon name="X" className="w-6 h-6" /> Close
+                            </button>
+                            <h2 className="text-3xl font-black mb-2">{activeItem.title}</h2>
+                            <p className="text-cyan-400 font-bold mb-6 italic">{activeItem.author}</p>
+                            <div className="glass-panel p-6 rounded-3xl mb-8 leading-relaxed text-slate-200">
+                                {activeItem.text}
+                            </div>
+                            <button onClick={() => completeTask(activeItem.xp)} className="w-full py-4 bg-cyan-500 rounded-2xl text-slate-900 font-black text-lg shadow-[0_4px_0_rgb(6,182,212,0.5)] active:translate-y-1 active:shadow-none">
+                                COMPLETE +{activeItem.xp} XP
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Dilemma Detail View */}
+                    {view === 'dilemma-detail' && activeItem && (
+                        <div className="fixed inset-0 bg-[#0f172a] z-[100] p-6 slide-up flex flex-col">
+                            <button onClick={() => setView('home')} className="mb-8 text-slate-400 font-bold">
+                                <Icon name="X" className="w-6 h-6" />
+                            </button>
+                            <div className="flex-1">
+                                <h2 className="text-3xl font-black mb-6">{activeItem.title}</h2>
+                                <p className="text-xl text-slate-300 leading-relaxed mb-10">{activeItem.scenario}</p>
+                                <div className="space-y-4">
+                                    {activeItem.choices.map(choice => (
+                                        <button key={choice} 
+                                                onClick={() => completeTask(activeItem.xp)}
+                                                className="w-full py-5 bg-slate-800 border-2 border-slate-700 rounded-2xl font-bold text-lg hover:border-amber-400 transition-colors">
+                                            {choice}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
-                        ) : (
-                            <div className="space-y-4">
-                                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6">Archives: Philosophy</h3>
-                                {[
-                                    {t: 'Stoicism', a: 'Marcus Aurelius', xp: 150, c: 'cyan'},
-                                    {t: 'The Underground Man', a: 'Dostoevsky', xp: 250, c: 'purple'},
-                                    {t: 'Kafkaesque Absurdity', a: 'Franz Kafka', xp: 200, c: 'amber'}
-                                ].map((l, i) => (
-                                    <div key={i} onClick={() => addXP(l.xp)} className="glass rounded-2xl p-5 flex items-center justify-between cursor-pointer hover:bg-slate-800/50 transition-all active:scale-95">
-                                        <div>
-                                            <h4 className="font-bold">{l.t}</h4>
-                                            <p className="text-xs text-slate-500">{l.a}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="text-[10px] font-bold text-cyan-400">+{l.xp} XP</span>
-                                            <Icon name="ChevronRight" className="w-4 h-4 text-slate-600 ml-2" />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </main>
+                        </div>
+                    )}
 
-                    {/* Floating Navigation */}
-                    <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[80%] max-w-[300px] glass rounded-full p-2 flex justify-between items-center shadow-2xl border-white/20">
-                        <button onClick={() => setPage('home')} className={`p-4 rounded-full transition-all ${page === 'home' ? 'bg-cyan-500 text-slate-950 scale-110' : 'text-slate-400'}`}>
-                            <Icon name="Home" className="w-5 h-5" />
+                    {/* Navigation Bar */}
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-20 bg-[#0f172a] border-t border-slate-800 flex justify-around items-center px-6">
+                        <button onClick={() => setView('home')} className="text-cyan-400 flex flex-col items-center">
+                            <Icon name="Home" className="w-6 h-6" />
+                            <span className="text-[10px] font-bold mt-1">HOME</span>
                         </button>
-                        <button onClick={() => setPage('lessons')} className={`p-4 rounded-full transition-all ${page === 'lessons' ? 'bg-cyan-500 text-slate-950 scale-110' : 'text-slate-400'}`}>
-                            <Icon name="BookOpen" className="w-5 h-5" />
-                        </button>
-                        <button className="p-4 rounded-full text-slate-400 opacity-30">
-                            <Icon name="Activity" className="w-5 h-5" />
-                        </button>
+                        <div className="text-slate-600 flex flex-col items-center">
+                            <Icon name="Trophy" className="w-6 h-6" />
+                            <span className="text-[10px] font-bold mt-1">STATS</span>
+                        </div>
                     </nav>
                 </div>
             );
