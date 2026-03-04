@@ -15,7 +15,7 @@
         .mandala-rotate { animation: rotate 100s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 8px #22d3ee); border-top: 2px solid #22d3ee; }
-        .view-container { height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .view-container { height: calc(100vh - 160px); overflow-y: auto; }
         .btn-press:active { transform: scale(0.95); opacity: 0.8; }
     </style>
 </head>
@@ -33,24 +33,73 @@
             integrity: { title: "Total Integrity", color: "text-green-400", summary: "Absolute alignment of values, words, and actions.", sub: "Radical Honesty" }
         };
 
+        const LESSON_DATABASE = [
+            {
+                id: 1,
+                title: "Dichotomy of Control",
+                pages: [
+                    { h: "The What", b: "The core of Stoicism: separating what we control from what we don't. We control our own mind; we don't control the world." },
+                    { h: "The Who", b: "Pioneered by Epictetus, a slave turned philosopher, and Marcus Aurelius, the Emperor of Rome." },
+                    { h: "The When", b: "Developed in the 3rd Century BC and practiced through the peak of the Roman Empire." },
+                    { h: "The Where", b: "Born in the Stoa Poikile (Painted Porch) in Athens, spreading through the Mediterranean." },
+                    { h: "The Why", b: "To achieve Ataraxia (unshakeable mental peace) regardless of external chaos or disaster." },
+                    { h: "The How (Step 1)", b: "Audit your current stress. Is this a 'Mental' factor (yours) or an 'External' factor (not yours)?" },
+                    { h: "The How (Step 2)", b: "Withdraw all emotional energy from the external factor. It is as irrelevant as the weather." },
+                    { h: "The How (Step 3)", b: "Re-focus 100% of your energy on your intent and your character. This is your only power." },
+                    { h: "Practical Exercise", b: "Imagine your worst fear. Now realize that your character remains intact even if it happens." },
+                    { h: "The Synthesis", b: "You are no longer a victim of fate, but a master of your own internal kingdom. Module complete." }
+                ],
+                xp: 500
+            }
+        ];
+
         function App() {
             const [tab, setTab] = useState('dashboard');
             const [activeSkill, setActiveSkill] = useState(null);
-            const [activeLesson, setActiveLesson] = useState(null);
+            const [studyModule, setStudyModule] = useState(null);
+            const [currentPage, setCurrentPage] = useState(0);
             const [stats, setStats] = useState({ kScore: 527, xp: 420, level: 1, streak: 12 });
-            const [completedLessons, setCompletedLessons] = useState([]);
+            const [completed, setCompleted] = useState([]);
 
-            const addXP = (amt, id) => {
-                if (id && completedLessons.includes(id)) return;
-                setStats(s => ({...s, xp: s.xp + amt, kScore: s.kScore + Math.floor(amt/5)}));
-                if (id) setCompletedLessons([...completedLessons, id]);
-                setActiveLesson(null);
+            const finishModule = () => {
+                if (!completed.includes(studyModule.id)) {
+                    setStats(s => ({...s, xp: s.xp + studyModule.xp, kScore: s.kScore + 100}));
+                    setCompleted([...completed, studyModule.id]);
+                }
+                setStudyModule(null);
+                setCurrentPage(0);
             };
 
             return (
-                <div className="max-w-md mx-auto h-screen flex flex-col relative bg-slate-950">
+                <div className="max-w-md mx-auto h-screen flex flex-col relative bg-slate-950 overflow-hidden">
                     
-                    {/* SKILL DOSSIER OVERLAY */}
+                    {/* 10-PAGE LESSON ENGINE */}
+                    {studyModule && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950 flex flex-col p-8">
+                            <div className="flex justify-between items-center mb-8">
+                                <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">Page {currentPage + 1} / 10</span>
+                                <button onClick={() => {setStudyModule(null); setCurrentPage(0);}} className="text-slate-500 font-bold uppercase text-xs">Exit</button>
+                            </div>
+                            <div className="flex-1">
+                                <h2 className="text-4xl font-800 mb-6 text-cyan-400">{studyModule.pages[currentPage].h}</h2>
+                                <div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-500 text-xl leading-relaxed italic">
+                                    "{studyModule.pages[currentPage].b}"
+                                </div>
+                            </div>
+                            <div className="flex gap-4 mt-10">
+                                {currentPage > 0 && (
+                                    <button onClick={() => setCurrentPage(currentPage - 1)} className="flex-1 py-4 glass rounded-2xl font-black text-xs">PREVIOUS</button>
+                                )}
+                                {currentPage < 9 ? (
+                                    <button onClick={() => setCurrentPage(currentPage + 1)} className="flex-1 py-4 bg-cyan-500 text-slate-950 rounded-2xl font-black text-xs">NEXT PAGE</button>
+                                ) : (
+                                    <button onClick={finishModule} className="flex-1 py-4 bg-green-500 text-slate-950 rounded-2xl font-black text-xs">FINISH & CLAIM XP</button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Skill Info Modal */}
                     {activeSkill && (
                         <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-6">
                             <div className="glass p-8 rounded-[3rem] border border-cyan-500/30 w-full text-center shadow-2xl">
@@ -62,26 +111,12 @@
                         </div>
                     )}
 
-                    {/* LESSON STUDY OVERLAY */}
-                    {activeLesson && (
-                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col overflow-y-auto">
-                            <button onClick={() => setActiveLesson(null)} className="mb-8 text-slate-500 font-bold uppercase text-xs tracking-widest flex items-center gap-2">← Back to Learn</button>
-                            <h2 className="text-4xl font-800 mb-6 leading-tight">{activeLesson.title}</h2>
-                            <div className="glass p-8 rounded-[2.5rem] text-lg leading-relaxed text-slate-200 border-l-4 border-cyan-500 mb-10 italic">
-                                "{activeLesson.body}"
-                            </div>
-                            <button onClick={() => addXP(activeLesson.xp, activeLesson.id)} className="w-full py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black text-xl shadow-lg btn-press">
-                                {completedLessons.includes(activeLesson.id) ? 'ALREADY MASTERED' : `COMPLETE +${activeLesson.xp} XP`}
-                            </button>
-                        </div>
-                    )}
-
-                    {/* HEADER */}
+                    {/* Header */}
                     <header className="p-6 flex justify-between items-center bg-slate-950 border-b border-white/5 z-50">
-                        <span className="font-black italic text-cyan-400 tracking-tighter text-xl">K-SCORE OS</span>
+                        <span className="font-black italic text-cyan-400 tracking-tighter text-xl uppercase">K-SCORE OS</span>
                         <div className="flex gap-2">
                             <div className="glass px-3 py-1 rounded-full text-[10px] font-bold text-amber-400">⚡ {stats.kScore}</div>
-                            <div className="bg-cyan-500 px-3 py-1 rounded-full text-[10px] font-black text-slate-900 uppercase">LVL {stats.level}</div>
+                            <div className="bg-cyan-500 px-3 py-1 rounded-full text-[10px] font-black text-slate-900 uppercase tracking-tighter">LVL {stats.level}</div>
                         </div>
                     </header>
 
@@ -90,14 +125,10 @@
                             <div className="p-6 space-y-6">
                                 <div className="glass p-10 rounded-[3rem] text-center border-b-4 border-cyan-500/20">
                                     <h1 className="text-5xl font-800 italic uppercase mb-2">ANIKA</h1>
-                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.4em] mb-6">{stats.streak} DAY STREAK</p>
+                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.4em] mb-6 uppercase tracking-[0.4em]">{stats.streak} DAY STREAK</p>
                                     <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
-                                        <div className="h-full bg-cyan-400" style={{width: '45%'}}></div>
+                                        <div className="h-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]" style={{width: '45%'}}></div>
                                     </div>
-                                </div>
-                                <div className="glass p-6 rounded-3xl">
-                                    <p className="text-xs font-black uppercase text-slate-500 mb-2">Daily Directive</p>
-                                    <p className="font-bold text-lg leading-tight">Master 3 Philosophy modules to unlock Level 2.</p>
                                 </div>
                             </div>
                         )}
@@ -105,7 +136,7 @@
                         {tab === 'tree' && (
                             <div className="h-full w-full flex items-center justify-center relative pt-10">
                                 <div className="absolute mandala-rotate w-80 h-80 border border-white/5 rounded-full"></div>
-                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-500 shadow-2xl">
+                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400/50">
                                     <span className="text-xl font-800 italic uppercase">CORE</span>
                                 </div>
                                 {Object.entries(SKILL_DATA).map(([key, data], i) => {
@@ -125,15 +156,14 @@
 
                         {tab === 'lessons' && (
                             <div className="p-6 space-y-4">
-                                <h2 className="text-2xl font-800 mb-6">Learning Path</h2>
-                                {[
-                                    { id: 1, title: 'The Control Dichotomy', xp: 150, body: 'We only control our thoughts and actions. Everything else is external noise.' },
-                                    { id: 2, title: 'Jungian Shadow Integration', xp: 200, body: 'You must face the parts of yourself you have hidden to become a whole individual.' },
-                                    { id: 3, title: 'First Principles Logic', xp: 180, body: 'Break every problem down into its fundamental truths and build from there.' }
-                                ].map(l => (
-                                    <div key={l.id} onClick={() => setActiveLesson(l)} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 flex justify-between items-center btn-press">
-                                        <div><h4 className="font-bold text-lg">{l.title}</h4><p className="text-xs text-slate-500 tracking-widest uppercase mt-1">+{l.xp} XP</p></div>
-                                        {completedLessons.includes(l.id) && <span className="text-green-500 font-black">✓</span>}
+                                <h2 className="text-2xl font-800 mb-6">Deep Curriculum</h2>
+                                {LESSON_DATABASE.map(l => (
+                                    <div key={l.id} onClick={() => setStudyModule(l)} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 flex justify-between items-center btn-press">
+                                        <div>
+                                            <h4 className="font-bold text-lg">{l.title}</h4>
+                                            <p className="text-[10px] text-slate-500 uppercase font-black mt-1">10 Pages • +{l.xp} XP</p>
+                                        </div>
+                                        {completed.includes(l.id) && <span className="text-green-500 font-black tracking-tighter">MASTERED</span>}
                                     </div>
                                 ))}
                             </div>
@@ -141,17 +171,16 @@
 
                         {tab === 'challenges' && (
                             <div className="p-6 space-y-4">
-                                <h2 className="text-2xl font-800 text-green-400">Daily Task</h2>
-                                <div className="glass p-8 rounded-3xl text-center">
-                                    <p className="font-bold text-slate-200 leading-relaxed mb-8 italic">"Log 10 minutes of disciplined meditation or reflection."</p>
-                                    <button onClick={() => addXP(50)} className="w-full py-5 bg-green-500 text-slate-950 rounded-2xl font-black shadow-lg btn-press">LOG COMPLETION +50 XP</button>
+                                <h2 className="text-2xl font-800 text-green-400 tracking-tight">Daily Task</h2>
+                                <div className="glass p-8 rounded-[2rem] text-center border-t-2 border-green-500/20 shadow-xl">
+                                    <p className="font-bold text-slate-200 text-lg leading-relaxed mb-8 italic">"Log 10 minutes of disciplined reflection today."</p>
+                                    <button onClick={() => setStats(s => ({...s, kScore: s.kScore+50}))} className="w-full py-5 bg-green-500 text-slate-950 rounded-2xl font-black shadow-lg btn-press">LOG COMPLETION</button>
                                 </div>
                             </div>
                         )}
                     </main>
 
-                    {/* FIXED NAVIGATION */}
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-2 z-[60]">
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-1 z-[60]">
                         <button onClick={() => setTab('dashboard')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'dashboard' ? 'tab-active' : 'text-slate-600'}`}><span className="text-[9px] font-black uppercase">Dash</span></button>
                         <button onClick={() => setTab('dilemmas')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'dilemmas' ? 'tab-active' : 'text-slate-600'}`}><span className="text-[9px] font-black uppercase">Moral</span></button>
                         <button onClick={() => setTab('lessons')} className={`flex flex-col items-center flex-1 h-full justify-center ${tab === 'lessons' ? 'tab-active' : 'text-slate-600'}`}><span className="text-[9px] font-black uppercase">Learn</span></button>
