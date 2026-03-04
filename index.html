@@ -8,28 +8,25 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>body { background-color: #020617; }</style>
 </head>
-<body>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center">
     <div id="root"></div>
 
-    <script type="text/babel" src="KScoreApp.jsx"></script>
-
     <script type="text/babel">
-        // This is the "Engine" that starts your app
+        function App() {
+            return (
+                <div className="text-center p-10 bg-slate-900 border border-cyan-500/30 rounded-3xl shadow-2xl">
+                    <h1 className="text-cyan-400 text-5xl font-black mb-4">K-SCORE</h1>
+                    <p className="text-gray-400 uppercase tracking-widest">System Active</p>
+                    <div className="mt-6 p-4 bg-slate-800 rounded-xl">
+                        <p className="text-2xl">Current Score: <span className="text-cyan-300">527</span></p>
+                    </div>
+                </div>
+            );
+        }
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        
-        const checkApp = setInterval(() => {
-            // We look for KScoreApp inside the window object
-            if (window.KScoreApp) {
-                clearInterval(checkApp);
-                root.render(<window.KScoreApp />);
-                setTimeout(() => {
-                    if (window.lucide) window.lucide.createIcons();
-                }, 500);
-            }
-        }, 100);
+        root.render(<App />);
     </script>
 </body>
 </html>
