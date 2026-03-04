@@ -8,19 +8,116 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #020617; }
+        .radar-path { transition: d 0.5s ease; }
+    </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
-        function App() {
+        const { useState, useEffect } = React;
+
+        // --- ICON HELPER ---
+        const Icon = ({ name, className }) => {
+            useEffect(() => { lucide.createIcons(); }, [name]);
+            return <i data-lucide={name.toLowerCase().replace(/([a-z0-9])([A-Z])/g, '$1-$2')} className={className}></i>;
+        };
+
+        // --- DATA ---
+        const initialUser = {
+            kScore: 527, level: 8, totalXP: 4200, streak: 12,
+            dimensions: {
+                logic: { value: 78, color: '#3B82F6' },
+                empathy: { value: 92, color: '#EC4899' },
+                discipline: { value: 65, color: '#F59E0B' },
+                emotionalRegulation: { value: 74, color: '#10B981' },
+                integrity: { value: 88, color: '#8B5CF6' }
+            }
+        };
+
+        const philosophyLessons = [
+            { id: 1, title: 'Stoicism: The Art of Control', author: 'Marcus Aurelius', category: 'Philosophy', excerpt: 'Focus on what you can control.', color: '#8B5CF6' },
+            { id: 2, title: 'Kant\'s Categorical Imperative', author: 'Immanuel Kant', category: 'Philosophy', excerpt: 'Act as if your actions were universal law.', color: '#3B82F6' }
+        ];
+
+        const literaryLessons = [
+            { id: 3, title: 'The Underground Man', author: 'Fyodor Dostoevsky', category: 'Literary Masters', excerpt: 'The soul is healed by torment.', color: '#1F2937' },
+            { id: 4, title: 'Metamorphosis', author: 'Franz Kafka', category: 'Literary Masters', excerpt: 'What defines identity?', color: '#1F2937' }
+        ];
+
+        // --- COMPONENTS ---
+        const RadarChart = ({ dimensions }) => {
+            const dimensionAngles = { logic: 0, empathy: 72, discipline: 144, emotionalRegulation: 216, integrity: 288 };
+            const points = Object.entries(dimensionAngles).map(([key, angle], i) => {
+                const r = (dimensions[key].value / 100) * 60;
+                const rad = (angle * Math.PI) / 180;
+                return `${80 + r * Math.cos(rad)},${80 + r * Math.sin(rad)}`;
+            }).join(' ');
+
             return (
-                <div className="text-center p-10 bg-slate-900 border border-cyan-500/30 rounded-3xl shadow-2xl">
-                    <h1 className="text-cyan-400 text-5xl font-black mb-4">K-SCORE</h1>
-                    <p className="text-gray-400 uppercase tracking-widest">System Active</p>
-                    <div className="mt-6 p-4 bg-slate-800 rounded-xl">
-                        <p className="text-2xl">Current Score: <span className="text-cyan-300">527</span></p>
-                    </div>
+                <svg viewBox="0 0 160 160" className="w-48 h-48 mx-auto">
+                    <circle cx="80" cy="80" r="60" fill="none" stroke="#374151" strokeWidth="0.5" />
+                    <circle cx="80" cy="80" r="40" fill="none" stroke="#374151" strokeWidth="0.5" />
+                    <polygon points={points} fill="rgba(6, 182, 212, 0.2)" stroke="#06B6D4" strokeWidth="2" />
+                </svg>
+            );
+        };
+
+        function App() {
+            const [user] = useState(initialUser);
+            const [page, setPage] = useState('home');
+
+            return (
+                <div className="min-h-screen text-slate-100 p-6 max-w-md mx-auto pb-24">
+                    <header className="flex justify-between items-center mb-8">
+                        <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">K-SCORE</h1>
+                        <div className="flex items-center gap-2"><Icon name="Zap" className="w-5 h-5 text-amber-400" /> <span>{user.kScore}</span></div>
+                    </header>
+
+                    {page === 'home' && (
+                        <div className="space-y-6">
+                            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                                <div className="flex justify-between items-end mb-4">
+                                    <div><p className="text-slate-500 text-xs uppercase">Current Level</p><p className="text-4xl font-black text-cyan-400">{user.level}</p></div>
+                                    <div className="text-right"><p className="text-slate-500 text-xs uppercase">Streak</p><p className="text-xl font-bold text-amber-400">{user.streak} Days</p></div>
+                                </div>
+                                <RadarChart dimensions={user.dimensions} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button onClick={() => setPage('lessons')} className="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col items-center gap-2">
+                                    <Icon name="BookOpen" className="w-6 h-6 text-purple-400" />
+                                    <span className="text-sm font-bold">Lessons</span>
+                                </button>
+                                <button onClick={() => setPage('home')} className="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col items-center gap-2">
+                                    <Icon name="Target" className="w-6 h-6 text-cyan-400" />
+                                    <span className="text-sm font-bold">Dilemmas</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {page === 'lessons' && (
+                        <div className="space-y-4">
+                            <button onClick={() => setPage('home')} className="text-cyan-400 text-sm font-bold flex items-center gap-2 mb-4">← Back</button>
+                            <h2 className="text-xl font-black mb-4">Philosophy & Literature</h2>
+                            {[...philosophyLessons, ...literaryLessons].map(lesson => (
+                                <div key={lesson.id} className="bg-slate-900 p-5 rounded-xl border border-slate-800">
+                                    <p className="text-[10px] uppercase font-bold text-slate-500">{lesson.category}</p>
+                                    <h3 className="text-lg font-bold text-slate-100">{lesson.title}</h3>
+                                    <p className="text-sm text-slate-400 italic mt-1">"{lesson.excerpt}"</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-full px-8 py-4 flex gap-8 shadow-2xl">
+                        <button onClick={() => setPage('home')}><Icon name="Home" className="w-6 h-6" /></button>
+                        <button onClick={() => setPage('lessons')}><Icon name="BookOpen" className="w-6 h-6" /></button>
+                        <button><Icon name="Target" className="w-6 h-6" /></button>
+                    </nav>
                 </div>
             );
         }
