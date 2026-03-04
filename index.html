@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-SCORE | Evolution</title>
+    <title>K-SCORE | Neural Evolution</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -11,12 +11,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { background: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
-        .duo-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border-bottom-width: 4px; }
+        body { background: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; color: white; overflow-x: hidden; }
+        .duo-card { transition: all 0.2s ease; border-bottom: 4px solid rgba(0,0,0,0.3); }
         .duo-card:active { transform: translateY(2px); border-bottom-width: 0px; margin-bottom: 4px; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .slide-up { animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .glass-modal { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); }
+        .progress-glow { box-shadow: 0 0 15px rgba(34, 211, 238, 0.4); }
     </style>
 </head>
 <body>
@@ -30,117 +29,133 @@
             return <i data-lucide={name.toLowerCase().replace(/([a-z0-9])([A-Z])/g, '$1-$2')} className={className}></i>;
         };
 
-        const LESSONS = [
-            { id: 1, title: 'Control vs Chaos', author: 'Marcus Aurelius', text: 'Stoicism isn’t about hiding emotions; it’s about understanding what you can change and what you must accept. Focus your energy only on your own actions.', xp: 100, color: 'border-blue-500' },
-            { id: 2, title: 'The Shadow Self', author: 'Dostoevsky', text: 'In the "Underground Man," we see that humans aren’t rational. We Sabotage ourselves just to prove we have free will. Understanding this is the first step to integrity.', xp: 200, color: 'border-purple-500' }
+        const LESSON_DATA = [
+            { id: 1, title: 'Stoic Control', author: 'Marcus Aurelius', content: 'The first step to wisdom is realizing you cannot control the world, only your response to it. Your mind is your only true kingdom.', xp: 100, color: 'border-blue-500' },
+            { id: 2, title: 'The Shadow', author: 'Dostoevsky', content: 'Dostoevsky teaches us that we often choose suffering just to prove our own independence. To be whole, you must face your own darkness.', xp: 200, color: 'border-purple-500' }
         ];
 
-        const DILEMMAS = [
-            { id: 1, title: 'The Truthful Lie', scenario: 'A friend asks if you like their new art. It’s terrible. Do you stay "Integral" and hurt them, or "Empathetic" and lie?', choices: ['Be Honest', 'Be Kind'], xp: 150 }
+        const DILEMMA_DATA = [
+            { id: 1, title: 'The Silent Truth', scenario: 'You witness a friend cheating on a test. They need the grade to keep their scholarship. Do you report them or stay silent?', choices: ['Report (Integrity)', 'Stay Silent (Loyalty)'], xp: 150 }
         ];
 
         function App() {
-            const [view, setView] = useState('home'); // home, lesson-detail, dilemma-detail
+            const [view, setView] = useState('home'); 
             const [activeItem, setActiveItem] = useState(null);
             const [stats, setStats] = useState({ kScore: 0, level: 1, xp: 0 });
 
-            const completeTask = (xp) => {
+            const handleComplete = (xpValue) => {
                 setStats(prev => {
-                    const newXP = prev.xp + xp;
-                    const newLevel = Math.floor(newXP / 500) + 1;
-                    return { ...prev, xp: newXP, level: newLevel, kScore: prev.kScore + Math.floor(xp/10) };
+                    const totalXp = prev.xp + xpValue;
+                    const newLevel = Math.floor(totalXp / 500) + 1;
+                    return {
+                        ...prev,
+                        xp: totalXp,
+                        level: newLevel,
+                        kScore: prev.kScore + Math.floor(xpValue / 5)
+                    };
                 });
                 setView('home');
+                setActiveItem(null);
             };
 
             return (
-                <div className="max-w-md mx-auto min-h-screen pb-20 relative overflow-hidden">
-                    {/* Header */}
-                    <div className="p-6 flex justify-between items-center sticky top-0 bg-[#0f172a] z-50 border-b border-slate-800">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center font-bold text-slate-900 italic">K</div>
-                            <div className="h-3 w-32 bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-cyan-400" style={{width: `${(stats.xp % 500) / 5}%`}}></div>
+                <div className="max-w-md mx-auto min-h-screen pb-24">
+                    {/* Header: Progress & Level */}
+                    <div className="p-6 sticky top-0 bg-[#0f172a]/80 backdrop-blur-md z-40 border-b border-white/10">
+                        <div className="flex justify-between items-center mb-4">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-cyan-500 p-2 rounded-lg font-black text-slate-900 leading-none">LVL {stats.level}</div>
+                                <span className="text-xs font-bold text-slate-400">PATH TO EVOLUTION</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-amber-400 font-black">
+                                <Icon name="Zap" className="w-4 h-4" /> {stats.kScore}
                             </div>
                         </div>
-                        <div className="flex items-center gap-1 text-amber-400 font-bold">
-                            <Icon name="Zap" className="w-5 h-5" /> {stats.kScore}
+                        <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden progress-glow">
+                            <div 
+                                className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-700" 
+                                style={{width: `${(stats.xp % 500) / 5}%`}}
+                            ></div>
                         </div>
                     </div>
 
-                    {/* Home View */}
+                    {/* Main Feed */}
                     {view === 'home' && (
-                        <main className="p-6 space-y-8 slide-up">
-                            <section>
-                                <h2 className="text-slate-400 text-xs font-black uppercase tracking-widest mb-4">Daily Path</h2>
-                                <div className="space-y-4">
-                                    {LESSONS.map(l => (
-                                        <div key={l.id} 
-                                             onClick={() => { setActiveItem(l); setView('lesson-detail'); }}
-                                             className={`duo-card p-5 bg-slate-800 rounded-2xl border-b-4 ${l.color} cursor-pointer hover:brightness-110 active:scale-95`}>
-                                            <div className="flex justify-between items-center">
-                                                <div>
-                                                    <h3 className="font-bold text-lg">{l.title}</h3>
-                                                    <p className="text-sm text-slate-400">{l.author}</p>
-                                                </div>
-                                                <div className="bg-slate-900/50 p-2 rounded-lg">
-                                                    <Icon name="BookOpen" className="w-6 h-6 text-cyan-400" />
-                                                </div>
-                                            </div>
+                        <main className="p-6 space-y-6">
+                            <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Lessons</h2>
+                            {LESSON_DATA.map(lesson => (
+                                <button 
+                                    key={lesson.id}
+                                    onClick={() => { setActiveItem(lesson); setView('lesson-view'); }}
+                                    className={`w-full duo-card p-5 bg-slate-800 rounded-2xl text-left border-l-8 ${lesson.color} hover:bg-slate-700 transition-colors`}
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <h3 className="font-bold text-lg">{lesson.title}</h3>
+                                            <p className="text-sm text-slate-400">{lesson.author}</p>
                                         </div>
-                                    ))}
-                                    
-                                    {DILEMMAS.map(d => (
-                                        <div key={d.id} 
-                                             onClick={() => { setActiveItem(d); setView('dilemma-detail'); }}
-                                             className="duo-card p-5 bg-slate-800 rounded-2xl border-b-4 border-amber-500 cursor-pointer">
-                                            <div className="flex justify-between items-center">
-                                                <div>
-                                                    <h3 className="font-bold text-lg">{d.title}</h3>
-                                                    <p className="text-sm text-slate-400">Moral Choice</p>
-                                                </div>
-                                                <div className="bg-slate-900/50 p-2 rounded-lg">
-                                                    <Icon name="Scale" className="w-6 h-6 text-amber-400" />
-                                                </div>
-                                            </div>
+                                        <Icon name="ChevronRight" className="text-slate-500" />
+                                    </div>
+                                </button>
+                            ))}
+
+                            <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mt-8">Dilemmas</h2>
+                            {DILEMMA_DATA.map(dilemma => (
+                                <button 
+                                    key={dilemma.id}
+                                    onClick={() => { setActiveItem(dilemma); setView('dilemma-view'); }}
+                                    className="w-full duo-card p-5 bg-slate-800 rounded-2xl text-left border-l-8 border-amber-500 hover:bg-slate-700 transition-colors"
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <h3 className="font-bold text-lg">{dilemma.title}</h3>
+                                            <p className="text-sm text-slate-400">Decision Required</p>
                                         </div>
-                                    ))}
-                                </div>
-                            </section>
+                                        <Icon name="Scale" className="text-amber-500" />
+                                    </div>
+                                </button>
+                            ))}
                         </main>
                     )}
 
-                    {/* Lesson Detail View */}
-                    {view === 'lesson-detail' && activeItem && (
-                        <div className="fixed inset-0 bg-[#0f172a] z-[100] p-6 slide-up overflow-y-auto">
-                            <button onClick={() => setView('home')} className="mb-8 text-slate-400 font-bold flex items-center gap-2">
-                                <Icon name="X" className="w-6 h-6" /> Close
+                    {/* Lesson Modal */}
+                    {view === 'lesson-view' && activeItem && (
+                        <div className="fixed inset-0 z-50 glass-modal p-8 flex flex-col">
+                            <button onClick={() => setView('home')} className="self-start p-2 bg-slate-800 rounded-full mb-8">
+                                <Icon name="X" />
                             </button>
-                            <h2 className="text-3xl font-black mb-2">{activeItem.title}</h2>
-                            <p className="text-cyan-400 font-bold mb-6 italic">{activeItem.author}</p>
-                            <div className="glass-panel p-6 rounded-3xl mb-8 leading-relaxed text-slate-200">
-                                {activeItem.text}
+                            <div className="flex-1">
+                                <p className="text-cyan-400 font-black text-xs uppercase mb-2 tracking-widest">{activeItem.author}</p>
+                                <h2 className="text-4xl font-black mb-6">{activeItem.title}</h2>
+                                <div className="text-xl leading-relaxed text-slate-300 bg-slate-900/50 p-6 rounded-3xl border border-white/5">
+                                    {activeItem.content}
+                                </div>
                             </div>
-                            <button onClick={() => completeTask(activeItem.xp)} className="w-full py-4 bg-cyan-500 rounded-2xl text-slate-900 font-black text-lg shadow-[0_4px_0_rgb(6,182,212,0.5)] active:translate-y-1 active:shadow-none">
-                                COMPLETE +{activeItem.xp} XP
+                            <button 
+                                onClick={() => handleComplete(activeItem.xp)}
+                                className="w-full py-5 bg-cyan-500 rounded-3xl text-slate-900 font-black text-xl shadow-[0_6px_0_#0891b2] active:translate-y-1 active:shadow-none transition-all mt-8"
+                            >
+                                FINISH +{activeItem.xp} XP
                             </button>
                         </div>
                     )}
 
-                    {/* Dilemma Detail View */}
-                    {view === 'dilemma-detail' && activeItem && (
-                        <div className="fixed inset-0 bg-[#0f172a] z-[100] p-6 slide-up flex flex-col">
-                            <button onClick={() => setView('home')} className="mb-8 text-slate-400 font-bold">
-                                <Icon name="X" className="w-6 h-6" />
+                    {/* Dilemma Modal */}
+                    {view === 'dilemma-view' && activeItem && (
+                        <div className="fixed inset-0 z-50 glass-modal p-8 flex flex-col">
+                            <button onClick={() => setView('home')} className="self-start p-2 bg-slate-800 rounded-full mb-8">
+                                <Icon name="X" />
                             </button>
                             <div className="flex-1">
-                                <h2 className="text-3xl font-black mb-6">{activeItem.title}</h2>
-                                <p className="text-xl text-slate-300 leading-relaxed mb-10">{activeItem.scenario}</p>
+                                <h2 className="text-4xl font-black mb-8 text-amber-400">{activeItem.title}</h2>
+                                <p className="text-2xl font-bold text-slate-200 mb-12">{activeItem.scenario}</p>
                                 <div className="space-y-4">
                                     {activeItem.choices.map(choice => (
-                                        <button key={choice} 
-                                                onClick={() => completeTask(activeItem.xp)}
-                                                className="w-full py-5 bg-slate-800 border-2 border-slate-700 rounded-2xl font-bold text-lg hover:border-amber-400 transition-colors">
+                                        <button 
+                                            key={choice}
+                                            onClick={() => handleComplete(activeItem.xp)}
+                                            className="w-full py-5 bg-slate-800 border-2 border-slate-700 rounded-2xl font-black text-lg hover:border-amber-400 transition-all active:scale-95"
+                                        >
                                             {choice}
                                         </button>
                                     ))}
@@ -150,15 +165,19 @@
                     )}
 
                     {/* Navigation Bar */}
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-20 bg-[#0f172a] border-t border-slate-800 flex justify-around items-center px-6">
-                        <button onClick={() => setView('home')} className="text-cyan-400 flex flex-col items-center">
-                            <Icon name="Home" className="w-6 h-6" />
-                            <span className="text-[10px] font-bold mt-1">HOME</span>
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-900/90 backdrop-blur-xl border-t border-white/5 flex justify-around items-center px-10">
+                        <button onClick={() => setView('home')} className="flex flex-col items-center gap-1 text-cyan-400">
+                            <Icon name="Home" className="w-7 h-7" />
+                            <span className="text-[10px] font-black uppercase">Home</span>
                         </button>
-                        <div className="text-slate-600 flex flex-col items-center">
-                            <Icon name="Trophy" className="w-6 h-6" />
-                            <span className="text-[10px] font-bold mt-1">STATS</span>
-                        </div>
+                        <button className="flex flex-col items-center gap-1 text-slate-500 opacity-50 cursor-not-allowed">
+                            <Icon name="Trophy" className="w-7 h-7" />
+                            <span className="text-[10px] font-black uppercase">Stats</span>
+                        </button>
+                        <button className="flex flex-col items-center gap-1 text-slate-500 opacity-50 cursor-not-allowed">
+                            <Icon name="Settings" className="w-7 h-7" />
+                            <span className="text-[10px] font-black uppercase">Tools</span>
+                        </button>
                     </nav>
                 </div>
             );
