@@ -17,9 +17,10 @@
         .mandala-outer { animation: rotate 80s linear infinite reverse; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 12px #22d3ee); }
-        .view-container { height: calc(100vh - 160px); overflow-y: auto; }
-        .node-pulse { animation: pulse 3s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.2); } 70% { box-shadow: 0 0 0 20px rgba(34, 211, 238, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); } }
+        .view-container { height: calc(100vh - 160px); overflow-y: auto; padding-bottom: 40px; }
+        .lesson-card { border-left: 4px solid #1e293b; transition: all 0.3s; }
+        .lesson-card.completed { border-left-color: #22c55e; opacity: 0.7; }
+        .lesson-card.active { border-left-color: #06b6d4; }
     </style>
 </head>
 <body>
@@ -33,128 +34,97 @@
             return <i data-lucide={name.toLowerCase()} className={className}></i>;
         };
 
-        const SKILL_MAP = {
-            logic: { 
-                title: "Strategic Logic", icon: "cpu", color: "text-cyan-400", 
-                nexus: "Unlocks: Deontological Analysis",
-                summary: "The art of deconstructing reality into first principles, bypassing emotional interference.",
-                sub: ["Socratic Inquiry", "First Principles", "Cognitive Bias"] 
-            },
-            empathy: { 
-                title: "Radical Empathy", icon: "heart", color: "text-pink-400", 
-                nexus: "Unlocks: Shadow Work Integration",
-                summary: "Cognitive mapping of the internal states of others to predict behavior and build trust.",
-                sub: ["Mirroring", "Active Listening", "Perspective Shifting"] 
-            },
-            discipline: { 
-                title: "Iron Discipline", icon: "shield", color: "text-orange-400", 
-                nexus: "Unlocks: Atomic Habit Persistence",
-                summary: "The subordination of immediate impulse to the long-term strategic self.",
-                sub: ["Dopamine Control", "Grit Scaling", "Delayed Gratification"] 
-            },
-            regulation: { 
-                title: "Mind Regulation", icon: "wind", color: "text-blue-400", 
-                nexus: "Unlocks: Stoic Buffer Zones",
-                summary: "Creating an impenetrable space between an external stimulus and your internal response.",
-                sub: ["Metacognition", "Vagus Reset", "Pulse Control"] 
-            },
-            integrity: { 
-                title: "Total Integrity", icon: "anchor", color: "text-green-400", 
-                nexus: "Unlocks: Radical Transparency",
-                summary: "Absolute alignment between your internal values and your external actions.",
-                sub: ["Radical Honesty", "Value Auditing", "Code Consistency"] 
-            }
-        };
+        const LESSONS = [
+            { id: 1, cat: "Stoicism", title: "Dichotomy of Control", skill: "Regulation", body: "The root of all suffering is the attempt to control the uncontrollable. Epictetus argues we only control our own opinions, intentions, and desires. Everything else—reputation, wealth, others—is 'externals.'", xp: 150 },
+            { id: 2, cat: "Psychology", title: "The Jungian Shadow", skill: "Empathy", body: "The Shadow is the 'dark side' of your personality. To become a whole individual, you must not suppress it, but integrate it. What you hate in others is often what you haven't accepted in yourself.", xp: 200 },
+            { id: 3, cat: "Logic", title: "First Principles Thinking", skill: "Logic", body: "A physics-first approach to problem solving. Break a process down to the fundamental truths and build up from there, rather than reasoning by analogy.", xp: 180 },
+            { id: 4, cat: "Existentialism", title: "The Myth of Sisyphus", skill: "Discipline", body: "Camus suggests that the struggle itself toward the heights is enough to fill a man's heart. We must imagine Sisyphus happy as he pushes the boulder, finding meaning in the effort.", xp: 220 },
+            { id: 5, cat: "Ethics", title: "The Categorical Imperative", skill: "Integrity", body: "Kant's rule: Act only according to that maxim whereby you can, at the same time, will that it should become a universal law. Integrity is acting as if your choice defines the world's rules.", xp: 250 }
+        ];
 
         function App() {
-            const [tab, setTab] = useState('tree');
-            const [activeSkill, setActiveSkill] = useState(null);
-            const [stats] = useState({ kScore: 527, xp: 420, level: 1, streak: 12 });
+            const [tab, setTab] = useState('lessons');
+            const [activeLesson, setActiveLesson] = useState(null);
+            const [stats, setStats] = useState({ kScore: 527, xp: 420, level: 1, streak: 12 });
+            const [completed, setCompleted] = useState([]);
 
-            const DetailDossier = () => (
-                <div className={`fixed inset-0 z-[100] glass flex items-center justify-center p-6 transition-all duration-500 ${activeSkill ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <div className="bg-slate-950 w-full max-w-sm rounded-[3.5rem] p-8 border border-cyan-500/40 relative shadow-2xl">
-                        <button onClick={() => setActiveSkill(null)} className="absolute top-8 right-8 text-slate-500"><Icon name="X" className="w-6 h-6"/></button>
-                        {activeSkill && (
-                            <div className="space-y-6">
-                                <h2 className={`text-4xl font-800 tracking-tighter ${activeSkill.color}`}>{activeSkill.title}</h2>
-                                <p className="text-cyan-400 font-black text-[10px] tracking-widest uppercase italic">{activeSkill.nexus}</p>
-                                <div className="space-y-4">
-                                    <p className="text-slate-300 italic text-sm leading-relaxed border-l-2 border-cyan-500/30 pl-4">"{activeSkill.summary}"</p>
-                                    <div className="flex flex-wrap gap-2 pt-2">
-                                        {activeSkill.sub.map(s => (
-                                            <span key={s} className="px-3 py-1 bg-white/5 rounded-full text-[9px] font-bold text-slate-400 border border-white/10 uppercase tracking-tighter">{s}</span>
-                                        ))}
-                                    </div>
-                                </div>
-                                <button onClick={() => setActiveSkill(null)} className="w-full py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">INTEGRATE PATH</button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
+            const addXP = (amt, id) => {
+                if(!completed.includes(id)) {
+                    setStats(s => ({...s, xp: s.xp + amt, kScore: s.kScore + Math.floor(amt/5)}));
+                    setCompleted([...completed, id]);
+                }
+                setActiveLesson(null);
+            };
 
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative overflow-hidden">
-                    <DetailDossier />
+                    {/* Lesson Detail Modal */}
+                    {activeLesson && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col page-transition">
+                            <button onClick={() => setActiveLesson(null)} className="mb-8 text-slate-500"><Icon name="X" className="w-6 h-6"/></button>
+                            <div className="flex-1 overflow-y-auto">
+                                <span className="text-cyan-400 font-black text-[10px] tracking-widest uppercase">{activeLesson.cat}</span>
+                                <h2 className="text-4xl font-800 mb-6 leading-tight">{activeLesson.title}</h2>
+                                <p className="text-slate-300 text-lg leading-relaxed glass p-6 rounded-3xl mb-6 italic border-l-4 border-cyan-500">"{activeLesson.body}"</p>
+                                <div className="p-4 glass rounded-2xl border border-white/5">
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Neural Connection</p>
+                                    <p className="font-bold text-cyan-400">+10% Growth in {activeLesson.skill}</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => addXP(activeLesson.xp, activeLesson.id)}
+                                className={`w-full py-5 rounded-2xl font-black text-xl mt-6 ${completed.includes(activeLesson.id) ? 'bg-slate-800 text-slate-500' : 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'}`}
+                            >
+                                {completed.includes(activeLesson.id) ? 'ALREADY MASTERED' : `COMPLETE MODULE +${activeLesson.xp} XP`}
+                            </button>
+                        </div>
+                    )}
+
                     <header className="p-6 flex justify-between items-center bg-slate-950/90 border-b border-white/5 z-50">
-                        <span className="font-black italic text-cyan-400 tracking-tighter text-xl">K-SCORE OS</span>
+                        <span className="font-black italic text-cyan-400 tracking-tighter text-xl uppercase">K-SCORE OS</span>
                         <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400 flex items-center gap-1">⚡ {stats.kScore}</div>
                     </header>
 
                     <main className="view-container">
-                        {tab === 'tree' && (
-                            <div className="h-full w-full flex items-center justify-center relative">
-                                <div className="absolute mandala-inner w-[300px] h-[300px] border border-white/5 rounded-full"></div>
-                                <div className="absolute mandala-outer w-[380px] h-[380px] border border-cyan-500/10 rounded-full"></div>
-                                
-                                <div className="z-10 w-28 h-28 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400/40 node-pulse">
-                                    <Icon name="Activity" className="w-5 h-5 text-cyan-400 mb-1" />
-                                    <span className="text-xl font-800 italic">CORE</span>
+                        {tab === 'lessons' && (
+                            <div className="p-6 space-y-4 animate-in fade-in">
+                                <div className="mb-6">
+                                    <h2 className="text-3xl font-800 tracking-tighter">Curriculum</h2>
+                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{completed.length}/25 MODULES UNLOCKED</p>
                                 </div>
-
-                                {Object.entries(SKILL_MAP).map(([key, data], i) => {
-                                    const angle = (i * 72) * (Math.PI / 180);
-                                    const x = Math.cos(angle) * 135;
-                                    const y = Math.sin(angle) * 135;
-                                    
-                                    return (
-                                        <div key={key} onClick={() => setActiveSkill(data)}
-                                             style={{ transform: `translate(${x}px, ${y}px)` }}
-                                             className="absolute group cursor-pointer flex items-center justify-center z-20">
-                                            <div className="w-16 h-16 glass rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-cyan-400 transition-all shadow-xl group-hover:scale-110">
-                                                <Icon name={data.icon} className={`w-7 h-7 ${data.color}`} />
+                                {LESSONS.map(l => (
+                                    <div key={l.id} 
+                                         onClick={() => setActiveLesson(l)}
+                                         className={`glass p-6 rounded-3xl lesson-card cursor-pointer ${completed.includes(l.id) ? 'completed' : 'active'}`}>
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{l.cat}</p>
+                                                <h4 className="font-bold text-lg leading-tight">{l.title}</h4>
                                             </div>
-                                            
-                                            {data.sub.map((_, j) => {
-                                                const subAngle = (j * 120) * (Math.PI / 180);
-                                                const sx = Math.cos(subAngle) * 45;
-                                                const sy = Math.sin(subAngle) * 45;
-                                                return <div key={j} style={{ transform: `translate(${sx}px, ${sy}px)` }} className={`absolute w-1.5 h-1.5 rounded-full ${data.color} opacity-40`}></div>;
-                                            })}
+                                            {completed.includes(l.id) && <Icon name="CheckCircle" className="w-5 h-5 text-green-500" />}
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {tab === 'tree' && (
+                            <div className="h-full w-full flex items-center justify-center relative pt-10">
+                                <div className="absolute mandala-inner w-[300px] h-[300px] border border-white/5 rounded-full"></div>
+                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400/40 node-pulse">
+                                    <span className="text-xl font-800 italic uppercase tracking-tighter">ANIKA</span>
+                                </div>
+                                <p className="absolute bottom-10 text-[10px] font-black text-slate-500 uppercase tracking-widest">Neural Mandala Initialized</p>
                             </div>
                         )}
 
                         {tab === 'dashboard' && (
-                            <div className="p-8 space-y-6">
+                            <div className="p-8 space-y-6 animate-in fade-in">
                                 <div className="glass p-10 rounded-[3.5rem] text-center border-b-8 border-cyan-500/10 shadow-2xl">
-                                    <h1 className="text-5xl font-800 italic uppercase mb-2 tracking-tighter">ANIKA</h1>
-                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.6em] mb-8">{stats.streak} DAY STREAK</p>
-                                    <div className="h-1 w-full bg-slate-900 rounded-full"><div className="h-full bg-cyan-400" style={{width: '45%'}}></div></div>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {tab === 'dilemmas' && (
-                            <div className="p-6 space-y-4 animate-in fade-in">
-                                <h2 className="text-3xl font-800 text-amber-500 tracking-tighter">Moral Nexus</h2>
-                                <div className="glass p-8 rounded-[2.5rem] border-l-8 border-amber-500">
-                                    <h4 className="font-bold text-xl mb-2 italic">The Hospital Choice</h4>
-                                    <p className="text-sm text-slate-400 leading-relaxed mb-6">Utilize your "Strategic Logic" and "Boolean Ethics" to resolve this high-stakes scenario.</p>
-                                    <button className="w-full py-4 bg-amber-500 text-slate-950 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">Begin Deconstruction</button>
+                                    <h1 className="text-5xl font-800 italic uppercase mb-2 tracking-tighter">STATUS</h1>
+                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.6em] mb-8 tracking-widest uppercase tracking-[0.4em]">{stats.streak} DAY STREAK</p>
+                                    <div className="h-1 w-full bg-slate-900 rounded-full"><div className="h-full bg-cyan-400" style={{width: `${(completed.length / 25) * 100}%`}}></div></div>
+                                    <p className="text-[9px] mt-4 font-black text-slate-500 uppercase tracking-widest">Evolution Level 1</p>
                                 </div>
                             </div>
                         )}
