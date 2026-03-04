@@ -2,17 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-SCORE OS</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>K-SCORE | Neural OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0f172a; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; color: white; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
-        .active-nav { color: #06b6d4; border-top: 2px solid #06b6d4; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { background: #020617; font-family: 'Plus Jakarta Sans', sans-serif; color: white; margin: 0; padding: 0; overflow: hidden; }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); }
+        .mandala-rotate { animation: rotate 100s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 10px #22d3ee); border-top: 2px solid #22d3ee; }
+        .view-container { height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .node-pulse { animation: pulse 3s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.2); } 70% { box-shadow: 0 0 0 20px rgba(34, 211, 238, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); } }
     </style>
 </head>
 <body>
@@ -20,452 +25,120 @@
     <script type="text/babel">
         const { useState } = React;
 
+        const SKILL_DATA = {
+            logic: { title: "Strategic Logic", icon: "⚛", color: "text-cyan-400", summary: "First Principles thinking.", sub: "Socratic Inquiry" },
+            empathy: { title: "Radical Empathy", icon: "♥", color: "text-pink-400", summary: "Mapping internal states.", sub: "Shadow Work" },
+            discipline: { title: "Iron Discipline", icon: "🛡", color: "text-orange-400", summary: "Impulse control.", sub: "Dopamine Management" },
+            regulation: { title: "Mind Regulation", icon: "≋", color: "text-blue-400", summary: "Stimulus-response buffer.", sub: "Metacognition" },
+            integrity: { title: "Total Integrity", icon: "⚓", color: "text-green-400", summary: "Values alignment.", sub: "Radical Honesty" }
+        };
+
         const LESSONS = [
-            {
-                id: 1,
-                title: "The Control Dichotomy",
-                category: "Stoicism",
-                pages: [
-                    { title: "01. The What", content: "Stoicism teaches us to distinguish between what we control (our thoughts, actions, responses) and what we don't (outcomes, others' opinions, external events). Your mind is your only true kingdom." },
-                    { title: "02. The Who", content: "Three great Stoic philosophers shaped this wisdom: Epictetus (born a slave), Seneca (advisor to emperors), and Marcus Aurelius (Emperor of Rome). Each proved Stoicism works at every level of society." },
-                    { title: "03. The When", content: "Stoicism was founded around 300 BC in Athens by Zeno of Citium. Over 2,000 years later, it remains the backbone of modern Cognitive Behavioral Therapy (CBT) used by psychologists worldwide." },
-                    { title: "04. The Where", content: "The philosophy emerged from the Stoa Poikile—the Painted Porch—in ancient Athens. This covered walkway became the meeting place where Zeno taught his students the path to unshakeable peace." },
-                    { title: "05. The Why", content: "The ultimate goal is Ataraxia: a state of perfect mental tranquility, freedom from fear, and inner peace. By aligning your will with reason and nature, you become invulnerable to life's chaos." },
-                    { title: "06. How: Master Control", content: "Today's exercise: Write down 5 things stressing you right now. For each, ask: 'Is this 100% in my control?' If no—your effort, your response—then mentally release it. Stop wasting energy on what you cannot change." },
-                    { title: "07. How: Abandon Validation", content: "Stop seeking approval from others. Your peace of mind cannot depend on their judgment. Focus only on living according to your values and reason. Let external praise and criticism wash over you like water." },
-                    { title: "08. How: Own Your Effort", content: "You control only your intention and effort. Not the outcome. Practice this mindset: 'I will do my absolute best, and I accept whatever result comes. My dignity lies in the attempt, not the victory.'" },
-                    { title: "09. Exercise: Pre-meditatio Malorum", content: "Spend 5 minutes imagining losing everything—your status, wealth, relationships. But your character? Your mind? Those remain yours alone. This mental rehearsal makes you unshakeable. True freedom is internal." },
-                    { title: "10. Synthesis & Mastery", content: "Congratulations. You've now internalized Stoic wisdom. Your next challenge: Live it. Every moment, ask: 'What is in my control RIGHT NOW?' Master this, and you've conquered the greatest enemy: yourself. +500 XP Awarded." }
-                ]
-            },
-            {
-                id: 2,
-                title: "First Principles Thinking",
-                category: "Logic",
-                pages: [
-                    { title: "01. What Are First Principles?", content: "First Principles Thinking is breaking down complex problems into their fundamental truths and rebuilding from there. Like Socrates questioning every assumption, you strip away conventional wisdom to find core facts." },
-                    { title: "02. Elon Musk's Method", content: "Elon uses this constantly: 'What do we know to be true? What are we assuming?' When SpaceX questioned 'rockets are expensive,' they found the real truth: 'Rocket REUSABILITY was never attempted.' This one insight changed everything." },
-                    { title: "03. The Physics Approach", content: "Physics doesn't say 'batteries are always expensive.' It asks: 'What is the atomic cost of lithium? What is energy density?' By understanding atoms, Tesla proved batteries could be cheaper. Base reality > market consensus." },
-                    { title: "04. Dismantle Assumptions", content: "Every 'that's how it's always been done' is an assumption waiting to be destroyed. Question: Why do we do it this way? What would happen if we didn't? Is there a better fundamental path?" },
-                    { title: "05. Layer 1: Raw Facts", content: "Facts are non-negotiable. Not opinions, not 'industry standards'—measurable, verifiable truths. Example: 'A Tesla battery costs $132/kWh to produce.' That's a fact you can build from. Everything else is analysis." },
-                    { title: "06. Layer 2: Root Cause", content: "Don't stop at 'people don't buy electric cars.' Dig: Why? Cost? Range anxiety? Infrastructure? Charging time? Each root cause needs its own first-principles solution. One size never fits all." },
-                    { title: "07. Layer 3: Reconstruction", content: "Now rebuild. If batteries are expensive because of raw materials, can we find cheaper materials? If charging is slow, can we redesign charging networks? Reconstruct from atomic truth, not market assumptions." },
-                    { title: "08. The Socratic Method", content: "Ask 'why' relentlessly. Why do we believe this? Why is that true? Why not the opposite? Socrates never gave answers—he asked questions until truth emerged. Be intellectual humble enough to question everything." },
-                    { title: "09. Real-World Exercise", content: "Pick ONE assumption in your life: 'I need a 9-5 job.' Ask why. Dig to the root: 'I need money for survival.' But do you? Could you reduce expenses? Could you create value differently? First principles reveals hidden paths." },
-                    { title: "10. Mastery Check", content: "Can you take any problem and strip it to atomic facts? Can you rebuild from there without bias? Can you defend your 'truth' against Socratic questioning? If yes—you've mastered first principles. +500 XP." }
-                ]
-            },
-            {
-                id: 3,
-                title: "The Socratic Method",
-                category: "Logic",
-                pages: [
-                    { title: "01. Who Was Socrates?", content: "Socrates (470-399 BC) never wrote anything. He walked Athens asking questions, revealing how little people actually understood. He claimed: 'I know that I know nothing'—true wisdom is recognizing ignorance." },
-                    { title: "02. The Core Principle", content: "Socratic method: Never tell someone they're wrong. Instead, ask questions that expose contradictions in THEIR logic. They discover their error themselves. This creates lasting change, not defensive argument." },
-                    { title: "03. The Five-Why Framework", content: "Ask 'why?' five times consecutively: 'Why do you want success?' 'Why does that matter?' 'Why is that important?' Keep going until you hit bedrock truth. Most people can't answer beyond 2 whys. You will go deeper." },
-                    { title: "04. Exposing Hidden Assumptions", content: "Person: 'I need to be rich to be happy.' Socrates: 'Is every rich person happy?' 'No...' 'So richness doesn't guarantee happiness?' 'No...' 'Then what actually creates happiness?' They discover the answer themselves." },
-                    { title: "05. Questions > Statements", content: "Never say 'You're wrong about money.' Ask: 'How much money is enough?' 'Why that amount?' 'Do you know people with more who are unhappy?' 'What does that tell you?' Questions disarm defensiveness and invite genuine thinking." },
-                    { title: "06. The Elenchus: Intellectual Midwifery", content: "Socrates called himself an 'intellectual midwife'—he delivered ideas from people's minds. He asked until they birthed their own truth. You're not teaching; you're helping them discover what they already know." },
-                    { title: "07. Listening is Everything", content: "Most people wait for their turn to talk. Socrates listened deeply. He heard contradictions, gaps, assumptions. He asked follow-ups based on what they said, not what he planned to say. True dialogue requires radical listening." },
-                    { title: "08. The Uncomfortable Moment", content: "Socratic questioning creates 'aporia'—a state of confusion where certainty dissolves. This is uncomfortable but necessary. Truth lives on the other side of not-knowing. Embrace the discomfort." },
-                    { title: "09. Practice: Question Someone Today", content: "Pick ONE conversation. When someone makes a claim, ask: 'Why do you believe that?' 'How do you know?' 'What would change your mind?' Don't argue—just ask. Watch how their thinking evolves." },
-                    { title: "10. Mastery: The Questioner", content: "Socratic mastery: You can take any certainty and dissolve it into genuine inquiry. You help others think more clearly without ever telling them what to think. This is philosophy in action. +500 XP." }
-                ]
-            },
-            {
-                id: 4,
-                title: "Cognitive Mapping",
-                category: "Empathy",
-                pages: [
-                    { title: "01. What Is Cognitive Mapping?", content: "Cognitive mapping is the ability to understand how another person thinks—their mental model, their beliefs, their internal logic. Not to change them, but to see the world through their eyes completely." },
-                    { title: "02. Everyone Has a Map", content: "Each person has an invisible map of reality built from experiences, beliefs, trauma, culture. Your map is NOT universal. Their map is equally valid to them. A 'crazy' belief is sane if you understand the map that created it." },
-                    { title: "03. Why People Act Irrationally", content: "From their map, they're never irrational. A person afraid of success isn't broken—their map says 'success = abandonment' (learned from past). To help them, you must first understand their map, not judge it." },
-                    { title: "04. The Cartography Process", content: "Step 1: Listen for their core beliefs ('I'm not good enough'). Step 2: Trace them back to origin ('Parent never praised me'). Step 3: Identify how these beliefs drive current behavior. Step 4: Respect the map, even if it's limiting." },
-                    { title: "05. Ask, Don't Assume", content: "Never assume you know their map. Ask: 'What made you believe that?' 'When did you first feel this way?' 'What would need to happen for you to see it differently?' Let them draw their own map for you." },
-                    { title: "06. The Belief-Behavior Loop", content: "Beliefs → Perception → Behavior → Outcomes → Stronger Beliefs. Someone believes 'people reject me' → they perceive rejection everywhere → they withdraw → people respond to withdrawal → belief strengthened. Understanding this loop is everything." },
-                    { title: "07. Mirroring: Reflecting Their Map", content: "When you understand their map, reflect it back: 'So from your perspective, trust is dangerous because...' This isn't agreement; it's accurate understanding. People feel heard when their map is seen clearly, not distorted." },
-                    { title: "08. Shadow Work: The Disowned Parts", content: "Everyone has traits they reject: 'I'm not angry' (while being furious), 'I'm not selfish' (while being self-absorbed). Their map has blind spots. Compassion means recognizing what they can't see in themselves yet." },
-                    { title: "09. Exercise: Map Someone Close", content: "Pick someone you struggle with. Write: Their core beliefs about themselves. Their core beliefs about you. Where these beliefs came from. How these beliefs drive their behavior. This exercise builds radical empathy." },
-                    { title: "10. Mastery: The Empath", content: "True empathy isn't feeling their emotions—it's understanding their map so completely that their behavior makes perfect sense. You can predict their reactions, understand their fears, see their logic. This is cognitive mapping mastery. +500 XP." }
-                ]
-            },
-            {
-                id: 5,
-                title: "Shadow Work: Owning Your Darkness",
-                category: "Empathy",
-                pages: [
-                    { title: "01. What Is Shadow Work?", content: "Shadow work is integrating the parts of yourself you reject, deny, or repress. Jung called it 'the shadow'—everything you won't admit about yourself. Until you own your shadow, it owns you." },
-                    { title: "02. The Disowned Self", content: "You were told 'be nice' so you disowned anger. 'Be humble' so you disowned ambition. 'Be selfless' so you disowned your needs. These disowned parts don't disappear—they lurk in your unconscious, controlling you." },
-                    { title: "03. The Projection Trap", content: "What you hate in others is often your shadow projected outward. You hate 'selfish people'—but you've disowned your own selfishness. You hate 'liars'—but you've disowned your own deceptions. Your shadow uses projection as a weapon." },
-                    { title: "04. Finding Your Shadow", content: "Who do you judge harshly? Whose behavior triggers disproportionate anger? Those are shadow mirrors. The more intense your judgment, the more it's your disowned self staring back. Write: 'I judge _____ for being _____. Where do I do this too?'" },
-                    { title: "05. The Vulnerability Paradox", content: "You think owning your darkness makes you weak. The opposite: denying it makes you weak—reactive, defensive, unconscious. Owning it makes you powerful—you choose your response instead of being hijacked by denial." },
-                    { title: "06. Integration, Not Eradication", content: "Shadow work isn't about eliminating darkness—it's about integrating it. Your ambition isn't evil; it's powerful. Your anger isn't shameful; it's energy. Your selfishness isn't wrong; it's self-preservation. Own all of it." },
-                    { title: "07. The Shadow Confessions", content: "Write: Five things you refuse to admit about yourself. Five ways you're exactly like the people you judge. Five 'dark' desires you pretend don't exist. This isn't for sharing—it's for honest self-knowledge." },
-                    { title: "08. From Shame to Power", content: "Shame: 'I'm bad for feeling this.' Power: 'I feel this; now what do I do with it?' A selfish impulse becomes ambition channeled productively. Anger becomes boundary-setting. Envy becomes motivation. Integration transforms shadow into fuel." },
-                    { title: "09. The Freedom on the Other Side", content: "When you stop denying your darkness, you stop using energy on denial. That energy becomes available for creation. You're less reactive because fewer triggers hide in your unconscious. You're more honest because you've stopped lying to yourself." },
-                    { title: "10. Mastery: The Integrated Self", content: "You can acknowledge every impulse without being controlled by it. You know your darkness and choose your actions anyway. You judge others less because you see yourself in them. This is wholeness. +500 XP." }
-                ]
-            },
-            {
-                id: 6,
-                title: "Impulse Control & The Pause",
-                category: "Discipline",
-                pages: [
-                    { title: "01. The Biology of Impulse", content: "Your amygdala (fear/rage center) reacts in 6 milliseconds. Your prefrontal cortex (reasoning) takes 600 milliseconds to engage. That 594ms gap is where most damage happens. Impulse control is expanding that gap into a CHOICE." },
-                    { title: "02. The Reactive Loop", content: "Trigger → Feeling → Impulse → Action → Regret. This loop runs automatically. You can't eliminate the trigger or feeling, but you CAN insert a pause between impulse and action. That pause is your entire power." },
-                    { title: "03. The Box Breathing Technique", content: "When triggered: Breathe in for 4 counts. Hold for 4. Out for 4. Hold for 4. Repeat 4 times. This simple act shifts you from amygdala (reaction) to prefrontal cortex (choice). It's not weakness; it's tactical intelligence." },
-                    { title: "04. The Observer Self", content: "Instead of 'I'm angry,' think 'I'm observing anger in my body.' This subtle shift—observing vs. identifying—creates distance. You're no longer the anger; you're watching it. This observer position is where choice lives." },
-                    { title: "05. Naming the Impulse", content: "Don't suppress impulses; name them: 'That's my shame speaking.' 'That's my fear.' 'That's my pride.' Naming creates distance and clarity. A named impulse loses power over you. An unnamed impulse controls you." },
-                    { title: "06. The Three-Question Filter", content: "Before acting on impulse, ask: (1) Is this true? (2) Is it necessary? (3) Is it kind? If any answer is no, pause. This filter isn't morality—it's strategy. Impulse always feels urgent but is rarely actually urgent." },
-                    { title: "07. The Cost-Benefit Reality", content: "That impulse to snap at someone: 5 seconds of relief. Then: damaged relationship, guilt, lost trust. That impulse to scroll: 10 minutes of dopamine. Then: 2 hours lost, regret, shame. The impulse LIES about cost-benefit. Your discipline tells truth." },
-                    { title: "08. Building the Pause Muscle", content: "Start small. When you want coffee, pause for 10 seconds. When you want to text something angry, pause for 60 seconds. When you want to quit something hard, pause for 5 minutes. Each pause strengthens your prefrontal cortex." },
-                    { title: "09. Practical Exercise: The Challenge", content: "For 7 days: Every time you feel an impulse, pause for just 30 seconds before acting. Notice how many impulses lose power in that 30 seconds. Observe the pattern: Most impulses are transient; discipline reveals this." },
-                    { title: "10. Mastery: The Unshakeable", content: "Impulse still comes, but you own your response. Anger arrives; you choose your words. Fear speaks; you choose your action. This is what 'unshakeable' means—not absence of emotion, but mastery of response. +500 XP." }
-                ]
-            },
-            {
-                id: 7,
-                title: "Atomic Habits: The 1% Compounding Law",
-                category: "Discipline",
-                pages: [
-                    { title: "01. The Compound Effect", content: "1% better per day = 37x better in one year. 1% worse per day = nearly 0 in one year. This exponential curve is invisible at the start—1% looks meaningless. But after months, the gap becomes undeniable. Your daily choices are your destiny." },
-                    { title: "02. Systems > Goals", content: "Goals are about outcomes ('Get fit'). Systems are about processes ('Exercise daily'). Obsessed people focus on systems, not goals. You don't rise to the level of your goals; you fall to the level of your systems. Build habits, not willpower." },
-                    { title: "03. The Habit Loop", content: "Cue → Craving → Response → Reward. You see your phone (cue) → want dopamine (craving) → check it (response) → feel pleasure (reward). To change habits, you must understand this loop. Willpower alone fails; system redesign works." },
-                    { title: "04. Cue Redesign", content: "Can't resist dessert? Remove the cue—don't buy it. Want to read more? Put the book on your pillow. Want to meditate? Set out your mat. You can't rely on willpower to resist cues. Eliminate the cue instead. This is intelligence, not weakness." },
-                    { title: "05. Make It Obvious", content: "The best habits are visible and unavoidable. Gym bag by the door. Healthy food at eye level. Meditation cushion in your room. Brain takes the path of least resistance. Make good habits the obvious choice, bad habits the difficult choice." },
-                    { title: "06. The Two-Day Rule", content: "Never miss a habit twice. Missing once is accident; missing twice is pattern. A streak broken is recoverable. A broken streak becoming a broken habit is the real danger. Protect your 2-day rule religiously." },
-                    { title: "07. Habit Stacking", content: "Link new habits to existing ones: 'After I brush my teeth, I meditate.' 'After I eat breakfast, I write.' This piggybacks new habits onto established neural pathways. Your brain loves this efficiency. Use existing habits as anchors." },
-                    { title: "08. Identity-Based Habits", content: "Don't aim to 'exercise more.' Become a 'person who exercises.' Don't aim to 'read more.' Become a 'reader.' Every action votes for your identity. Repeated votes = identity. Identity then drives all future behavior automatically." },
-                    { title: "09. The Long Game Patience", content: "Week 1: Nothing changes. Month 1: You notice. Month 3: Others notice. Year 1: Everyone wonders how you did it. The compounding effect is invisible until it isn't. Then it's undeniable. This is why discipline beats talent long-term." },
-                    { title: "10. Mastery: The Unstoppable", content: "You've built systems so strong that good habits are effortless. Bad habits are difficult. You don't rely on motivation—your systems carry you. You move 1% daily toward your vision. In 5 years, you're unrecognizable. +500 XP." }
-                ]
-            },
-            {
-                id: 8,
-                title: "Dopamine Mastery: Hijacked by Design",
-                category: "Discipline",
-                pages: [
-                    { title: "01. What Is Dopamine?", content: "Dopamine isn't pleasure—it's motivation. It's the neurochemical that drives you toward reward, not the reward itself. Tech companies weaponize dopamine through variable rewards (unpredictable notifications). Your brain can't resist uncertainty." },
-                    { title: "02. Variable Rewards Are Cocaine", content: "Slot machines = variable rewards = most addictive gambling. Social media = variable rewards (likes, comments) = most addictive technology. Your brain's dopamine system evolved for survival, not for infinite scrolling. You're playing against your neurobiology." },
-                    { title: "03. The Dopamine Baseline Collapse", content: "High dopamine from constant stimulation → baseline dopamine drops → nothing feels rewarding → you need MORE stimulation. This is the addiction cycle. Boring activities (reading, thinking, talking) become impossible when dopamine baseline is destroyed." },
-                    { title: "04. The Dopamine Fast", content: "Stop all dopamine hits for 2-7 days: no phone, no sugar, no entertainment. Just basics: water, food, sleep. Your baseline resets. Normal life becomes interesting again. This isn't punishment; it's recalibration. Your reward system needs it." },
-                    { title: "05. Earn Your Dopamine", content: "Natural dopamine sources: solving problems, creating, exercise, meaningful conversation. These require effort but create lasting satisfaction. Cheap dopamine (scrolling) destroys your ability to access earned dopamine. Choose the harder path." },
-                    { title: "06. Cold Exposure Resets Baseline", content: "Cold showers, ice baths, or even cold water on face for 30 seconds → dopamine spike followed by baseline rise. This is why cold exposure is so effective. Your baseline rises, meaning normal life feels rewarding again." },
-                    { title: "07. The Boredom Advantage", content: "Boredom is where creativity lives. But your phone destroyed your ability to be bored. No phone for hours → initial discomfort → then ideas emerge → creative output. Boredom is your innovation engine. Protect it." },
-                    { title: "08. Delayed Gratification Training", content: "Small practice: Want coffee? Wait 5 minutes. Want to check phone? Wait 10 minutes. These delays strengthen your prefrontal cortex and dopamine control. Start small, build up. This is how you reclaim your neurochemistry." },
-                    { title: "09. Exercise: Your Dopamine Anchor", content: "Exercise creates natural dopamine and raises baseline. 20 minutes of intense exercise = dopamine spike + baseline elevation. This is why exercise is so transformative. It's the most legal, healthy dopamine hack available." },
-                    { title: "10. Mastery: The Free Mind", content: "You've reclaimed your dopamine system. You can be bored without anxiety. You can delay gratification without suffering. Normal rewards feel rewarding again. Your mind is yours again. +500 XP." }
-                ]
-            },
-            {
-                id: 9,
-                title: "The Stimulus-Response Buffer",
-                category: "Regulation",
-                pages: [
-                    { title: "01. The Gap Between Stimulus and Response", content: "Victor Frankl: 'Between stimulus and response there is a space. In that space is our power to choose.' A traffic jam (stimulus) doesn't create anger. Your choice to believe it's a problem creates anger. The stimulus is neutral; your response is everything." },
-                    { title: "02. You Are Not Your Reactions", content: "Your amygdala reacts in 6ms. Your prefrontal cortex can override it in 600ms. Most people think their instant reaction IS them. It's not. Your conscious choice is you. The reaction is just neural noise—if you treat it that way." },
-                    { title: "03. The Power of Reframing", content: "Traffic jam (stimulus) → 'How annoying' → anger. Same jam → 'Unexpected free time to think' → peace. Same stimulus, different interpretation, different outcome. You don't control the stimulus; you control the story you tell about it." },
-                    { title: "04. The Internal Narrative", content: "You narrate everything constantly. 'He looked away—he doesn't like me.' 'She didn't text back—she's mad.' These narratives are often fiction. But you believe them, and your emotions follow. Awareness of your narrative = power to change it." },
-                    { title: "05. The Pause Practice", content: "Stimulus arrives → PAUSE → (In this space, what's actually true? What story am I telling? What's another possibility?) → Response. This pause is the entire game. The pause is where your humanity lives." },
-                    { title: "06. Metacognition: Thinking About Thinking", content: "You're not just thinking; you can observe your thinking. 'I'm having the thought that I'm not good enough.' Notice: You're not the thought; you're observing it. This observer position is freedom. Build this muscle." },
-                    { title: "07. The Antifragile Response", content: "Fragile = breaks under stress. Robust = stays same under stress. Antifragile = gets stronger under stress. Build antifragile responses by reframing challenges as opportunities. Every difficulty is now data for growth. Your response becomes stronger." },
-                    { title: "08. Regulation Through Nervous System", content: "Your nervous system has two modes: fight/flight (amygdala) or rest/digest (vagus). You can't think your way out of fight/flight. But you can vagal tone: slow breathing, cold water, humming. Regulate your nervous system, then decide." },
-                    { title: "09. Exercise: The Real-Time Buffer", content: "Next time you're triggered: Stop. Breathe 4 counts in, 6 out. Name the feeling ('I'm feeling shame'). Ask: 'What's true right now?' Usually, nothing terrible is actually happening. The stimulus is real, but the threat is imagined." },
-                    { title: "10. Mastery: The Responsive Human", content: "Stimuli still arrive, but you're no longer reactive. You observe, you choose, you respond with intention. This is the difference between being controlled by circumstances and being in command of your life. +500 XP." }
-                ]
-            },
-            {
-                id: 10,
-                title: "Metacognition: Thinking About Your Thinking",
-                category: "Regulation",
-                pages: [
-                    { title: "01. What Is Metacognition?", content: "Metacognition = awareness of your own thinking process. Most people never observe their thoughts; they just think them. You can step back and ask: 'Why am I thinking this? Is it true? Where did this belief come from? Is it serving me?'" },
-                    { title: "02. The Observer Effect", content: "The moment you observe a thought, you're no longer trapped in it. 'I'm having the thought that I'm a failure' = different from 'I am a failure.' The first has space; you can question it. The second is total identification; you're stuck." },
-                    { title: "03. Thought Patterns You Don't Know You Have", content: "Catastrophizing: 'One mistake = I'm ruined.' Black-and-white thinking: 'Either perfect or worthless.' Mind reading: 'They think I'm stupid.' Most people have these patterns running on autopilot. Metacognition exposes them." },
-                    { title: "04. The Belief Audit", content: "Write down 10 core beliefs about yourself: 'I'm not smart enough.' 'I'm unlovable.' 'Success requires sacrifice.' For each, ask: Where did I learn this? Is it actually true? What evidence contradicts it? What would life look like if I released it?" },
-                    { title: "05. Cognitive Distortions Are Invisible Until Named", content: "You think 'Everyone at the party thought I was weird' without evidence. That's mind reading. You think 'This failure means I'll never succeed'—that's catastrophizing. Name the distortion, and it loses power. Unnamed, it runs your life." },
-                    { title: "06. The Self-Talk Experiment", content: "For one day, narrate your internal dialogue: 'I'm thinking I can't do this.' 'I'm thinking they don't like me.' 'I'm thinking I should be further along.' This exposure alone changes things. You see how toxic your internal narrator is. Then you can train it." },
-                    { title: "07. Reframing: The Master Skill", content: "Same event, different frame = different reality. Interview rejection: 'I'm not good enough' vs. 'I wasn't the right fit, but I'm learning.' Same fact, different meaning. You control the frame. Master framers master their lives." },
-                    { title: "08. The Logical Fallacies You Live By", content: "Confirmation bias: You see evidence supporting your beliefs and ignore contradictions. Sunk cost fallacy: 'I've invested so much, I have to continue.' False cause: 'This happened before that, so it caused it.' See your fallacies, and you think more clearly." },
-                    { title: "09. Building Metacognitive Awareness Daily", content: "Practice: Every 2 hours, pause and ask: 'What was I just thinking? Is it true? Does it serve me?' Start building awareness muscle. The more you observe, the more you see patterns. The more you see patterns, the more you choose intentionally." },
-                    { title: "10. Mastery: The Clear Mind", content: "You see your thinking patterns as they form. You catch distortions immediately. You reframe automatically. You notice when you're not being logical. This is clarity. Most people never see their own thinking. You do. +500 XP." }
-                ]
-            },
-            {
-                id: 11,
-                title: "Values Alignment: The Core Self",
-                category: "Integrity",
-                pages: [
-                    { title: "01. What Are Your Real Values?", content: "You think your values are 'success, family, health.' But your actual values are what you do daily. You say 'family matters' but work 80 hours. You say 'health matters' but skip gym. Real values = time + money + energy allocation. Be honest." },
-                    { title: "02. The Values-Behavior Gap Is Suffering", content: "Every time you act against your values, you fracture yourself. You say 'I'm honest' then lie. You say 'I'm disciplined' then binge. These micro-fractures accumulate into self-distrust and shame. Alignment is the opposite: wholeness." },
-                    { title: "03. Values vs. Society's Values", content: "Society says pursue wealth. Your values might be freedom. Society says impress people. Your values might be authenticity. The gap between living by society's values and yours = depression, emptiness, resentment. Identify YOUR values, not borrowed ones." },
-                    { title: "04. The Core Values Excavation", content: "Go deep: What makes you feel alive? When do you feel most yourself? What do you do without external reward? What injustice angers you? These point to your core values. Not your parents' values. Not society's. Yours." },
-                    { title: "05. The Five Core Values Exercise", content: "Rank these by importance to YOU: Adventure, Authenticity, Autonomy, Beauty, Belonging, Challenge, Contribution, Creativity, Excellence, Freedom, Friendship, Growth, Health, Integrity, Intimacy, Joy, Knowledge, Legacy, Love, Wisdom. Your top 5 are your core." },
-                    { title: "06. Living Your Values Daily", content: "If autonomy is core, don't take a corporate job with micromanagement. If creativity is core, don't choose a career with no creative outlets. Values alignment means choosing life circumstances that allow you to be yourself. This is the hardest work." },
-                    { title: "07. The Integrity Integrity", content: "Integrity doesn't mean 'never lie.' It means 'integrated'—your inside matches your outside. You say what you mean. You do what you say. You are consistent across contexts. People trust you because you're coherent. This is rare." },
-                    { title: "08. The Difficult Choices", content: "Values alignment often requires leaving comfortable situations. The job that pays well but violates your values. The relationship that's easy but misaligned. The social circle you've outgrown. Alignment costs. But misalignment costs more—your soul." },
-                    { title: "09. The Daily Alignment Check", content: "Each night, ask: 'Where did I compromise my values today? Where was I fully aligned?' Not as judgment—as data. Patterns emerge. You see where the pressure points are. Then you can make conscious changes." },
-                    { title: "10. Mastery: The Integrated Self", content: "You know your values deeply. You live them daily. Your words match your actions. People feel your coherence—they trust you. You feel your coherence—you trust yourself. This is the foundation of everything. +500 XP." }
-                ]
-            },
-            {
-                id: 12,
-                title: "Radical Honesty: The Vulnerability Superpower",
-                category: "Integrity",
-                pages: [
-                    { title: "01. Radical Honesty Is Rare", content: "Most people perform all day. They hide insecurities, pretend confidence, fake interest. It's exhausting. Radical honesty means saying what's true, even when uncomfortable. Even when vulnerable. This honesty is the most powerful thing you can offer." },
-                    { title: "02. The Cost of Pretense", content: "You manage your image constantly. 'Don't let them see you're scared.' 'Pretend everything's fine.' 'Never show weakness.' This pretense fractures you. You're always 'on.' You can never rest. And people never know the real you—so you're never truly known." },
-                    { title: "03. Vulnerability Is Not Weakness", content: "Brené Brown: 'Vulnerability is the birthplace of innovation, creativity, and change.' When you're honest about struggles, others recognize themselves in you. Real connection becomes possible. Real leadership becomes possible. Only the brave are truly strong." },
-                    { title: "04. The Permission to Not Know", content: "You don't have to have answers. You can say 'I don't know.' 'I'm scared.' 'I made a mistake.' 'I need help.' These statements aren't weakness; they're honesty. They're also attractive—people trust honest people more than perfect-seeming people." },
-                    { title: "05. Speaking Your Truth, Gently", content: "Honesty isn't cruelty. You can be truthful and kind. 'I don't think this is working' (honest) vs. 'You're terrible' (cruel). Radical honesty = maximum truth + maximum compassion. Both. Not either-or." },
-                    { title: "06. The Relationships That Can't Handle Honesty", content: "Some relationships require performance. Some people punish honesty. Recognize these. You can be kind to these relationships without being fully honest. But seek relationships where honesty is safe. These are your real relationships." },
-                    { title: "07. Admitting Mistakes Builds Trust", content: "You mess up. Instead of hiding it, you say: 'I was wrong. Here's what I learned. Here's how I'll do it differently.' People don't trust perfection; they trust integrity. Admitting mistakes shows integrity. This builds loyalty." },
-                    { title: "08. Honest Feedback Is a Gift", content: "Most people won't tell you the truth—your breath, your idea, your behavior. Real friends tell you. It's uncomfortable. But it's the only way you grow. Learn to both give and receive honest feedback. This is how you evolve." },
-                    { title: "09. Practice: Tell One Hard Truth", content: "This week, tell someone one thing you've been holding back. It could be admitting a mistake, sharing a struggle, expressing a boundary. Start small. Notice: Most people respond with respect, not judgment. Your fear is bigger than their judgment." },
-                    { title: "10. Mastery: The Authentic Human", content: "You don't perform anymore. You're honest about struggles, mistakes, limitations. You're also honest about strengths, dreams, joy. People know the real you—and they're drawn to it. This authenticity is your greatest power. +500 XP." }
-                ]
-            },
-            {
-                id: 13,
-                title: "Building an Unshakeable Identity",
-                category: "Integrity",
-                pages: [
-                    { title: "01. Identity Shapes Everything", content: "Your identity is the filter through which you see all of reality. 'I'm a victim' → sees injustice everywhere. 'I'm capable' → sees opportunity everywhere. Same world, different filters. Your identity literally creates your reality." },
-                    { title: "02. You Have Multiple Identities", content: "You're different around parents, friends, colleagues. This is normal—but one identity should be consistent: your core self. The version of you that's true in private is your real identity. Everything else is adaptation." },
-                    { title: "03. Identity Is Narrative", content: "Your identity is a story you tell yourself: 'I'm not creative.' 'I'm naturally anxious.' 'I'm not good with people.' These stories were written by past experiences. But stories can be rewritten. The narrative is real only if you believe it." },
-                    { title: "04. The Identity-Behavior Loop", content: "Identity → Behavior → Results → Strengthened Identity. You see yourself as 'disciplined' → you act disciplined → you get results → you're even more disciplined. Or: you see yourself as 'lazy' → you act lazy → you get poor results → you're more lazy. The loop is real." },
-                    { title: "05. Building Identity Through Micro-Decisions", content: "Each choice votes for an identity. Choosing the gym votes for 'I'm someone who prioritizes health.' Choosing the book votes for 'I'm someone who grows.' 100 small choices build identity faster than one big decision. Consistency matters more than intensity." },
-                    { title: "06. Who Do You Want to Become?", content: "Not 'What do I want to achieve?' but 'Who do I want to be?' Identity precedes achievement. Decide: Are you someone who's disciplined? Creative? Courageous? Generous? Then act from that identity daily. The person comes before the results." },
-                    { title: "07. The Identity You Defend Is the One You'll Maintain", content: "You defend your identity fiercely—even negative ones. 'I'm shy' → you turn down social invites (defending the identity). 'I'm not creative' → you don't try creative projects (defending it). Notice where you defend your identity, and you'll see what you're protecting." },
-                    { title: "08. Shedding Old Identities", content: "You outgrow old identities. The 'shy' identity worked in childhood but now limits you. The 'victim' identity got sympathy but now disempowers you. You don't have to fight these—just stop defending them. Let them naturally fade as you build new ones." },
-                    { title: "09. The Unshakeable Identity", content: "This identity isn't based on external success: status, money, appearance. It's based on internal values: integrity, growth, contribution. When you build identity on unchangeable values, not external circumstances, it becomes unshakeable." },
-                    { title: "10. Mastery: The Deliberate Self", content: "You're intentionally building your identity through daily choices. You're not reacting to circumstances; you're acting from identity. You're becoming the person you decided to become. This is the highest form of power. +500 XP." }
-                ]
-            },
-            {
-                id: 14,
-                title: "The Integration: Becoming Whole",
-                category: "Synthesis",
-                pages: [
-                    { title: "01. What Does Wholeness Mean?", content: "Wholeness isn't perfection. It's integration: your thoughts align with your values, your words match your actions, your shadow is acknowledged, your strengths are developed, your vulnerability is strength. You're one person everywhere. This is rare and powerful." },
-                    { title: "02. The Six Pillars You've Built", content: "Logic (First Principles, Socratic Method) → Your thinking is clear. Empathy (Cognitive Mapping, Shadow Work) → Your understanding of humans is deep. Discipline (Impulse Control, Atomic Habits, Dopamine) → Your actions are deliberate. Regulation (Stimulus-Response, Metacognition) → Your emotions are owned. Integrity (Values, Honesty, Identity) → Your self is coherent." },
-                    { title: "03. The Synergy Effect", content: "Each pillar alone is powerful. Together, they create exponential power. Clear thinking + deep empathy + deliberate action + emotional mastery + coherent identity = unstoppable human. You're not just building skills; you're building an integrated person." },
-                    { title: "04. The Daily Practice", content: "Morning: Clarify your values (Integrity) + set intentions (Identity). Throughout day: Apply First Principles (Logic) + observe your thoughts (Metacognition) + pause between stimulus and response (Regulation) + act deliberately (Discipline). Evening: Reflect on alignment (Integrity)." },
-                    { title: "05. The Cascading Transformations", content: "Better thinking → clearer decisions → better results → stronger identity. Better regulation → less reactivity → stronger relationships → more success. Each pillar strengthens the others. You're not building separate skills; you're building a unified system." },
-                    { title: "06. Mastery Is the Commitment", content: "You won't master all pillars in months. Years, maybe. But you don't need to be perfect. You need to be committed. One day of practice builds one day of mastery. One month of practice builds one month of mastery. Consistency compounds." },
-                    { title: "07. The Obstacles Are the Path", content: "When you fail at discipline, you learn about your values. When you're triggered, you learn about your shadow. When you're dishonest, you learn about your identity. Every obstacle is feedback. Obstacles aren't stopping you; they're showing you where you need to integrate." },
-                    { title: "08. You Can't Master Others Until You Master Yourself", content: "You can't lead without integrity. Can't inspire without clarity. Can't connect without empathy. The work starts internal. Master yourself, and influence others naturally. You become a model, not a poser." },
-                    { title: "09. The Final Exercise: Your Integration Plan", content: "Write: 1. What's one value you haven't been living? 2. What's one belief that's holding you back? 3. What's one impulse you need to control? 4. What's one relationship you need to be more honest in? 5. Who do you want to become? Now, build one practice for each." },
-                    { title: "10. You Are Whole. Now Build From There.", content: "You've integrated logic, empathy, discipline, regulation, and integrity. You're no longer fragmented. You know yourself. You trust yourself. You act from intention, not reaction. This is mastery. This is wholeness. This is freedom. +1000 XP. Welcome to the rest of your life." }
-                ]
-            }
+            { id: 1, title: "The Control Dichotomy", pages: [
+                {h: "01. The What", b: "Stoicism is the art of separating what we control from what we don't."},
+                {h: "02. The Who", b: "Pioneered by Epictetus, a slave, and Marcus Aurelius, an Emperor."},
+                {h: "03. The When", b: "Founded in 300 BC Athens, it is the base of modern CBT."},
+                {h: "04. The Where", b: "The 'Stoa Poikile' - a public porch in the heart of the city."},
+                {h: "05. The Why", b: "To achieve 'Ataraxia' - unshakeable mental peace."},
+                {h: "06. How: Step 1", b: "Identify if a stressor is 100% in your control. If not, ignore it."},
+                {h: "07. How: Step 2", b: "Stop seeking external validation; you are then their slave."},
+                {h: "08. How: Step 3", b: "Direct all energy into your effort, never the result."},
+                {h: "09. Exercise", b: "Imagine losing everything. Realize your character is still yours."},
+                {h: "10. End", b: "Mastery of self is the only true freedom. +500 XP"}
+            ]}
         ];
 
         function App() {
             const [tab, setTab] = useState('dashboard');
-            const [xp, setXp] = useState(527);
-            const [level, setLevel] = useState(1);
-            const [lessonPage, setLessonPage] = useState(-1);
-            const [activeLessonId, setActiveLessonId] = useState(null);
             const [activeSkill, setActiveSkill] = useState(null);
-            const [completedLessons, setCompletedLessons] = useState({});
-
-            const skills = [
-                { id: 'logic', title: 'Strategic Logic', icon: '⚛', color: '#06b6d4', desc: 'First Principles Thinking' },
-                { id: 'empathy', title: 'Radical Empathy', icon: '♥', color: '#ec4899', desc: 'Cognitive Mapping' },
-                { id: 'discipline', title: 'Iron Discipline', icon: '🛡', color: '#f97316', desc: 'Impulse Control' },
-                { id: 'regulation', title: 'Mind Regulation', icon: '⚙', color: '#3b82f6', desc: 'Metacognition' },
-                { id: 'integrity', title: 'Total Integrity', icon: '⚓', color: '#22c55e', desc: 'Values Alignment' }
-            ];
-
-            const startLesson = (lesson) => {
-                setActiveLessonId(lesson.id);
-                setLessonPage(0);
-            };
-
-            const completeLesson = () => {
-                if (!completedLessons[activeLessonId]) {
-                    setXp(xp + 500);
-                    setCompletedLessons({...completedLessons, [activeLessonId]: true});
-                }
-                setLessonPage(-1);
-                setActiveLessonId(null);
-            };
-
-            const currentLesson = LESSONS.find(l => l.id === activeLessonId);
+            const [page, setPage] = useState(-1);
+            const [stats, setStats] = useState({ kScore: 527, xp: 420, level: 1, streak: 12 });
 
             return (
-                <div className="w-full h-screen flex flex-col bg-slate-950">
-                    <header className="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center">
-                        <h1 className="text-2xl font-bold text-cyan-400">K-SCORE OS</h1>
-                        <div className="flex gap-3">
-                            <div className="bg-slate-800 px-3 py-1 rounded text-sm font-bold">⚡ {xp} XP</div>
-                            <div className="bg-cyan-500 text-slate-900 px-3 py-1 rounded text-sm font-bold">LVL {level}</div>
+                <div className="max-w-md mx-auto h-screen flex flex-col relative bg-slate-950">
+                    {/* LESSON STUDY ENGINE */}
+                    {page >= 0 && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col">
+                            <div className="flex justify-between items-center mb-8">
+                                <span className="text-[10px] font-black text-cyan-400">PAGE {page + 1} / 10</span>
+                                <button onClick={() => setPage(-1)} className="text-slate-500 font-bold text-xs">EXIT</button>
+                            </div>
+                            <div className="flex-1">
+                                <h2 className="text-4xl font-800 mb-6 text-white uppercase">{LESSONS[0].pages[page].h}</h2>
+                                <div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-500 text-xl italic text-slate-200">
+                                    "{LESSONS[0].pages[page].b}"
+                                </div>
+                            </div>
+                            <div className="flex gap-4 mt-8">
+                                {page > 0 && <button onClick={() => setPage(p => p - 1)} className="flex-1 py-4 glass rounded-2xl font-black">BACK</button>}
+                                {page < 9 ? (
+                                    <button onClick={() => setPage(p => p + 1)} className="flex-2 py-4 bg-cyan-500 text-slate-950 rounded-2xl font-black">NEXT</button>
+                                ) : (
+                                    <button onClick={() => {setPage(-1); setStats(s => ({...s, kScore: s.kScore + 100}))}} className="flex-2 py-4 bg-green-500 text-slate-950 rounded-2xl font-black">MASTERED</button>
+                                )}
+                            </div>
                         </div>
+                    )}
+
+                    {/* SKILL DOSSIER */}
+                    {activeSkill && (
+                        <div className="fixed inset-0 z-[100] bg-slate-950/95 flex items-center justify-center p-6 backdrop-blur-md">
+                            <div className="glass p-8 rounded-[3rem] border border-cyan-500/30 w-full text-center shadow-2xl">
+                                <h3 className={`text-3xl font-800 ${activeSkill.color} mb-4`}>{activeSkill.title}</h3>
+                                <p className="text-slate-300 italic mb-6 leading-relaxed">"{activeSkill.summary}"</p>
+                                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-8">NEXUS: {activeSkill.sub}</p>
+                                <button onClick={() => setActiveSkill(null)} className="w-full py-4 bg-slate-800 rounded-2xl font-black uppercase text-xs">Close</button>
+                            </div>
+                        </div>
+                    )}
+
+                    <header className="p-6 flex justify-between items-center bg-slate-950 border-b border-white/5">
+                        <span className="font-black italic text-cyan-400 text-2xl">K-SCORE OS</span>
+                        <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400">⚡ {stats.kScore}</div>
                     </header>
 
-                    <main className="flex-1 overflow-y-auto p-6">
+                    <main className="view-container">
                         {tab === 'dashboard' && (
-                            <div className="space-y-6 max-w-2xl">
-                                <div className="glass p-8 rounded-2xl text-center border-l-4 border-cyan-400">
-                                    <h2 className="text-5xl font-black mb-2">ANIKA</h2>
-                                    <p className="text-cyan-400 text-sm mb-4">12 DAY STREAK 🔥</p>
-                                    <div className="w-full bg-slate-800 rounded-full h-2">
-                                        <div className="bg-cyan-400 h-full rounded-full" style={{width: '45%'}}></div>
-                                    </div>
-                                    <p className="text-xs text-slate-400 mt-2">{xp} / 7000 XP to Level 3</p>
-                                    <p className="text-xs text-slate-500 mt-4">{Object.keys(completedLessons).length} / 14 Lessons Complete</p>
+                            <div className="p-6 space-y-6">
+                                <div className="glass p-10 rounded-[3.5rem] text-center border-b-4 border-cyan-500/20">
+                                    <h1 className="text-5xl font-800 italic mb-2">ANIKA</h1>
+                                    <p className="text-cyan-400 font-bold text-[10px] tracking-[0.4em]">{stats.streak} DAY STREAK</p>
                                 </div>
                             </div>
                         )}
-
-                        {tab === 'lessons' && (
-                            <div className="max-w-4xl space-y-4">
-                                <h2 className="text-3xl font-black mb-6">📚 Deep Curriculum (14 Lessons)</h2>
-                                <div className="grid gap-4">
-                                    {LESSONS.map(lesson => (
-                                        <button
-                                            key={lesson.id}
-                                            onClick={() => startLesson(lesson)}
-                                            className="glass p-6 rounded-xl border-l-4 border-cyan-400 hover:bg-slate-800 transition text-left"
-                                        >
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <h3 className="text-xl font-bold mb-2">{lesson.id}. {lesson.title}</h3>
-                                                    <p className="text-sm text-slate-400">{lesson.category} • 10 Pages</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-xs text-cyan-400">+500 XP</p>
-                                                    {completedLessons[lesson.id] && <p className="text-green-400 text-sm">✓ Done</p>}
-                                                </div>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
                         {tab === 'tree' && (
-                            <div className="max-w-2xl">
-                                <h2 className="text-3xl font-black mb-8">⚛ Neural Mandala</h2>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {skills.map(skill => (
-                                        <button
-                                            key={skill.id}
-                                            onClick={() => setActiveSkill(skill)}
-                                            className="glass p-6 rounded-xl border border-slate-700 hover:border-cyan-400 transition"
-                                        >
-                                            <div className="text-4xl mb-2">{skill.icon}</div>
-                                            <h3 className="font-bold text-sm">{skill.title}</h3>
-                                            <p className="text-xs text-slate-400 mt-1">{skill.desc}</p>
-                                        </button>
-                                    ))}
+                            <div className="h-[450px] w-full flex items-center justify-center relative">
+                                <div className="absolute mandala-rotate w-80 h-80 border border-white/5 rounded-full"></div>
+                                <div className="z-10 w-24 h-24 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-400/40 node-pulse">
+                                    <span className="text-xl font-800 italic">CORE</span>
                                 </div>
+                                {Object.entries(SKILL_DATA).map(([key, data], i) => {
+                                    const angle = (i * 72) * (Math.PI / 180);
+                                    return (
+                                        <div key={key} onClick={() => setActiveSkill(data)}
+                                             style={{ transform: `translate(${Math.cos(angle)*135}px, ${Math.sin(angle)*135}px)` }}
+                                             className="absolute glass w-16 h-16 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-400 shadow-2xl transition-all">
+                                            <span className={`text-2xl font-black ${data.color}`}>{data.icon}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
-
-                        {tab === 'tasks' && (
-                            <div className="max-w-2xl space-y-4">
-                                <h2 className="text-3xl font-black text-green-400 mb-6">✓ Daily Tasks</h2>
-                                <div className="glass p-6 rounded-xl">
-                                    <p className="mb-4">Log 10 minutes of reflection today</p>
-                                    <button
-                                        onClick={() => setXp(xp + 50)}
-                                        className="w-full bg-green-500 text-slate-900 font-bold py-2 rounded-lg hover:bg-green-600"
-                                    >
-                                        Log Task +50 XP
-                                    </button>
+                        {tab === 'lessons' && (
+                            <div className="p-6 space-y-4">
+                                <div onClick={() => setPage(0)} className="glass p-7 rounded-[2rem] border-l-4 border-cyan-500 cursor-pointer">
+                                    <h4 className="font-bold text-lg">1. The Control Dichotomy</h4>
+                                    <p className="text-[10px] text-slate-500 uppercase mt-2">10 Page Module • +500 XP</p>
                                 </div>
                             </div>
-                        )}
-
-                        {(tab === 'dilemmas' || tab === 'mind') && (
-                            <div className="text-center text-slate-500 mt-20">Coming soon...</div>
                         )}
                     </main>
 
-                    {lessonPage >= 0 && currentLesson && (
-                        <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col p-6 overflow-y-auto">
-                            <div className="flex justify-between items-center mb-6">
-                                <span className="text-cyan-400 font-bold text-sm">Lesson {currentLesson.id} • Page {lessonPage + 1} / 10</span>
-                                <button
-                                    onClick={() => {
-                                        setLessonPage(-1);
-                                        setActiveLessonId(null);
-                                    }}
-                                    className="text-slate-400 hover:text-white text-2xl font-bold"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-
-                            <h2 className="text-3xl font-black mb-6">{currentLesson.pages[lessonPage].title}</h2>
-
-                            <div className="glass p-8 rounded-2xl mb-6 flex-1">
-                                <p className="text-lg leading-relaxed text-slate-200">{currentLesson.pages[lessonPage].content}</p>
-                            </div>
-
-                            <div className="flex gap-4">
-                                {lessonPage > 0 && (
-                                    <button
-                                        onClick={() => setLessonPage(lessonPage - 1)}
-                                        className="flex-1 bg-slate-800 text-white font-bold py-3 rounded-lg hover:bg-slate-700"
-                                    >
-                                        ← Back
-                                    </button>
-                                )}
-                                {lessonPage < 9 ? (
-                                    <button
-                                        onClick={() => setLessonPage(lessonPage + 1)}
-                                        className="flex-1 bg-cyan-500 text-slate-950 font-bold py-3 rounded-lg hover:bg-cyan-600"
-                                    >
-                                        Next →
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={completeLesson}
-                                        className="flex-1 bg-green-500 text-slate-950 font-bold py-3 rounded-lg hover:bg-green-600"
-                                    >
-                                        Finish ✓
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {activeSkill && (
-                        <div className="fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-6">
-                            <div className="glass p-8 rounded-2xl max-w-sm text-center border border-cyan-400/20">
-                                <div className="text-5xl mb-4">{activeSkill.icon}</div>
-                                <h3 className="text-2xl font-black mb-2">{activeSkill.title}</h3>
-                                <p className="text-slate-300 mb-6">{activeSkill.desc}</p>
-                                <button
-                                    onClick={() => setActiveSkill(null)}
-                                    className="w-full bg-slate-800 text-white font-bold py-2 rounded-lg hover:bg-slate-700"
-                                >
-                                    Close
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    <nav className="bg-slate-900 border-t border-slate-700 flex justify-around items-center h-20">
-                        {[
-                            { label: 'Dashboard', id: 'dashboard' },
-                            { label: 'Dilemmas', id: 'dilemmas' },
-                            { label: 'Lessons', id: 'lessons' },
-                            { label: 'Skills', id: 'tree' },
-                            { label: 'Tasks', id: 'tasks' },
-                            { label: 'Mind', id: 'mind' }
-                        ].map(item => (
-                            <button
-                                key={item.id}
-                                onClick={() => setTab(item.id)}
-                                className={`flex-1 py-2 text-xs font-bold transition ${
-                                    tab === item.id ? 'active-nav' : 'text-slate-500'
-                                }`}
-                            >
-                                {item.label}
+                    <nav className="fixed bottom-0 left-0 right-0 h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-2 z-[60]">
+                        {['Dashboard', 'Moral', 'Lessons', 'Tree', 'Tasks', 'Mind'].map((t) => (
+                            <button key={t} onClick={() => setTab(t.toLowerCase())} 
+                                    className={`flex flex-col items-center flex-1 h-full justify-center ${tab === t.toLowerCase() ? 'tab-active' : 'text-slate-600'}`}>
+                                <span className="text-[9px] font-black uppercase">{t}</span>
                             </button>
                         ))}
                     </nav>
