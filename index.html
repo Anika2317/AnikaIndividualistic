@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-SCORE | Neural Evolution</title>
+    <title>K-SCORE | Individualistic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -12,9 +12,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { background: #020617; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .duo-btn { border-bottom: 4px solid rgba(0,0,0,0.3); transition: all 0.1s; }
-        .duo-btn:active { transform: translateY(2px); border-bottom-width: 0px; }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .lesson-card { transition: all 0.2s; border-bottom: 4px solid rgba(0,0,0,0.3); }
+        .lesson-card:active { transform: translateY(2px); border-bottom-width: 0px; }
+        .completed { border-color: #22c55e !important; opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -28,39 +29,71 @@
             return <i data-lucide={name.toLowerCase().replace(/([a-z0-9])([A-Z])/g, '$1-$2')} className={className}></i>;
         };
 
+        const CONTENT = {
+            lessons: [
+                { id: 'stoic_1', cat: 'Stoicism', title: 'The Dichotomy of Control', author: 'Epictetus', body: 'The chief task in life is simply this: to identify and separate matters so that I can say clearly to myself which are externals not under my control, and which have to do with the choices I actually control.', xp: 150 },
+                { id: 'exist_1', cat: 'Existentialism', title: 'Existence Precedes Essence', author: 'Sartre', body: 'Man first of all exists, encounters himself, surges up in the world—and defines himself afterwards. You are nothing else but what you make of yourself.', xp: 200 },
+                { id: 'psy_1', cat: 'Psychology', title: 'The Individuation Process', author: 'Carl Jung', body: 'Individuation means becoming an "in-dividual," and, in so far as "individuality" embraces our innermost, last, and incomparable uniqueness, it also implies becoming one’s own self.', xp: 250 }
+            ],
+            dilemmas: [
+                { id: 'dil_1', title: 'The Ship of Theseus', body: 'If every plank of a ship is replaced one by one, is it still the same ship? This applies to your own identity as you change.', choices: ['Yes, it is the form', 'No, the matter changed'], xp: 100 }
+            ],
+            affirmations: [
+                "My internal peace is non-negotiable.",
+                "I am the master of my own focus.",
+                "Discomfort is the price of evolution."
+            ],
+            insights: [
+                { title: 'The Guest House', author: 'Rumi', body: 'This being human is a guest house. Every morning a new arrival. A joy, a depression, a meanness... Welcome and entertain them all!' }
+            ]
+        };
+
         function App() {
-            const [tab, setTab] = useState('front');
-            const [activeContent, setActiveContent] = useState(null);
+            const [tab, setTab] = useState('home');
+            const [activeItem, setActiveItem] = useState(null);
+            const [completedIds, setCompletedIds] = useState([]);
             const [stats, setStats] = useState({ kScore: 527, level: 8, xp: 4200 });
 
-            const finishTask = (xp) => {
-                setStats(prev => ({ ...prev, xp: prev.xp + xp, kScore: prev.kScore + 10 }));
-                setActiveContent(null);
+            const handleComplete = (item) => {
+                if (!completedIds.includes(item.id)) {
+                    setStats(prev => ({ 
+                        ...prev, 
+                        xp: prev.xp + item.xp, 
+                        kScore: prev.kScore + Math.floor(item.xp / 10) 
+                    }));
+                    setCompletedIds([...completedIds, item.id]);
+                }
+                setActiveItem(null);
             };
 
-            const PageWrapper = ({ title, children }) => (
-                <div className="p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <h2 className="text-3xl font-800 mb-6 tracking-tight">{title}</h2>
-                    {children}
-                </div>
+            const PageHeader = ({ title }) => (
+                <div className="p-6 mb-2"><h2 className="text-3xl font-800 tracking-tight">{title}</h2></div>
             );
 
-            if (activeContent) {
+            if (activeItem) {
                 return (
-                    <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col">
-                        <button onClick={() => setActiveContent(null)} className="mb-8 text-slate-500"><Icon name="X" /></button>
+                    <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col animate-in fade-in duration-300">
+                        <button onClick={() => setActiveItem(null)} className="mb-8 text-slate-500"><Icon name="X" /></button>
                         <div className="flex-1 overflow-y-auto">
-                            <h2 className="text-4xl font-800 mb-4">{activeContent.title}</h2>
-                            <p className="text-slate-400 mb-8 leading-relaxed text-lg">{activeContent.body}</p>
+                            <p className="text-cyan-500 font-bold uppercase text-xs tracking-widest mb-2">{activeItem.cat || 'Intellectual Exercise'}</p>
+                            <h2 className="text-4xl font-800 mb-6">{activeItem.title}</h2>
+                            <div className="glass p-6 rounded-3xl text-lg leading-relaxed text-slate-200 mb-8 italic">
+                                "{activeItem.body}"
+                            </div>
                         </div>
-                        <button onClick={() => finishTask(100)} className="w-full py-5 bg-cyan-500 rounded-2xl text-slate-900 font-black text-xl duo-btn">COMPLETE +100 XP</button>
+                        <button 
+                            onClick={() => handleComplete(activeItem)}
+                            className={`w-full py-5 rounded-2xl font-black text-xl lesson-card ${completedIds.includes(activeItem.id) ? 'bg-slate-800 text-slate-500' : 'bg-cyan-500 text-slate-950'}`}
+                        >
+                            {completedIds.includes(activeItem.id) ? 'ALREADY COMPLETED' : `FINISH +${activeItem.xp} XP`}
+                        </button>
                     </div>
                 );
             }
 
             return (
                 <div className="max-w-md mx-auto min-h-screen pb-32">
-                    <header className="p-6 flex justify-between items-center sticky top-0 bg-slate-950/80 backdrop-blur-md z-50">
+                    <header className="p-6 flex justify-between items-center sticky top-0 bg-slate-950/80 backdrop-blur-md z-50 border-b border-white/5">
                         <span className="font-black tracking-tighter text-xl text-cyan-400">K-SCORE</span>
                         <div className="flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-full border border-white/10">
                             <Icon name="Zap" className="w-4 h-4 text-amber-400" />
@@ -68,76 +101,98 @@
                         </div>
                     </header>
 
-                    {tab === 'front' && (
-                        <div className="p-10 text-center space-y-8">
-                            <div className="w-32 h-32 bg-gradient-to-tr from-cyan-600 to-blue-400 rounded-full mx-auto flex items-center justify-center shadow-[0_0_50px_rgba(6,182,212,0.3)]">
-                                <Icon name="User" className="w-16 h-16 text-slate-950" />
+                    {tab === 'home' && (
+                        <div className="p-6 space-y-6 animate-in slide-in-from-bottom-4">
+                            <div className="glass p-8 rounded-[2.5rem] text-center relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-10"><Icon name="Trophy" className="w-20 h-20" /></div>
+                                <h1 className="text-4xl font-800 italic uppercase mb-2">Anika</h1>
+                                <p className="text-cyan-400 font-bold tracking-widest text-xs mb-6">SYSTEM ACTIVE • LEVEL {stats.level}</p>
+                                <div className="h-2 w-full bg-slate-800 rounded-full mb-2"><div className="h-full bg-cyan-500 rounded-full" style={{width: '65%'}}></div></div>
+                                <p className="text-[10px] text-slate-500 font-bold">NEXT EVOLUTION: 800 XP</p>
                             </div>
-                            <div>
-                                <h1 className="text-4xl font-black mb-2 uppercase italic">Anika Seksaria</h1>
-                                <p className="text-cyan-500 font-bold tracking-widest text-xs">LEVEL {stats.level} EVOLVED</p>
-                            </div>
-                            <button onClick={() => setTab('lessons')} className="w-full py-5 bg-white text-slate-950 rounded-2xl font-black text-xl duo-btn">RESUME PATHWAY</button>
+                            <button onClick={() => setTab('lessons')} className="w-full py-5 bg-white text-slate-950 rounded-2xl font-black text-xl lesson-card">CONTINUE PATH</button>
                         </div>
                     )}
 
                     {tab === 'lessons' && (
-                        <PageWrapper title="Lessons">
-                            <div onClick={() => setActiveContent({title: 'Stoic Calm', body: 'Marcus Aurelius writes that the universe is change; life is what our thoughts make it.'})} className="glass p-6 rounded-3xl mb-4 border-l-4 border-cyan-500 cursor-pointer">
-                                <h3 className="font-bold text-xl">The Meditations</h3>
-                                <p className="text-slate-400 text-sm">Marcus Aurelius</p>
+                        <div className="animate-in fade-in">
+                            <PageHeader title="Curriculum" />
+                            <div className="px-6 space-y-4">
+                                {CONTENT.lessons.map(l => (
+                                    <div key={l.id} onClick={() => setActiveItem(l)} 
+                                         className={`glass p-5 rounded-2xl border-l-4 border-cyan-500 cursor-pointer ${completedIds.includes(l.id) ? 'completed' : ''}`}>
+                                        <div className="flex justify-between items-center">
+                                            <div><h3 className="font-bold text-lg">{l.title}</h3><p className="text-sm text-slate-500">{l.author}</p></div>
+                                            {completedIds.includes(l.id) && <Icon name="CheckCircle" className="text-green-500" />}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        </PageWrapper>
+                        </div>
                     )}
 
                     {tab === 'dilemmas' && (
-                        <PageWrapper title="Dilemmas">
-                            <div onClick={() => setActiveContent({title: 'The Train', body: 'One person or five? The classic trolley problem.'})} className="glass p-6 rounded-3xl mb-4 border-l-4 border-amber-500 cursor-pointer">
-                                <h3 className="font-bold text-xl">Trolley Problem</h3>
-                                <p className="text-slate-400 text-sm">Ethical Conflict</p>
+                        <div>
+                            <PageHeader title="Moral Choices" />
+                            <div className="px-6">
+                                {CONTENT.dilemmas.map(d => (
+                                    <div key={d.id} onClick={() => setActiveItem(d)} className="glass p-6 rounded-3xl border-l-4 border-amber-500 cursor-pointer">
+                                        <h3 className="font-bold text-xl mb-2">{d.title}</h3>
+                                        <p className="text-sm text-slate-400">Deep thought required...</p>
+                                    </div>
+                                ))}
                             </div>
-                        </PageWrapper>
+                        </div>
                     )}
 
                     {tab === 'affirmations' && (
-                        <PageWrapper title="Affirmations">
-                            <div className="h-[40vh] flex items-center justify-center text-center italic text-2xl text-slate-300 px-4">
-                                "I am the architect of my own internal state."
+                        <div>
+                            <PageHeader title="Daily Resets" />
+                            <div className="px-6 space-y-4">
+                                {CONTENT.affirmations.map((a, i) => (
+                                    <div key={i} className="glass p-6 rounded-2xl text-lg font-bold italic text-slate-300">"{a}"</div>
+                                ))}
                             </div>
-                        </PageWrapper>
+                        </div>
                     )}
 
                     {tab === 'insights' && (
-                        <PageWrapper title="Insights">
-                            <div className="glass p-6 rounded-3xl mb-4">
-                                <p className="text-cyan-400 text-xs font-bold mb-2">POETRY</p>
-                                <h3 className="font-bold text-xl italic">"Invictus"</h3>
-                                <p className="text-slate-400 text-sm mt-2">I am the master of my fate...</p>
+                        <div>
+                            <PageHeader title="Deep Insights" />
+                            <div className="px-6">
+                                {CONTENT.insights.map((ins, i) => (
+                                    <div key={i} onClick={() => setActiveItem({cat: 'Poetry', ...ins})} className="glass p-6 rounded-3xl border-l-4 border-purple-500 cursor-pointer">
+                                        <h3 className="font-bold text-xl mb-1">{ins.title}</h3>
+                                        <p className="text-sm text-slate-500">{ins.author}</p>
+                                    </div>
+                                ))}
                             </div>
-                        </PageWrapper>
+                        </div>
                     )}
 
                     {tab === 'stats' && (
-                        <PageWrapper title="Stats">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="glass p-8 rounded-3xl text-center">
-                                    <p className="text-slate-500 text-xs font-bold uppercase mb-2">Level</p>
-                                    <p className="text-4xl font-black text-purple-500">{stats.level}</p>
+                        <div>
+                            <PageHeader title="Neural Stats" />
+                            <div className="px-6 grid grid-cols-2 gap-4">
+                                <div className="glass p-6 rounded-3xl text-center">
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Total XP</p>
+                                    <p className="text-3xl font-black text-cyan-400">{stats.xp}</p>
                                 </div>
-                                <div className="glass p-8 rounded-3xl text-center">
-                                    <p className="text-slate-500 text-xs font-bold uppercase mb-2">XP</p>
-                                    <p className="text-4xl font-black text-cyan-500">{stats.xp}</p>
+                                <div className="glass p-6 rounded-3xl text-center">
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">K-Score</p>
+                                    <p className="text-3xl font-black text-amber-400">{stats.kScore}</p>
                                 </div>
                             </div>
-                        </PageWrapper>
+                        </div>
                     )}
 
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 glass border-t border-white/10 flex justify-around items-center px-4 z-50">
-                        <button onClick={() => setTab('lessons')} className={`flex flex-col items-center ${tab === 'lessons' ? 'text-cyan-400' : 'text-slate-500'}`}><Icon name="Book" /><span className="text-[10px] font-bold mt-1">LEARN</span></button>
-                        <button onClick={() => setTab('dilemmas')} className={`flex flex-col items-center ${tab === 'dilemmas' ? 'text-cyan-400' : 'text-slate-500'}`}><Icon name="Scale" /><span className="text-[10px] font-bold mt-1">MORAL</span></button>
-                        <button onClick={() => setTab('front')} className={`-mt-10 bg-white p-4 rounded-full shadow-xl ${tab === 'front' ? 'scale-110' : ''}`}><Icon name="Home" className="text-slate-950" /></button>
-                        <button onClick={() => setTab('affirmations')} className={`flex flex-col items-center ${tab === 'affirmations' ? 'text-cyan-400' : 'text-slate-500'}`}><Icon name="Zap" /><span className="text-[10px] font-bold mt-1">MIND</span></button>
-                        <button onClick={() => setTab('stats')} className={`flex flex-col items-center ${tab === 'stats' ? 'text-cyan-400' : 'text-slate-500'}`}><Icon name="BarChart" /><span className="text-[10px] font-bold mt-1">STATS</span></button>
+                    {/* Navbar */}
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-24 bg-slate-950 border-t border-white/5 flex justify-around items-center px-4 z-50">
+                        <button onClick={() => setTab('lessons')} className={`flex flex-col items-center ${tab === 'lessons' ? 'text-cyan-400' : 'text-slate-600'}`}><Icon name="BookOpen" /><span className="text-[10px] font-bold mt-1">LEARN</span></button>
+                        <button onClick={() => setTab('dilemmas')} className={`flex flex-col items-center ${tab === 'dilemmas' ? 'text-cyan-400' : 'text-slate-600'}`}><Icon name="Scale" /><span className="text-[10px] font-bold mt-1">MORAL</span></button>
+                        <button onClick={() => setTab('home')} className={`-mt-10 bg-white p-4 rounded-full shadow-2xl ${tab === 'home' ? 'scale-110' : ''}`}><Icon name="Home" className="text-slate-950" /></button>
+                        <button onClick={() => setTab('affirmations')} className={`flex flex-col items-center ${tab === 'affirmations' ? 'text-cyan-400' : 'text-slate-600'}`}><Icon name="Heart" /><span className="text-[10px] font-bold mt-1">MIND</span></button>
+                        <button onClick={() => setTab('insights')} className={`flex flex-col items-center ${tab === 'insights' ? 'text-cyan-400' : 'text-slate-600'}`}><Icon name="Sparkles" /><span className="text-[10px] font-bold mt-1">INSIGHT</span></button>
                     </nav>
                 </div>
             );
