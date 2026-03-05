@@ -51,7 +51,7 @@
             const [moralStep, setMoralStep] = useState(0);
             const [moralHistory, setMoralHistory] = useState([]);
             const [moralAudit, setMoralAudit] = useState(null);
-            const [stats, setStats] = useState({ kScore: 527, streak: 12, tier: "Adept" });
+            const [stats, setStats] = useState({ kScore: 0, streak: 0, tier: "Adept" });
             const [lastStreakDate, setLastStreakDate] = useState(null);
             const [isSyncing, setIsSyncing] = useState(false);
             const [completedTasks, setCompletedTasks] = useState([]);
@@ -91,7 +91,7 @@
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative bg-white overflow-hidden">
                     
-                    {/* LESSON ENGINE WITH ARITHMETIC FIX */}
+                    {/* OVERLAYS */}
                     {activeLesson && (
                         <div className="fixed inset-0 z-[200] bg-white p-8 flex flex-col">
                             <div className="flex justify-between items-center mb-10"><span className="text-cyan-700 font-black text-xs uppercase tracking-widest">Protocol {lessonPage + 1}/10</span><button onClick={() => setActiveLesson(null)} className="text-slate-400 font-bold text-xs uppercase">Abort</button></div>
@@ -109,13 +109,11 @@
                             </div>
                         </div>
                     )}
-
-                    {/* OVERLAYS (FROZEN) */}
                     {activeMoral && (
                         <div className="fixed inset-0 z-[100] bg-white p-6 flex flex-col overflow-hidden">
                             <div className="flex justify-between items-center mb-6"><span className="text-red-600 font-black text-[10px] uppercase">Logic Stream</span><button onClick={() => {setActiveMoral(null); setMoralHistory([]); setMoralStep(0); setMoralAudit(null);}} className="text-slate-400 font-bold">X</button></div>
                             <div className="flex-1 overflow-y-auto pr-2">
-                                <div className="glass p-5 rounded-3xl text-center border-red-200 mb-4 branch-node italic text-slate-800">"{activeMoral.start}"</div>
+                                <div className="glass p-5 rounded-3xl text-center border-red-200 mb-4 branch-node text-slate-800 italic">"{activeMoral.start}"</div>
                                 {moralHistory.map((h, i) => ( <React.Fragment key={i}><div className="flow-line"></div><div className="glass px-5 py-2 rounded-full border-cyan-200 text-[10px] font-black text-cyan-700 mx-auto w-fit branch-node">{h}</div></React.Fragment> ))}
                                 {!moralAudit ? ( <div className="mt-4 branch-node"><div className="flow-line"></div><div className="glass p-6 rounded-[2.5rem] border-red-200 text-center"><p className="text-sm font-bold mb-6 text-slate-900">{activeMoral.nodes[moralStep].q}</p><div className="flex gap-4">{activeMoral.nodes[moralStep].options.map((o, idx) => ( <button key={idx} onClick={() => handleMoralChoice(o)} className="flex-1 py-4 bg-red-50 border border-red-200 rounded-xl text-red-600 font-black text-[10px] uppercase">{o.t}</button> ))}</div></div></div>
                                 ) : ( <div className="mt-4 branch-node"><div className="flow-line"></div><div className="glass p-8 rounded-[3rem] border-l-8 border-green-500 shadow-xl"><h3 className="text-2xl font-800 text-slate-900 mb-4 uppercase">{moralAudit.name}</h3><button onClick={() => setActiveMoral(null)} className="mt-8 w-full py-4 bg-cyan-600 text-white rounded-2xl font-black text-xs uppercase">Integrate</button></div></div> )}
@@ -151,23 +149,24 @@
                                         </div>
                                         <div className="glass p-4 rounded-3xl border-l-4 border-pink-400">
                                             <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest text-pink-600">Status</p>
-                                            <p className="text-xs font-800 text-slate-700 truncate">Sovereign Architect</p>
+                                            <p className="text-xs font-800 text-slate-700 truncate">Awaiting Calibration</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-5 gap-4 h-48">
                                     <div className="col-span-1 glass rounded-3xl p-2 flex flex-col items-center">
-                                        <div className="flex-1 w-2 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end"><div className="load-bar" style={{height:'45%'}}></div></div>
+                                        <div className="flex-1 w-2 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end"><div className="load-bar" style={{height:'30%'}}></div></div>
                                     </div>
                                     <div className="col-span-4 glass rounded-3xl p-5 border-b-4 border-cyan-50">
                                         <p className="text-[10px] font-black uppercase text-cyan-600 mb-4 tracking-widest">Protocol Synergy</p>
                                         <div className="space-y-3 text-slate-800">
-                                            {[ {l:'Logic', p:65, c:'bg-cyan-500'}, {l:'Empathy', p:42, c:'bg-pink-500'}, {l:'Discipline', p:88, c:'bg-orange-500'}, {l:'Integrity', p:55, c:'bg-green-500'} ].map(s => (
+                                            {[ {l:'Logic', p:20, c:'bg-cyan-500'}, {l:'Empathy', p:20, c:'bg-pink-500'}, {l:'Discipline', p:20, c:'bg-orange-500'}, {l:'Integrity', p:20, c:'bg-green-500'} ].map(s => (
                                                 <div key={s.l}><div className="flex justify-between text-[9px] font-bold mb-1"><span>{s.l}</span><span>{s.p}%</span></div><div className="h-1 bg-slate-50 rounded-full overflow-hidden"><div className={`h-full ${s.c}`} style={{width:`${s.p}%`}}></div></div></div>
                                             ))}
                                         </div>
                                     </div>
                                 </div>
+                                <div className="glass p-6 rounded-[2.5rem] border-l-4 border-cyan-600 text-slate-800 shadow-sm"><p className="text-[10px] text-cyan-600 font-black uppercase tracking-widest mb-2">Identity Prime</p><p className="text-lg font-bold italic leading-tight">"{AFFIRMATIONS[0].b}"</p></div>
                             </div>
                         )}
                         
