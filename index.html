@@ -17,13 +17,14 @@
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes rotate-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
         .tab-active { color: #22d3ee !important; filter: drop-shadow(0 0 15px #22d3ee); border-top: 2px solid #22d3ee; }
-        .view-container { height: calc(100vh - 160px); overflow-y: auto; scroll-behavior: smooth; }
+        .view-container { height: calc(100vh - 160px); overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: 40px; }
         .flow-line { width: 2px; background: linear-gradient(to bottom, #ef4444, #22d3ee); height: 30px; margin: 0 auto; }
         .branch-node { animation: nodePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes nodePop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
         .glow-ring { border: 2px solid #22d3ee; box-shadow: 0 0 25px rgba(34, 211, 238, 0.3), inset 0 0 20px rgba(34, 211, 238, 0.1); }
         .node-pulse { animation: pulse 3s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(34, 211, 238, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); } }
+        .load-bar { height: 100%; background: linear-gradient(to top, #22d3ee, #ef4444); transition: height 1s ease-in-out; }
     </style>
 </head>
 <body>
@@ -31,61 +32,12 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        /* FROZEN DATA NODES (MANDALA, MORAL, LEARN) */
-        const ALL_SKILLS = [
-            { id: 1, title: "Empathy", icon: "♥", summary: "The ability to map external internalities.", sub: "Mirror Neurons" },
-            { id: 2, title: "Strategic Logic", icon: "⚛", summary: "First Principles thinking.", sub: "Quantum Reasoning" },
-            { id: 3, title: "Iron Discipline", icon: "🛡", summary: "Subordination of impulse.", sub: "Neural Override" },
-            { id: 4, title: "Mind Regulation", icon: "≋", summary: "Stimulus-response buffer.", sub: "Cortisol Control" },
-            { id: 5, title: "Total Integrity", icon: "⚓", summary: "Absolute alignment.", sub: "Radical Honesty" },
-            { id: 6, title: "Loyalty", icon: "🤝", summary: "Unwavering commitment to the code.", sub: "Tribal Bond" },
-            { id: 7, title: "Fortitude", icon: "⛰", summary: "Endurance under pressure.", sub: "Pain Tolerance" },
-            { id: 8, title: "Intuition", icon: "👁", summary: "Pattern recognition.", sub: "Heuristic Processing" },
-            { id: 9, title: "Meta-Learning", icon: "📚", summary: "Learning how to learn.", sub: "Rapid Acquisition" },
-            { id: 10, title: "Socratic Inquiry", icon: "❓", summary: "Relentless questioning.", sub: "Truth Seeking" },
-            { id: 11, title: "Shadow Insight", icon: "🌑", summary: "Integrating the repressed.", sub: "Jungian Analysis" },
-            { id: 12, title: "Kinetic Flow", icon: "🌀", summary: "Movement without friction.", sub: "Peak State" },
-            { id: 13, title: "Dopamine Control", icon: "⚡", summary: "Reward system reclamation.", sub: "Boredom Mastery" },
-            { id: 14, title: "Focus Depth", icon: "🎯", summary: "Single variable locking.", sub: "Monotasking" },
-            { id: 15, title: "Presence", icon: "🕯", summary: "Total immersion.", sub: "Zero Point" },
-            { id: 16, title: "Self-Sovereignty", icon: "👑", summary: "Internal validation governance.", sub: "Autonomy" },
-            { id: 17, title: "Stoic Resolve", icon: "🏛", summary: "Event/Judgment separation.", sub: "Ataraxia" },
-            { id: 18, title: "Vision", icon: "🔭", summary: "Long-path consequence mapping.", sub: "Long-path Logic" },
-            { id: 19, title: "Adaptability", icon: "🦎", summary: "OS rewriting.", sub: "Neuroplasticity" },
-            { id: 20, title: "Courage", icon: "🦁", summary: "Acting through fear.", sub: "Risk Assessment" },
-            { id: 21, title: "Pragmatism", icon: "🛠", summary: "Outcome focus.", sub: "Reality Check" },
-            { id: 22, title: "Asceticism", icon: "❄", summary: "Power in deprivation.", sub: "Cold Logic" },
-            { id: 23, title: "Justice", icon: "⚖", summary: "Objective truth weighing.", sub: "Equity Protocol" },
-            { id: 24, title: "Willpower", icon: "🔥", summary: "The raw fuel of drive.", sub: "Drive Matrix" }
-        ];
-
-        const DILEMMAS = [
-            { id: 1, title: "The Trolley Paradox", start: "A train heading for 5 victims. You stand at the lever.", nodes: [{ q: "S1: Pull lever?", options: [{t:"PULL"}, {t:"STAY"}] }, { q: "S2: Variable?", options: [{t:"SAVE CHILD"}, {t:"SAVE FIVE"}] }, { q: "S3: Jail?", options: [{t:"ACCEPT JAIL"}, {t:"PROTECT SELF"}] }, { q: "S4: Crowd?", options: [{t:"IGNORE"}, {t:"HESITATE"}] }, { q: "S5: Final Act?", options: [{t:"ACT"}, {t:"WITHDRAW"}] }], archetypes: { "ACT": { name: "Sovereign Architect", summary: "Logic over optics." }, "WITHDRAW": { name: "Stoic Guardian", summary: "Purity over arithmetic." } } }
-        ];
-        ["Lifeboat Gamble", "AI Singularity", "Genetic Edit", "Corporate Spy", "Healer's Lie", "Sovereign City", "Memory Wipe", "Ghost in App", "Last Tree", "Martian Choice", "Digital Mirror", "Time Loop", "Final Witness"].forEach((t, i) => { DILEMMAS.push({ id: i+2, title: t, start: `Scenario ${t} briefing initiated.`, nodes: Array(5).fill({q: "Protocol decision point...", options:[{t:"Option A"},{t:"Option B"}]}), archetypes: {"Option A":{name:"Pathfinder"},"Option B":{name:"Warden"}} }); });
-
-        const LESSON_TITLES = ["Stoicism", "Logic", "Socratic", "Cognitive", "Shadow", "Impulse", "Atomic", "Dopamine", "Buffer", "Thinking", "Values", "Honesty", "Identity", "Integration"];
-        const LESSONS = LESSON_TITLES.map((title, i) => ({
-            id: i + 1, title,
-            pages: Array.from({length: 10}, (_, p) => ({ h: `${title} | Phase 0${p+1}`, b: `Deep neural restructuring module for ${title}. Focus on level 1 architectural alignment.` }))
-        }));
-
-        const AFFIRMATIONS = [
-            { t: "Stoicism", b: "I am the mountain. The wind of external chaos may blow, but my internal state remains unmoved." },
-            { t: "Logic", b: "I discard analogy. I see the atoms of truth and rebuild reality from first principles." },
-            { t: "Socratic", b: "I am comfortable with my own ignorance. My questions are the keys to my expansion." },
-            { t: "Cognitive", b: "I see the map, not just the path. I recognize my triggers as data, not as commands." },
-            { t: "Shadow", b: "I own my darkness. By integrating my hidden traits, I become a whole and unified force." },
-            { t: "Impulse", b: "I own the gap. In the silence between stimulus and response, I choose my destiny." },
-            { t: "Atomic", b: "I am the sum of my repetitions. 1% better today is 37x better by the end of the cycle." },
-            { t: "Dopamine", b: "I master my rewards. I choose deep, difficult satisfaction over cheap, shallow stimulation." },
-            { t: "Buffer", b: "My mind is a fortress. No external word enters my code without my explicit permission." },
-            { t: "Thinking", b: "I am the observer of the thought, not the thought itself. I watch my mind with cold clarity." },
-            { t: "Values", b: "My actions are the echo of my code. I do not bargain with my non-negotiable values." },
-            { t: "Honesty", b: "Truth is my simplest weapon. By hiding nothing, I am burdened by nothing." },
-            { t: "Identity", b: "I am the architect of my self. I act as the version of me that has already won." },
-            { t: "Integration", b: "I am a unified operating system. Logic, Empathy, and Discipline move as one." }
-        ];
+        /* ALL DATA FROZEN */
+        const ALL_SKILLS = [{id:1,title:"Empathy",icon:"♥",summary:"Map external internalities.",sub:"Mirror Neurons"},{id:2,title:"Strategic Logic",icon:"⚛",summary:"First Principles.",sub:"Quantum Reasoning"},{id:3,title:"Iron Discipline",icon:"🛡",summary:"Subordination of impulse.",sub:"Neural Override"},{id:4,title:"Mind Regulation",icon:"≋",summary:"Stimulus-response buffer.",sub:"Cortisol Control"},{id:5,title:"Total Integrity",icon:"⚓",summary:"Absolute alignment.",sub:"Radical Honesty"},{id:6,title:"Loyalty",icon:"🤝",summary:"Commitment to code.",sub:"Tribal Bond"},{id:7,title:"Fortitude",icon:"⛰",summary:"Endurance.",sub:"Pain Tolerance"},{id:8,title:"Intuition",icon:"👁",summary:"Pattern recognition.",sub:"Heuristic Processing"},{id:9,title:"Meta-Learning",icon:"📚",summary:"Learning how to learn.",sub:"Rapid Acquisition"},{id:10,title:"Socratic Inquiry",icon:"❓",summary:"Relentless questioning.",sub:"Truth Seeking"},{id:11,title:"Shadow Insight",icon:"🌑",summary:"Integrating repressed self.",sub:"Jungian Analysis"},{id:12,title:"Kinetic Flow",icon:"🌀",summary:"Frictionless execution.",sub:"Peak State"},{id:13,title:"Dopamine Control",icon:"⚡",summary:"System reclamation.",sub:"Boredom Mastery"},{id:14,title:"Focus Depth",icon:"🎯",summary:"Single variable locking.",sub:"Monotasking"},{id:15,title:"Presence",icon:"🕯",summary:"Total immersion.",sub:"Zero Point"},{id:16,title:"Self-Sovereignty",icon:"👑",summary:"Internal validation.",sub:"Autonomy"},{id:17,title:"Stoic Resolve",icon:"🏛",summary:"Event vs Judgment.",sub:"Ataraxia"},{id:18,title:"Vision",icon:"🔭",summary:"10-year mapping.",sub:"Long-path Logic"},{id:19,title:"Adaptability",icon:"🦎",summary:"OS rewriting.",sub:"Neuroplasticity"},{id:20,title:"Courage",icon:"🦁",summary:"Acting through fear.",sub:"Risk Assessment"},{id:21,title:"Pragmatism",icon:"🛠",summary:"What works.",sub:"Reality Check"},{id:22,title:"Asceticism",icon:"❄",summary:"Power in deprivation.",sub:"Cold Logic"},{id:23,title:"Justice",icon:"⚖",summary:"Objective truth weighing.",sub:"Equity Protocol"},{id:24,title:"Willpower",icon:"🔥",summary:"Raw fuel.",sub:"Drive Matrix"}];
+        const DILEMMAS = [{id:1,title:"The Trolley Paradox",start:"A train heading for 5 victims. You hold the lever.",nodes:[{q:"S1: Pull?",options:[{t:"PULL"},{t:"STAY"}]},{q:"S2: Child?",options:[{t:"SAVE CHILD"},{t:"SAVE FIVE"}]},{q:"S3: Jail?",options:[{t:"ACCEPT"},{t:"PROTECT"}]},{q:"S4: Crowd?",options:[{t:"IGNORE"},{t:"HESITATE"}]},{q:"S5: Final?",options:[{t:"ACT"},{t:"WITHDRAW"}]}],archetypes:{"ACT":{name:"Sovereign Architect"},"WITHDRAW":{name:"Stoic Guardian"}}}];
+        ["Lifeboat Gamble", "AI Singularity", "Genetic Edit", "Corporate Spy", "Healer's Lie", "Sovereign City", "Memory Wipe", "Ghost in App", "Last Tree", "Martian Choice", "Digital Mirror", "Time Loop", "Final Witness"].forEach((t, i) => { DILEMMAS.push({ id: i+2, title: t, start: `Scenario ${t} initiated.`, nodes: Array(5).fill({q: "Path decision required...", options:[{t:"Option A"},{t:"Option B"}]}), archetypes: {"Option A":{name:"Pathfinder"},"Option B":{name:"Guardian"}} }); });
+        const LESSONS = ["Stoicism", "Logic", "Socratic", "Cognitive", "Shadow", "Impulse", "Atomic", "Dopamine", "Buffer", "Thinking", "Values", "Honesty", "Identity", "Integration"].map((title, i) => ({ id: i + 1, title, pages: Array.from({length: 10}, (_, p) => ({ h: `${title} | Phase 0${p+1}`, b: `Deep neural restructuring module for ${title}. Focus on level 1 architectural alignment.` })) }));
+        const AFFIRMATIONS = [{t:"Stoicism",b:"I am the mountain. Chaos blows, I remain unmoved."},{t:"Logic",b:"I rebuild reality from first principles."},{t:"Socratic",b:"My questions are the keys to my expansion."},{t:"Cognitive",b:"Triggers are data, not commands."},{t:"Shadow",b:"I own my darkness to become a whole force."},{t:"Impulse",b:"I own the gap between stimulus and response."},{t:"Atomic",b:"1% better today is 37x better by the end."},{t:"Dopamine",b:"I choose deep satisfaction over cheap stimulation."},{t:"Buffer",b:"My mind is a fortress."},{t:"Thinking",b:"I am the observer, not the thought."},{t:"Values",b:"I do not bargain with my non-negotiables."},{t:"Honesty",b:"Truth is my simplest weapon."},{t:"Identity",b:"I act as the version that has already won."},{t:"Integration",b:"Logic, Empathy, and Discipline as one."}];
 
         function App() {
             const [tab, setTab] = useState('dashboard');
@@ -115,7 +67,8 @@
                 setMoralHistory(newHistory);
                 if (moralStep < activeMoral.nodes.length - 1) setMoralStep(moralStep + 1);
                 else {
-                    setMoralAudit(activeMoral.archetypes[newHistory[4]] || activeMoral.archetypes[Object.keys(activeMoral.archetypes)[0]]);
+                    const audit = activeMoral.archetypes[newHistory[4]] || {name:"Pathfinder"};
+                    setMoralAudit(audit);
                     setStats(s => ({...s, kScore: s.kScore + 150}));
                 }
             };
@@ -126,19 +79,19 @@
                     {/* OVERLAYS (FROZEN) */}
                     {activeLesson && (
                         <div className="fixed inset-0 z-[200] bg-slate-950 p-8 flex flex-col">
-                            <div className="flex justify-between items-center mb-10"><span className="text-cyan-400 font-black text-xs uppercase tracking-widest">Protocol {lessonPage + 1}/10</span><button onClick={() => setActiveLesson(null)} className="text-slate-500 font-bold text-xs">ABORT</button></div>
+                            <div className="flex justify-between items-center mb-10"><span className="text-cyan-400 font-black text-xs uppercase">Protocol {lessonPage + 1}/10</span><button onClick={() => setActiveLesson(null)} className="text-slate-500 font-bold text-xs uppercase">Abort</button></div>
                             <div className="flex-1"><h2 className="text-4xl font-800 mb-6 text-white uppercase tracking-tighter leading-none">{activeLesson.pages[lessonPage].h}</h2><div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-500 text-xl italic text-slate-200">"{activeLesson.pages[lessonPage].b}"</div></div>
-                            <div className="flex gap-4 mt-8">{lessonPage > 0 && <button onClick={() => setLessonPage(p => p - 1)} className="flex-1 py-5 glass rounded-2xl font-black uppercase text-xs">Back</button>}{lessonPage < 9 ? ( <button onClick={() => setLessonPage(p => p + 1)} className="flex-2 py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Next</button> ) : ( <button onClick={() => {setStats(s => ({...s, kScore: s.kScore + 500})); setActiveLesson(null);}} className="flex-2 py-5 bg-green-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Finalize</button> )}</div>
+                            <div className="flex gap-4 mt-8">{lessonPage > 0 && <button onClick={() => setLessonPage(p => p - 1)} className="flex-1 py-5 glass rounded-2xl font-black uppercase text-xs">Back</button>}{lessonPage < 9 ? ( <button onClick={() => setLessonPage(p => p + 1)} className="flex-2 py-5 bg-cyan-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Next</button> ) : ( <button onClick={() => {setStats(s => ({...s, kScore: s.kScore + 500})); setActiveLesson(null);}} className="flex-2 py-5 bg-green-500 text-slate-950 rounded-2xl font-black uppercase text-xs">Mastered</button> )}</div>
                         </div>
                     )}
                     {activeMoral && (
                         <div className="fixed inset-0 z-[100] bg-slate-950 p-6 flex flex-col overflow-hidden">
-                            <div className="flex justify-between items-center mb-6"><span className="text-red-500 font-black text-[10px] uppercase tracking-widest">Logic Stream</span><button onClick={() => {setActiveMoral(null); setMoralHistory([]); setMoralStep(0); setMoralAudit(null);}} className="text-slate-500 font-bold">X</button></div>
+                            <div className="flex justify-between items-center mb-6"><span className="text-red-500 font-black text-[10px] uppercase">Logic Stream</span><button onClick={() => {setActiveMoral(null); setMoralHistory([]); setMoralStep(0); setMoralAudit(null);}} className="text-slate-500 font-bold">X</button></div>
                             <div className="flex-1 overflow-y-auto pr-2">
                                 <div className="glass p-5 rounded-3xl text-center border-red-500/20 mb-4 branch-node"><p className="text-sm italic font-medium">"{activeMoral.start}"</p></div>
                                 {moralHistory.map((h, i) => ( <React.Fragment key={i}><div className="flow-line"></div><div className="glass px-5 py-2 rounded-full border-cyan-500/50 text-[10px] font-black text-cyan-400 mx-auto w-fit branch-node">{h}</div></React.Fragment> ))}
                                 {!moralAudit ? ( <div className="mt-4 branch-node"><div className="flow-line"></div><div className="glass p-6 rounded-[2.5rem] border-red-500/30 text-center"><p className="text-sm font-bold mb-6">{activeMoral.nodes[moralStep].q}</p><div className="flex gap-4">{activeMoral.nodes[moralStep].options.map((o, idx) => ( <button key={idx} onClick={() => handleMoralChoice(o)} className="flex-1 py-4 bg-red-500/10 border border-red-500/40 rounded-xl text-red-400 font-black text-[10px] uppercase">{o.t}</button> ))}</div></div></div>
-                                ) : ( <div className="mt-4 branch-node"><div className="flow-line"></div><div className="glass p-8 rounded-[3rem] border-l-8 border-green-500 shadow-2xl"><h3 className="text-2xl font-800 text-white mb-4 uppercase">{moralAudit.name}</h3><p className="text-sm text-slate-300 italic mb-6">"{moralAudit.summary}"</p><button onClick={() => setActiveMoral(null)} className="mt-8 w-full py-4 bg-cyan-500 text-slate-950 rounded-2xl font-black text-xs uppercase">Integrate</button></div></div> )}
+                                ) : ( <div className="mt-4 branch-node"><div className="flow-line"></div><div className="glass p-8 rounded-[3rem] border-l-8 border-green-500 shadow-2xl"><h3 className="text-2xl font-800 text-white mb-4 uppercase">{moralAudit.name}</h3><button onClick={() => setActiveMoral(null)} className="mt-8 w-full py-4 bg-cyan-500 text-slate-950 rounded-2xl font-black text-xs uppercase">Integrate</button></div></div> )}
                             </div>
                         </div>
                     )}
@@ -155,9 +108,71 @@
                         <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400">⚡ {stats.kScore}</div>
                     </header>
 
-                    <main className="view-container">
+                    <main className="view-container px-6 pt-6">
                         {tab === 'dashboard' && (
-                            <div className="p-6 space-y-6 text-center"><div className="w-48 h-48 rounded-full glow-ring flex flex-col items-center justify-center relative mb-6 mx-auto"><div className="absolute inset-0 rounded-full border-t-4 border-cyan-400 mandala-rotate opacity-40"></div><h1 className="text-4xl font-800 tracking-tighter italic">K-SCORE</h1><p className="text-cyan-400 font-black text-[10px] tracking-widest mt-1 uppercase">Tier: {stats.tier}</p></div></div>
+                            <div className="space-y-6">
+                                {/* CENTRAL COMMAND RING */}
+                                <div className="flex items-center gap-6">
+                                    <div className="w-40 h-40 rounded-full glow-ring flex flex-col items-center justify-center relative shrink-0">
+                                        <div className="absolute inset-0 rounded-full border-t-4 border-cyan-400 mandala-rotate opacity-40"></div>
+                                        <h1 className="text-3xl font-800 tracking-tighter italic">K-SCORE</h1>
+                                        <p className="text-cyan-400 font-black text-[9px] tracking-widest mt-1 uppercase">{stats.tier}</p>
+                                    </div>
+                                    <div className="flex-1 space-y-4">
+                                        <div className="glass p-4 rounded-3xl border-l-4 border-amber-400">
+                                            <p className="text-[9px] text-slate-500 font-black uppercase">Active Streak</p>
+                                            <p className="text-xl font-800 text-amber-400">{stats.streak} DAYS 🔥</p>
+                                        </div>
+                                        <div className="glass p-4 rounded-3xl border-l-4 border-pink-400">
+                                            <p className="text-[9px] text-slate-500 font-black uppercase">Last Archetype</p>
+                                            <p className="text-sm font-800 text-white truncate">Sovereign Architect</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* NEURAL LOAD & SYNERGY ROW */}
+                                <div className="grid grid-cols-5 gap-4 h-48">
+                                    <div className="col-span-1 glass rounded-3xl p-2 relative flex flex-col items-center">
+                                        <p className="text-[8px] font-black uppercase text-slate-500 vertical-text mb-2">Load</p>
+                                        <div className="flex-1 w-2 bg-slate-900 rounded-full overflow-hidden flex flex-col justify-end">
+                                            <div className="load-bar" style={{height: `${40 + (completedTasks.length * 15)}%`}}></div>
+                                        </div>
+                                    </div>
+                                    <div className="col-span-4 glass rounded-3xl p-5 border-b-4 border-cyan-500/20">
+                                        <p className="text-[10px] font-black uppercase text-cyan-400 mb-4 tracking-widest">Protocol Synergy</p>
+                                        <div className="space-y-3">
+                                            {[
+                                                {l:'Logic', p:65, c:'bg-cyan-400'},
+                                                {l:'Empathy', p:42, c:'bg-pink-400'},
+                                                {l:'Discipline', p:88, c:'bg-orange-400'},
+                                                {l:'Integrity', p:55, c:'bg-green-400'}
+                                            ].map(s => (
+                                                <div key={s.l}>
+                                                    <div className="flex justify-between text-[9px] font-bold mb-1"><span>{s.l}</span><span>{s.p}%</span></div>
+                                                    <div className="h-1 bg-slate-900 rounded-full overflow-hidden"><div className={`h-full ${s.c}`} style={{width:`${s.p}%`}}></div></div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* IDENTITY PRIME (AFFIRMATION) */}
+                                <div className="glass p-6 rounded-[2.5rem] border-l-4 border-cyan-400 relative overflow-hidden group">
+                                    <p className="text-[10px] text-cyan-400 font-black uppercase tracking-widest mb-2">Identity Prime</p>
+                                    <p className="text-lg font-bold text-white italic leading-tight">"{AFFIRMATIONS[Math.floor(Date.now()/86400000) % 14].b}"</p>
+                                </div>
+
+                                {/* MASTERY PROGRESS */}
+                                <div className="glass p-5 rounded-3xl">
+                                    <div className="flex justify-between items-end mb-2">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Tier: Master Progress</p>
+                                        <p className="text-xs font-bold text-cyan-400">{Math.floor((stats.kScore % 1000) / 10)}%</p>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
+                                        <div className="h-full bg-cyan-400 shadow-[0_0_15px_#22d3ee]" style={{width: `${(stats.kScore % 1000) / 10}%`}}></div>
+                                    </div>
+                                </div>
+                            </div>
                         )}
                         
                         {tab === 'tree' && (
@@ -167,62 +182,42 @@
                         )}
 
                         {tab === 'moral' && (
-                            <div className="p-6 space-y-4">
+                            <div className="space-y-4">
                                 <h2 className="text-3xl font-800 text-red-500 uppercase tracking-tighter mb-6">Moral Labs</h2>
                                 {DILEMMAS.map(d => ( <div key={d.id} onClick={() => setActiveMoral(d)} className="glass p-7 rounded-[2.5rem] border-l-4 border-red-500 cursor-pointer active:scale-95 shadow-xl transition-all"><h4 className="font-bold text-lg uppercase tracking-tight">{d.title}</h4><p className="text-[10px] text-slate-500 uppercase mt-2 tracking-widest">5-Stage Visual Flow</p></div> ))}
                             </div>
                         )}
 
                         {tab === 'learn' && (
-                            <div className="p-6 space-y-4">
+                            <div className="space-y-4">
                                 <h2 className="text-3xl font-800 text-cyan-400 uppercase tracking-tighter mb-6">Curriculum</h2>
                                 {LESSONS.map(l => ( <div key={l.id} onClick={() => {setActiveLesson(l); setLessonPage(0);}} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 cursor-pointer active:scale-95 transition-all"><h4 className="font-bold text-lg uppercase tracking-tight">{l.id}. {l.title}</h4><p className="text-[10px] text-slate-500 uppercase mt-2 tracking-widest">10 Page Protocol</p></div> ))}
                             </div>
                         )}
 
                         {tab === 'task' && (
-                            <div className="p-6 space-y-6">
+                            <div className="space-y-6">
                                 <h2 className="text-3xl font-800 text-cyan-400 uppercase tracking-tighter mb-6 drop-shadow-[0_0_10px_#22d3ee]">Daily Protocol</h2>
                                 {TASKS.map(task => (
                                     <div key={task.id} 
                                          onClick={() => !completedTasks.includes(task.id) && (setCompletedTasks([...completedTasks, task.id]), setStats(s => ({...s, kScore: s.kScore + task.xp})))}
-                                         className={`glass p-7 rounded-[2.5rem] border-l-4 transition-all active:scale-95 cursor-pointer ${completedTasks.includes(task.id) ? 'border-green-500 opacity-50' : 'border-slate-700'}`}>
+                                         className={`glass p-7 rounded-[2.5rem] border-l-4 transition-all active:scale-95 cursor-pointer mb-2 ${completedTasks.includes(task.id) ? 'border-green-500 opacity-50' : 'border-slate-700'}`}>
                                         <div className="flex justify-between items-start mb-3">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="text-[9px] font-black uppercase text-slate-500 tracking-tighter">{task.diff}</span>
-                                                    <span className="text-slate-700">•</span>
-                                                    <span className="text-[9px] font-black uppercase text-slate-500 tracking-tighter">{task.time}</span>
-                                                </div>
-                                                <h4 className={`font-bold text-lg uppercase tracking-tight ${completedTasks.includes(task.id) ? 'line-through' : 'text-white'}`}>{task.title}</h4>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-cyan-400 font-black text-xs">+{task.xp} XP</div>
-                                                <div className="text-[9px] text-slate-500 uppercase tracking-tighter">{task.bonus}</div>
-                                            </div>
+                                            <div className="flex-1"><div className="flex items-center gap-2 mb-1 text-[9px] font-black uppercase text-slate-500 tracking-tighter"><span>{task.diff}</span><span>•</span><span>{task.time}</span></div><h4 className={`font-bold text-lg uppercase tracking-tight ${completedTasks.includes(task.id) ? 'line-through' : 'text-white'}`}>{task.title}</h4></div>
+                                            <div className="text-right"><div className="text-cyan-400 font-black text-xs">+{task.xp} XP</div><div className="text-[9px] text-slate-500 uppercase tracking-tighter">{task.bonus}</div></div>
                                         </div>
                                         <div className="p-4 bg-slate-900/40 rounded-2xl">
-                                            <p className="text-[11px] leading-relaxed text-slate-300 italic">
-                                                <span className="text-xs mr-1">🧠</span> {task.science}
-                                            </p>
+                                            <p className="text-[11px] leading-relaxed text-slate-300 italic"><span className="text-xs mr-1">🧠</span> {task.science}</p>
                                         </div>
-                                        <button className={`mt-4 w-full py-2 rounded-xl font-black text-[10px] uppercase tracking-widest ${completedTasks.includes(task.id) ? 'bg-green-500/20 text-green-500' : 'bg-cyan-500 text-slate-950'}`}>
-                                            {completedTasks.includes(task.id) ? 'SYNCED' : 'Start'}
-                                        </button>
                                     </div>
                                 ))}
                             </div>
                         )}
 
                         {tab === 'mind' && (
-                            <div className="p-6 space-y-4">
+                            <div className="space-y-4">
                                 <h2 className="text-3xl font-800 text-cyan-400 uppercase tracking-tighter mb-6 drop-shadow-[0_0_10px_#22d3ee]">Neural Affirmations</h2>
-                                {AFFIRMATIONS.map((a, i) => (
-                                    <div key={i} className="glass p-7 rounded-[2.5rem] border-l-4 border-cyan-500 shadow-2xl relative overflow-hidden active:scale-[0.98] transition-all">
-                                        <p className="text-[10px] text-cyan-400 font-black uppercase tracking-widest mb-2">{a.t} Protocol</p>
-                                        <p className="text-lg font-bold text-white italic leading-tight">"{a.b}"</p>
-                                    </div>
-                                ))}
+                                {AFFIRMATIONS.map((a, i) => ( <div key={i} className="glass p-7 rounded-[2.5rem] border-l-4 border-cyan-500 shadow-2xl relative overflow-hidden mb-4"><p className="text-[10px] text-cyan-400 font-black uppercase tracking-widest mb-2">{a.t} Protocol</p><p className="text-lg font-bold text-white italic leading-tight">"{a.b}"</p></div> ))}
                             </div>
                         )}
                     </main>
