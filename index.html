@@ -36,7 +36,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        /* FROZEN DATA NODES */
+        /* DATA NODES - FROZEN */
         const ALL_SKILLS = [{id:1,title:"Empathy",icon:"♥",summary:"Map external internalities.",sub:"Mirror Neurons"},{id:2,title:"Strategic Logic",icon:"⚛",summary:"First Principles.",sub:"Quantum Reasoning"},{id:3,title:"Iron Discipline",icon:"🛡",summary:"Subordination of impulse.",sub:"Neural Override"},{id:4,title:"Mind Regulation",icon:"≋",summary:"Stimulus-response buffer.",sub:"Cortisol Control"},{id:5,title:"Total Integrity",icon:"⚓",summary:"Absolute alignment.",sub:"Radical Honesty"},{id:6,title:"Loyalty",icon:"🤝",summary:"Commitment to code.",sub:"Tribal Bond"},{id:7,title:"Fortitude",icon:"⛰",summary:"Endurance.",sub:"Pain Tolerance"},{id:8,title:"Intuition",icon:"👁",summary:"Pattern recognition.",sub:"Heuristic Processing"},{id:9,title:"Meta-Learning",icon:"📚",summary:"Learning how to learn.",sub:"Rapid Acquisition"},{id:10,title:"Socratic Inquiry",icon:"❓",summary:"Relentless questioning.",sub:"Truth Seeking"},{id:11,title:"Shadow Insight",icon:"🌑",summary:"Integrating repressed self.",sub:"Jungian Analysis"},{id:12,title:"Kinetic Flow",icon:"🌀",summary:"Frictionless execution.",sub:"Peak State"},{id:13,title:"Dopamine Control",icon:"⚡",summary:"System reclamation.",sub:"Boredom Mastery"},{id:14,title:"Focus Depth",icon:"🎯",summary:"Single variable locking.",sub:"Monotasking"},{id:15,title:"Presence",icon:"🕯",summary:"Total immersion.",sub:"Zero Point"},{id:16,title:"Self-Sovereignty",icon:"👑",summary:"Internal validation.",sub:"Autonomy"},{id:17,title:"Stoic Resolve",icon:"🏛",summary:"Event vs Judgment.",sub:"Ataraxia"},{id:18,title:"Vision",icon:"🔭",summary:"10-year mapping.",sub:"Long-path Logic"},{id:19,title:"Adaptability",icon:"🦎",summary:"OS rewriting.",sub:"Neuroplasticity"},{id:20,title:"Courage",icon:"🦁",summary:"Acting through fear.",sub:"Risk Assessment"},{id:21,title:"Pragmatism",icon:"🛠",summary:"What works.",sub:"Reality Check"},{id:22,title:"Asceticism",icon:"❄",summary:"Power in deprivation.",sub:"Cold Logic"},{id:23,title:"Justice",icon:"⚖",summary:"Objective truth weighing.",sub:"Equity Protocol"},{id:24,title:"Willpower",icon:"🔥",summary:"Raw fuel.",sub:"Drive Matrix"}];
         
         const DILEMMAS = [
@@ -84,6 +84,23 @@
         ];
 
         function App() {
+            // LOAD INITIAL STATE FROM LOCAL STORAGE
+            const [stats, setStats] = useState(() => {
+                const saved = localStorage.getItem('kScoreStats');
+                return saved ? JSON.parse(saved) : { kScore: 0, streak: 0, tier: "Adept" };
+            });
+
+            const [synergy, setSynergy] = useState(() => {
+                const saved = localStorage.getItem('synergyLevels');
+                return saved ? JSON.parse(saved) : { Logic: 5, Empathy: 5, Discipline: 5, Integrity: 5 };
+            });
+
+            const [completedActions, setCompletedActions] = useState(() => {
+                const saved = localStorage.getItem('completedActions');
+                return saved ? JSON.parse(saved) : { lessons: [], dilemmas: [], tasks: [] };
+            });
+
+            const [lastStreakDate, setLastStreakDate] = useState(() => localStorage.getItem('lastStreakDate'));
             const [tab, setTab] = useState('dashboard');
             const [activeSkill, setActiveSkill] = useState(null);
             const [activeMoral, setActiveMoral] = useState(null);
@@ -92,29 +109,43 @@
             const [moralStep, setMoralStep] = useState(0);
             const [moralHistory, setMoralHistory] = useState([]);
             const [moralAudit, setMoralAudit] = useState(null);
-            const [stats, setStats] = useState({ kScore: 0, streak: 0, tier: "Adept" });
-            const [synergy, setSynergy] = useState({ Logic: 5, Empathy: 5, Discipline: 5, Integrity: 5 });
-            const [lastStreakDate, setLastStreakDate] = useState(null);
             const [isSyncing, setIsSyncing] = useState(false);
-            const [completedTasks, setCompletedTasks] = useState([]);
 
-            const triggerUniversalSync = (xpGain, pillar) => {
+            // SAVE TO LOCAL STORAGE WHENEVER STATE CHANGES
+            useEffect(() => {
+                localStorage.setItem('kScoreStats', JSON.stringify(stats));
+                localStorage.setItem('synergyLevels', JSON.stringify(synergy));
+                localStorage.setItem('completedActions', JSON.stringify(completedActions));
+                if(lastStreakDate) localStorage.setItem('lastStreakDate', lastStreakDate);
+            }, [stats, synergy, completedActions, lastStreakDate]);
+
+            const triggerUniversalSync = (xpGain, pillar, type, id) => {
                 const today = new Date().toDateString();
                 let updatedStreak = stats.streak;
+                
                 if (lastStreakDate !== today) {
                     updatedStreak = stats.streak + 1;
                     setLastStreakDate(today);
                     setIsSyncing(true);
                     setTimeout(() => setIsSyncing(false), 1500);
                 }
+
                 setStats(prev => ({ ...prev, kScore: prev.kScore + xpGain, streak: updatedStreak }));
+                
                 if(pillar) {
                     setSynergy(prev => ({ ...prev, [pillar]: Math.min(prev[pillar] + 8, 100) }));
+                }
+
+                if(type && id) {
+                    setCompletedActions(prev => ({
+                        ...prev,
+                        [type]: [...new Set([...prev[type], id])]
+                    }));
                 }
             };
 
             const handleLessonMastery = () => { 
-                triggerUniversalSync(500, activeLesson.pillar); 
+                triggerUniversalSync(500, activeLesson.pillar, 'lessons', activeLesson.id); 
                 setActiveLesson(null); 
                 setLessonPage(0); 
             };
@@ -125,7 +156,7 @@
                 if (moralStep < activeMoral.nodes.length - 1) setMoralStep(moralStep + 1);
                 else { 
                     setMoralAudit({name:"Pathfinder"}); 
-                    triggerUniversalSync(150, activeMoral.pillar); 
+                    triggerUniversalSync(150, activeMoral.pillar, 'dilemmas', activeMoral.id); 
                 }
             };
 
@@ -138,7 +169,7 @@
                             <div className="flex-1"><h2 className="text-4xl font-800 mb-6 text-slate-900 uppercase tracking-tighter leading-none">{activeLesson.pages[lessonPage].h}</h2><div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-600 text-xl italic text-slate-700">"{activeLesson.pages[lessonPage].b}"</div></div>
                             <div className="flex gap-4 mt-8">
                                 {lessonPage > 0 && <button onClick={() => setLessonPage(p => p - 1)} className="flex-1 py-5 glass rounded-2xl font-black uppercase text-xs text-slate-900">Back</button>}
-                                {lessonPage < 9 ? ( <button onClick={() => setLessonPage(p => p + 1)} className="flex-2 py-5 bg-cyan-600 text-white rounded-2xl font-black uppercase text-xs">Next Phase</button> ) : ( <button onClick={handleLessonMastery} className="flex-2 py-5 bg-green-600 text-white rounded-2xl font-black uppercase text-xs">Finalize Mastery</button> )}
+                                {lessonPage < 9 ? ( <button onClick={() => setLessonPage(p => p + 1)} className="flex-2 py-5 bg-cyan-600 text-white rounded-2xl font-black uppercase text-xs">Next Phase</button> ) : ( <button onClick={handleLessonMastery} className="flex-2 py-5 bg-green-600 text-white rounded-2xl font-black uppercase text-xs shadow-lg shadow-green-500/20">Finalize Mastery</button> )}
                             </div>
                         </div>
                     )}
@@ -185,8 +216,8 @@
                                 </div>
                                 <div className="grid grid-cols-5 gap-4 h-48">
                                     <div className="col-span-1 glass rounded-3xl p-2 flex flex-col items-center">
-                                        <p className="text-[8px] font-black uppercase text-slate-400 vertical-text mb-2">Load</p>
-                                        <div className="flex-1 w-2 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end"><div className="load-bar" style={{height:'35%'}}></div></div>
+                                        <p className="text-[8px] font-black uppercase text-slate-400 vertical-text mb-2 text-center">Neural Load</p>
+                                        <div className="flex-1 w-2 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end"><div className="load-bar" style={{height:`${synergy.Discipline}%`}}></div></div>
                                     </div>
                                     <div className="col-span-4 glass rounded-3xl p-5 border-b-4 border-cyan-50">
                                         <p className="text-[10px] font-black uppercase text-cyan-600 mb-4 tracking-widest">Protocol Synergy</p>
@@ -197,7 +228,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div className="glass p-6 rounded-[2.5rem] border-l-4 border-cyan-600 text-slate-800 shadow-sm"><p className="text-[10px] text-cyan-600 font-black uppercase tracking-widest mb-2">Identity Prime</p><p className="text-lg font-bold italic leading-tight">"{AFFIRMATIONS[0].b}"</p></div>
                             </div>
                         )}
                         
@@ -210,21 +240,21 @@
                         {tab === 'moral' && (
                             <div className="space-y-4">
                                 <h2 className="text-3xl font-800 text-red-600 uppercase tracking-tighter mb-6">Moral Labs</h2>
-                                {DILEMMAS.map(d => ( <div key={d.id} onClick={() => {setActiveMoral(d); setMoralStep(0); setMoralHistory([]); setMoralAudit(null);}} className="glass p-7 rounded-[2.5rem] border-l-4 border-red-500 cursor-pointer active:scale-95 shadow-sm relative">
+                                {DILEMMAS.map(d => ( <div key={d.id} onClick={() => {setActiveMoral(d); setMoralStep(0); setMoralHistory([]); setMoralAudit(null);}} className={`glass p-7 rounded-[2.5rem] border-l-4 border-red-500 cursor-pointer active:scale-95 shadow-sm relative ${completedActions.dilemmas.includes(d.id) ? 'opacity-50 grayscale' : ''}`}>
                                     <div className="absolute top-4 right-6 focus-tag" style={{color:'#dc2626', background:'rgba(220,38,38,0.1)'}}>{d.focus}</div>
                                     <h4 className="font-bold text-lg uppercase tracking-tight text-slate-900">{d.title}</h4>
-                                    <p className="text-[10px] text-slate-400 uppercase mt-2 tracking-widest">5-Stage Visual Flow</p>
+                                    <p className="text-[10px] text-slate-400 uppercase mt-2 tracking-widest">{completedActions.dilemmas.includes(d.id) ? 'SYNCED' : '5-Stage Visual Flow'}</p>
                                 </div> ))}
                             </div>
                         )}
 
                         {tab === 'learn' && (
                             <div className="space-y-4">
-                                <h2 className="text-3xl font-800 text-cyan-600 uppercase tracking-tighter mb-6">Curriculum</h2>
-                                {LESSONS.map(l => ( <div key={l.id} onClick={() => {setActiveLesson(l); setLessonPage(0);}} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 cursor-pointer active:scale-95 shadow-sm relative text-slate-900">
+                                <h2 className="text-3xl font-800 text-cyan-600 uppercase tracking-tighter mb-6 text-slate-900">Curriculum</h2>
+                                {LESSONS.map(l => ( <div key={l.id} onClick={() => {setActiveLesson(l); setLessonPage(0);}} className={`glass p-6 rounded-3xl border-l-4 border-cyan-500 cursor-pointer active:scale-95 shadow-sm relative text-slate-900 ${completedActions.lessons.includes(l.id) ? 'opacity-50 grayscale' : ''}`}>
                                     <div className="absolute top-4 right-6 focus-tag">{l.focus}</div>
                                     <h4 className="font-bold text-lg uppercase tracking-tight">{l.id}. {l.title}</h4>
-                                    <p className="text-[10px] text-slate-400 uppercase mt-2 tracking-widest">10 Page Protocol</p>
+                                    <p className="text-[10px] text-slate-400 uppercase mt-2 tracking-widest">{completedActions.lessons.includes(l.id) ? 'MASTERY ACHIEVED' : '10 Page Protocol'}</p>
                                 </div> ))}
                             </div>
                         )}
@@ -234,12 +264,12 @@
                                 <h2 className="text-3xl font-800 text-cyan-600 uppercase tracking-tighter mb-6">Daily Protocol</h2>
                                 {TASKS.map(task => (
                                     <div key={task.id} 
-                                         onClick={() => !completedTasks.includes(task.id) && (setCompletedTasks([...completedTasks, task.id]), triggerUniversalSync(task.xp, task.pillar))}
-                                         className={`glass p-7 rounded-[2.5rem] border-l-4 transition-all active:scale-95 cursor-pointer mb-2 relative ${completedTasks.includes(task.id) ? 'border-green-500 bg-green-50' : 'border-slate-200 bg-white'}`}>
+                                         onClick={() => !completedActions.tasks.includes(task.id) && triggerUniversalSync(task.xp, task.pillar, 'tasks', task.id)}
+                                         className={`glass p-7 rounded-[2.5rem] border-l-4 transition-all active:scale-95 cursor-pointer mb-2 relative ${completedActions.tasks.includes(task.id) ? 'border-green-500 bg-green-50 opacity-60' : 'border-slate-200 bg-white'}`}>
                                         <div className="absolute top-4 right-6 focus-tag">{task.focus}</div>
                                         <div className="flex justify-between items-start mb-3">
-                                            <div className="flex-1"><div className="flex items-center gap-2 mb-1 text-[9px] font-black uppercase text-slate-400 tracking-tighter"><span>{task.diff}</span><span>•</span><span>{task.time}</span></div><h4 className={`font-bold text-lg uppercase tracking-tight ${completedTasks.includes(task.id) ? 'line-through text-slate-400' : 'text-slate-900'}`}>{task.title}</h4></div>
-                                            <div className="text-right mt-6"><div className="text-cyan-600 font-black text-xs">+{task.xp} XP</div></div>
+                                            <div className="flex-1"><div className="flex items-center gap-2 mb-1 text-[9px] font-black uppercase text-slate-400 tracking-tighter"><span>{task.diff}</span><span>•</span><span>{task.time}</span></div><h4 className={`font-bold text-lg uppercase tracking-tight ${completedActions.tasks.includes(task.id) ? 'line-through text-slate-400' : 'text-slate-900'}`}>{task.title}</h4></div>
+                                            <div className="text-right mt-6"><div className="text-cyan-600 font-black text-xs">{completedActions.tasks.includes(task.id) ? 'SYNCED' : `+${task.xp} XP`}</div></div>
                                         </div>
                                         <div className="p-4 bg-slate-50 rounded-2xl text-slate-600"><p className="text-[11px] leading-relaxed italic">🧠 {task.science}</p></div>
                                     </div>
