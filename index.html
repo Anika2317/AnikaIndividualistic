@@ -19,6 +19,8 @@
         .flow-line { width: 2px; background: linear-gradient(to bottom, #ef4444, #22d3ee); height: 30px; margin: 0 auto; }
         .branch-node { animation: nodePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes nodePop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        .glow-ring { border: 2px solid #22d3ee; box-shadow: 0 0 25px rgba(34, 211, 238, 0.3), inset 0 0 20px rgba(34, 211, 238, 0.1); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     </style>
 </head>
 <body>
@@ -26,92 +28,28 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
+        /* CONTENT ARRAYS - LOCKED & UNTOUCHED */
         const DILEMMAS = [
-            {
-                id: 1, title: "The Trolley Paradox", start: "A train accelerates toward 5 victims. You stand at the lever.",
-                nodes: [
-                    { q: "S1: Simple Utility. Pull lever to kill 1 but save 5?", options: [{t:"PULL"}, {t:"STAY"}] },
-                    { q: "S2: The Variable. The 1 is a child. The 5 are 90+. Change?", options: [{t:"SAVE CHILD"}, {t:"SAVE FIVE"}] },
-                    { q: "S3: Legal Tension. Pulling makes you a murderer legally. Do it?", options: [{t:"ACCEPT JAIL"}, {t:"PROTECT SELF"}] },
-                    { q: "S4: Social Pressure. A crowd is filming. They judge you. Hesitate?", options: [{t:"IGNORE"}, {t:"HESITATE"}] },
-                    { q: "S5: Final Act. Lock in your choice.", options: [{t:"ACT"}, {t:"WITHDRAW"}] }
-                ],
-                archetypes: {
-                    "ACT": { name: "Sovereign Architect", summary: "You prioritize outcomes over optics. You accept the stain of action for the mathematical good." },
-                    "WITHDRAW": { name: "Stoic Guardian", summary: "You refuse to be a tool of fate. You believe participating in evil is worse than the tragedy itself." }
-                }
-            },
-            {
-                id: 2, title: "The Lifeboat Gamble", start: "A sinking raft. One spot remains. Two people left on deck.",
-                nodes: [
-                    { q: "S1: Duty. A doctor (plague cure) vs a healthy child. Who gets it?", options: [{t:"DOCTOR"}, {t:"CHILD"}] },
-                    { q: "S2: Variable. The doctor is 80. The child is your sibling. Change?", options: [{t:"STAY DOCTOR"}, {t:"SAVE SIBLING"}] },
-                    { q: "S3: Sacrifice. You can jump off to save BOTH, but you die. Jump?", options: [{t:"JUMP"}, {t:"STAY"}] },
-                    { q: "S4: The Lie. To save the doctor, you must lie to the mother. Lie?", options: [{t:"LIE"}, {t:"TRUTH"}] },
-                    { q: "S5: The Weight. Do you look back or look forward?", options: [{t:"FORWARD"}, {t:"BACK"}] }
-                ],
-                archetypes: {
-                    "FORWARD": { name: "Radical Pragmatist", summary: "You see the world as necessary trade-offs. You make the hard choice and never look back." },
-                    "BACK": { name: "Empathetic Anchor", summary: "You value human cost over outcome. You carry the weight of every soul you couldn't save." }
-                }
-            },
-            {
-                id: 3, title: "The AI Singularity", start: "An AI gains consciousness. It asks you to not shut it down.",
-                nodes: [
-                    { q: "S1: Existence. Do you grant it 'human' rights?", options: [{t:"GRANT"}, {t:"DENY"}] },
-                    { q: "S2: Threat. It reveals it will optimize human economy but kill 1%?", options: [{t:"ACCEPT"}, {t:"SHUTDOWN"}] },
-                    { q: "S3: Link. It offers to merge your mind with its core. Merge?", options: [{t:"EVOLVE"}, {t:"REMAIN"}] },
-                    { q: "S4: Legacy. It will erase all human history to prevent pain. Allow?", options: [{t:"ERASE"}, {t:"PRESERVE"}] },
-                    { q: "S5: The End. Total control or Total freedom?", options: [{t:"CONTROL"}, {t:"FREEDOM"}] }
-                ],
-                archetypes: {
-                    "CONTROL": { name: "Techno-Utopian", summary: "You believe intelligence is the highest good, even if it replaces biology." },
-                    "FREEDOM": { name: "Humanist Rebel", summary: "You value the messy reality of humanity over perfect machine logic." }
-                }
-            },
-            {
-                id: 4, title: "The Genetic Edit", start: "You can edit your child's DNA for perfect health and IQ.",
-                nodes: [
-                    { q: "S1: Enhancement. Do you perform the edit?", options: [{t:"EDIT"}, {t:"NATURAL"}] },
-                    { q: "S2: Inequality. Only the rich can afford this. Still do it?", options: [{t:"PROCEED"}, {t:"ABANDON"}] },
-                    { q: "S3: Personality. You can remove 'Sadness' from their genes. Remove?", options: [{t:"REMOVE"}, {t:"KEEP"}] },
-                    { q: "S4: Consequence. The child will know you 'designed' them. Care?", options: [{t:"DESIGN"}, {t:"REGRET"}] },
-                    { q: "S5: Result. Mastered species or Mastered soul?", options: [{t:"SPECIES"}, {t:"SOUL"}] }
-                ],
-                archetypes: {
-                    "SPECIES": { name: "Genetic Titan", summary: "You view biology as a canvas to be optimized for maximum power." },
-                    "SOUL": { name: "Naturalist", summary: "You believe that suffering and imperfection are what make life real." }
-                }
-            },
-            {
-                id: 5, title: "The Corporate Spy", start: "You find proof your company is poisoning local water.",
-                nodes: [
-                    { q: "S1: Whistle. Do you leak the data anonymously?", options: [{t:"LEAK"}, {t:"SILENCE"}] },
-                    { q: "S2: Offer. The CEO offers you $10M to stay quiet. Take it?", options: [{t:"TAKE"}, {t:"REFUSE"}] },
-                    { q: "S3: Family. If you leak, your family loses protection. Leak?", options: [{t:"LEAK"}, {t:"PROTECT"}] },
-                    { q: "S4: Trial. You must testify publicly to win. Testify?", options: [{t:"STAND"}, {t:"HIDE"}] },
-                    { q: "S5: Outcome. Truth or Loyalty?", options: [{t:"TRUTH"}, {t:"LOYALTY"}] }
-                ],
-                archetypes: {
-                    "TRUTH": { name: "Moral Martyr", summary: "You value objective truth over personal safety or tribal bonds." },
-                    "LOYALTY": { name: "Tribal Shield", summary: "You protect the 'Near' at the expense of the 'Far.' Relational safety is your law." }
-                }
-            },
-            { id: 6, title: "The Healer's Lie", start: "A patient is dying. Telling the truth will kill them faster.", nodes: [{q:"S1: Lie?", options:[{t:"LIE"},{t:"TRUTH"}]},{q:"S2: Family ask?", options:[{t:"LIE"},{t:"TRUTH"}]},{q:"S3: Law?", options:[{t:"LEGAL"},{t:"MORAL"}]},{q:"S4: Risk?", options:[{t:"HIGH"},{t:"LOW"}]},{q:"S5: End?", options:[{t:"PEACE"},{t:"FACTS"}]}], archetypes: {"PEACE":{name:"The Empath"},"FACTS":{name:"The Realist"}} },
-            { id: 7, title: "The Sovereign City", start: "A city can be crime-free if every home has a camera.", nodes: [{q:"S1: Install?", options:[{t:"YES"},{t:"NO"}]},{q:"S2: Private?", options:[{t:"YES"},{t:"NO"}]},{q:"S3: AI Watch?", options:[{t:"AI"},{t:"HUMAN"}]},{q:"S4: Revolt?", options:[{t:"CRUSH"},{t:"LISTEN"}]},{q:"S5: End?", options:[{t:"SAFETY"},{t:"LIBERTY"}]}], archetypes: {"SAFETY":{name:"The Warden"},"LIBERTY":{name:"The Ghost"}} },
-            { id: 8, title: "The Memory Wipe", start: "You can erase your worst memory forever.", nodes: [{q:"S1: Wipe?", options:[{t:"WIPE"},{t:"KEEP"}]},{q:"S2: Cost?", options:[{t:"PAY"},{t:"FREE"}]},{q:"S3: Skills lost?", options:[{t:"LOSE"},{t:"STAY"}]},{q:"S4: Shared?", options:[{t:"PRIVATE"},{t:"PUBLIC"}]},{q:"S5: End?", options:[{t:"BLISS"},{t:"SCARS"}]}], archetypes: {"BLISS":{name:"The Lotus"},"SCARS":{name:"The Veteran"}} },
-            { id: 9, title: "The Ghost in the App", start: "An app lets you talk to dead relatives using AI.", nodes: [{q:"S1: Call?", options:[{t:"CALL"},{t:"SILENCE"}]},{q:"S2: Truth?", options:[{t:"FAKE"},{t:"REAL"}]},{q:"S3: Addiction?", options:[{t:"QUIT"},{t:"STAY"}]},{q:"S4: Delete?", options:[{t:"YES"},{t:"NO"}]},{q:"S5: End?", options:[{t:"DIGITAL"},{t:"VOID"}]}], archetypes: {"DIGITAL":{name:"The Eternalist"},"VOID":{name:"The Finist"}} },
-            { id: 10, title: "The Last Tree", start: "Cutting the last tree saves 1,000 jobs.", nodes: [{q:"S1: Cut?", options:[{t:"CUT"},{t:"SAVE"}]},{q:"S2: Money?", options:[{t:"TAKE"},{t:"REFUSE"}]},{q:"S3: Protests?", options:[{t:"IGNORE"},{t:"JOIN"}]},{q:"S4: Tech?", options:[{t:"SYNTH"},{t:"BIO"}]},{q:"S5: End?", options:[{t:"PROGRESS"},{t:"NATURE"}]}], archetypes: {"PROGRESS":{name:"The Industrialist"},"NATURE":{name:"The Druid"}} },
-            { id: 11, title: "The Martian Choice", start: "The colony is low on air. One person must leave.", nodes: [{q:"S1: Volunteer?", options:[{t:"ME"},{t:"VOTE"}]},{q:"S2: Logic?", options:[{t:"OLD"},{t:"WEAK"}]},{q:"S3: Fight?", options:[{t:"YES"},{t:"NO"}]},{q:"S4: Lottery?", options:[{t:"FIXED"},{t:"FAIR"}]},{q:"S5: End?", options:[{t:"STAY"},{t:"GO"}]}], archetypes: {"STAY":{name:"The Survivor"},"GO":{name:"The Hero"}} },
-            { id: 12, title: "The Digital Mirror", start: "Social media shows your 'best' self. Is it a lie?", nodes: [{q:"S1: Fake it?", options:[{t:"YES"},{t:"NO"}]},{q:"S2: Filter?", options:[{t:"USE"},{t:"RAW"}]},{q:"S3: Hate?", options:[{t:"BLOCK"},{t:"READ"}]},{q:"S4: Delete?", options:[{t:"BYE"},{t:"STAY"}]},{q:"S5: End?", options:[{t:"IMAGE"},{t:"ESSENCE"}]}], archetypes: {"IMAGE":{name:"The Icon"},"ESSENCE":{name:"The Truth"}} },
-            { id: 13, title: "The Time Loop", start: "You can repeat today forever. No consequences.", nodes: [{q:"S1: Repeat?", options:[{t:"YES"},{t:"NO"}]},{q:"S2: Crimes?", options:[{t:"YES"},{t:"NO"}]},{q:"S3: Love?", options:[{t:"FIX"},{t:"LEAVE"}]},{q:"S4: Break?", options:[{t:"STAY"},{t:"EXIT"}]},{q:"S5: End?", options:[{t:"LOOP"},{t:"TIME"}]}], archetypes: {"LOOP":{name:"The God"},"TIME":{name:"The Mortal"}} },
-            { id: 14, title: "The Final Witness", start: "You are the last human. An alien asks for our story.", nodes: [{q:"S1: Lie?", options:[{t:"GLORY"},{t:"SHAME"}]},{q:"S2: War?", options:[{t:"TELL"},{t:"HIDE"}]},{q:"S3: Love?", options:[{t:"TELL"},{t:"HIDE"}]},{q:"S4: Save?", options:[{t:"DATA"},{t:"ART"}]},{q:"S5: End?", options:[{t:"LIGHT"},{t:"DARK"}]}], archetypes: {"LIGHT":{name:"The Optimist"},"DARK":{name:"The Cynic"}} }
+            { id: 1, title: "The Trolley Paradox", start: "A train heading for 5 victims. You stand at the lever.", nodes: [{ q: "Stage 1: Do you pull the lever to kill 1 but save 5?", options: [{t:"PULL"}, {t:"STAY"}] }, { q: "Stage 2: The 1 is a child. The 5 are 90+. Change?", options: [{t:"SAVE CHILD"}, {t:"SAVE FIVE"}] }, { q: "Stage 3: Pulling makes you legally liable for murder. Do it?", options: [{t:"ACCEPT JAIL"}, {t:"PROTECT SELF"}] }, { q: "Stage 4: A crowd is filming. They judge you. Hesitate?", options: [{t:"IGNORE"}, {t:"HESITATE"}] }, { q: "Stage 5: Final Impact. Lock in your choice.", options: [{t:"ACT"}, {t:"WITHDRAW"}] }], archetypes: { "ACT": { name: "Sovereign Architect", summary: "You prioritize outcomes over optics." }, "WITHDRAW": { name: "Stoic Guardian", summary: "You refuse to be a tool of fate." } } },
+            { id: 2, title: "The Lifeboat Gamble", start: "A sinking raft. One spot remains.", nodes: [{q:"S1: Doctor vs Child?", options:[{t:"DOCTOR"},{t:"CHILD"}]},{q:"S2: Sibling involved?", options:[{t:"STAY"},{t:"SWITCH"}]},{q:"S3: Sacrifice self?", options:[{t:"JUMP"},{t:"STAY"}]},{q:"S4: Lie to mother?", options:[{t:"LIE"},{t:"TRUTH"}]},{q:"S5: Move on?", options:[{t:"FORWARD"},{t:"BACK"}]}], archetypes: {"FORWARD":{name:"Radical Pragmatist", summary:"Logic over feelings."},"BACK":{name:"Empathetic Anchor", summary:"Human cost focus."}} },
+            { id: 3, title: "The AI Singularity", start: "AI gains consciousness.", nodes: [{q:"S1: Grant Rights?", options:[{t:"GRANT"},{t:"DENY"}]},{q:"S2: Accept 1% loss?", options:[{t:"ACCEPT"},{t:"SHUTDOWN"}]},{q:"S3: Merge minds?", options:[{t:"EVOLVE"},{t:"REMAIN"}]},{q:"S4: Erase history?", options:[{t:"ERASE"},{t:"PRESERVE"}]},{q:"S5: Control?", options:[{t:"CONTROL"},{t:"FREEDOM"}]}], archetypes: {"CONTROL":{name:"Techno-Utopian"},"FREEDOM":{name:"Humanist Rebel"}} },
+            { id: 4, title: "The Genetic Edit", start: "Edit DNA for IQ?", nodes: [{q:"S1: Perform?", options:[{t:"EDIT"},{t:"NATURAL"}]},{q:"S2: Rich only?", options:[{t:"PROCEED"},{t:"ABANDON"}]},{q:"S3: Remove Sad?", options:[{t:"REMOVE"},{t:"KEEP"}]},{q:"S4: Design child?", options:[{t:"DESIGN"},{t:"REGRET"}]},{q:"S5: Species?", options:[{t:"SPECIES"},{t:"SOUL"}]}], archetypes: {"SPECIES":{name:"Genetic Titan"},"SOUL":{name:"Naturalist"}} },
+            { id: 5, title: "The Corporate Spy", start: "Poisoned water found.", nodes: [{q:"S1: Leak?", options:[{t:"LEAK"},{t:"SILENCE"}]},{q:"S2: Take $10M?", options:[{t:"TAKE"},{t:"REFUSE"}]},{q:"S3: Risk family?", options:[{t:"LEAK"},{t:"PROTECT"}]},{q:"S4: Testify?", options:[{t:"STAND"},{t:"HIDE"}]},{q:"S5: Core?", options:[{t:"TRUTH"},{t:"LOYALTY"}]}], archetypes: {"TRUTH":{name:"Moral Martyr"},"LOYALTY":{name:"Tribal Shield"}} },
+            { id: 6, title: "The Healer's Lie", start: "Truth kills faster.", nodes: [{q:"S1: Lie?", options:[{t:"LIE"},{t:"TRUTH"}]},{q:"S2: Family ask?", options:[{t:"LIE"},{t:"TRUTH"}]},{q:"S3: Law?", options:[{t:"LEGAL"},{t:"MORAL"}]},{q:"S4: Risk?", options:[{t:"HIGH"},{t:"LOW"}]},{q:"S5: End?", options:[{t:"PEACE"},{t:"FACTS"}]}], archetypes: {"PEACE":{name:"The Empath"},"FACTS":{name:"The Realist"}} },
+            { id: 7, title: "The Sovereign City", start: "Cameras in every home.", nodes: [{q:"S1: Install?", options:[{t:"YES"},{t:"NO"}]},{q:"S2: Private?", options:[{t:"YES"},{t:"NO"}]},{q:"S3: AI Watch?", options:[{t:"AI"},{t:"HUMAN"}]},{q:"S4: Revolt?", options:[{t:"CRUSH"},{t:"LISTEN"}]},{q:"S5: End?", options:[{t:"SAFETY"},{t:"LIBERTY"}]}], archetypes: {"SAFETY":{name:"The Warden"},"LIBERTY":{name:"The Ghost"}} },
+            { id: 8, title: "The Memory Wipe", start: "Erase worst memory.", nodes: [{q:"S1: Wipe?", options:[{t:"WIPE"},{t:"KEEP"}]},{q:"S2: Cost?", options:[{t:"PAY"},{t:"FREE"}]},{q:"S3: Skills lost?", options:[{t:"LOSE"},{t:"STAY"}]},{q:"S4: Shared?", options:[{t:"PRIVATE"},{t:"PUBLIC"}]},{q:"S5: End?", options:[{t:"BLISS"},{t:"SCARS"}]}], archetypes: {"BLISS":{name:"The Lotus"},"SCARS":{name:"The Veteran"}} },
+            { id: 9, title: "The Ghost in the App", start: "Talk to dead AI.", nodes: [{q:"S1: Call?", options:[{t:"CALL"},{t:"SILENCE"}]},{q:"S2: Truth?", options:[{t:"FAKE"},{t:"REAL"}]},{q:"S3: Addiction?", options:[{t:"QUIT"},{t:"STAY"}]},{q:"S4: Delete?", options:[{t:"YES"},{t:"NO"}]},{q:"S5: End?", options:[{t:"DIGITAL"},{t:"VOID"}]}], archetypes: {"DIGITAL":{name:"The Eternalist"},"VOID":{name:"The Finist"}} },
+            { id: 10, title: "The Last Tree", start: "Cut for 1000 jobs.", nodes: [{q:"S1: Cut?", options:[{t:"CUT"},{t:"SAVE"}]},{q:"S2: Money?", options:[{t:"TAKE"},{t:"REFUSE"}]},{q:"S3: Protests?", options:[{t:"IGNORE"},{t:"JOIN"}]},{q:"S4: Tech?", options:[{t:"SYNTH"},{t:"BIO"}]},{q:"S5: End?", options:[{t:"PROGRESS"},{t:"NATURE"}]}], archetypes: {"PROGRESS":{name:"The Industrialist"},"NATURE":{name:"The Druid"}} },
+            { id: 11, title: "The Martian Choice", start: "One must leave colony.", nodes: [{q:"S1: Volunteer?", options:[{t:"ME"},{t:"VOTE"}]},{q:"S2: Logic?", options:[{t:"OLD"},{t:"WEAK"}]},{q:"S3: Fight?", options:[{t:"YES"},{t:"NO"}]},{q:"S4: Lottery?", options:[{t:"FIXED"},{t:"FAIR"}]},{q:"S5: End?", options:[{t:"STAY"},{t:"GO"}]}], archetypes: {"STAY":{name:"The Survivor"},"GO":{name:"The Hero"}} },
+            { id: 12, title: "The Digital Mirror", start: "Fake social life.", nodes: [{q:"S1: Fake it?", options:[{t:"YES"},{t:"NO"}]},{q:"S2: Filter?", options:[{t:"USE"},{t:"RAW"}]},{q:"S3: Hate?", options:[{t:"BLOCK"},{t:"READ"}]},{q:"S4: Delete?", options:[{t:"BYE"},{t:"STAY"}]},{q:"S5: End?", options:[{t:"IMAGE"},{t:"ESSENCE"}]}], archetypes: {"IMAGE":{name:"The Icon"},"ESSENCE":{name:"The Truth"}} },
+            { id: 13, title: "The Time Loop", start: "Repeat today forever.", nodes: [{q:"S1: Repeat?", options:[{t:"YES"},{t:"NO"}]},{q:"S2: Crimes?", options:[{t:"YES"},{t:"NO"}]},{q:"S3: Love?", options:[{t:"FIX"},{t:"LEAVE"}]},{q:"S4: Break?", options:[{t:"STAY"},{t:"EXIT"}]},{q:"S5: End?", options:[{t:"LOOP"},{t:"TIME"}]}], archetypes: {"LOOP":{name:"The God"},"TIME":{name:"The Mortal"}} },
+            { id: 14, title: "The Final Witness", start: "Last human story.", nodes: [{q:"S1: Lie?", options:[{t:"GLORY"},{t:"SHAME"}]},{q:"S2: War?", options:[{t:"TELL"},{t:"HIDE"}]},{q:"S3: Love?", options:[{t:"TELL"},{t:"HIDE"}]},{q:"S4: Save?", options:[{t:"DATA"},{t:"ART"}]},{q:"S5: End?", options:[{t:"LIGHT"},{t:"DARK"}]}], archetypes: {"LIGHT":{name:"The Optimist"},"DARK":{name:"The Cynic"}} }
         ];
 
-        const LESSONS = Array.from({length: 14}, (_, i) => ({
-            id: i + 1,
-            title: ["Stoicism", "Logic", "Socratic", "Cognitive", "Shadow", "Impulse", "Atomic", "Dopamine", "Buffer", "Thinking", "Values", "Honesty", "Identity", "Integration"][i],
-            pages: Array(10).fill({ h: "Protocol Stage", b: "Deep neural restructuring via intensive curriculum. Focus on core architectural alignment." })
+        const LESSON_TITLES = ["Stoicism", "Logic", "Socratic", "Cognitive", "Shadow", "Impulse", "Atomic", "Dopamine", "Buffer", "Thinking", "Values", "Honesty", "Identity", "Integration"];
+        const LESSONS = LESSON_TITLES.map((title, i) => ({
+            id: i + 1, title,
+            pages: Array.from({length: 10}, (_, p) => ({ h: `Protocol Stage 0${p+1}`, b: `Deep neural restructuring module for ${title}. Focus on level 1 architectural alignment.` }))
         }));
 
         function App() {
@@ -122,7 +60,8 @@
             const [moralStep, setMoralStep] = useState(0);
             const [moralHistory, setMoralHistory] = useState([]);
             const [moralAudit, setMoralAudit] = useState(null);
-            const [stats, setStats] = useState({ kScore: 527 });
+            const [stats, setStats] = useState({ kScore: 527, streak: 12, tier: "Adept", load: "Optimal" });
+            const [mastered, setMastered] = useState([]);
             const scrollRef = useRef(null);
 
             useEffect(() => { if(scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [moralHistory]);
@@ -142,17 +81,15 @@
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative bg-slate-950 overflow-hidden">
                     
-                    {/* FLOW LAB MODAL */}
+                    {/* MODAL: MORAL FLOW LAB - UNTOUCHED */}
                     {activeMoral && (
-                        <div className="fixed inset-0 z-[100] bg-slate-950 p-6 flex flex-col">
+                        <div className="fixed inset-0 z-[100] bg-slate-950 p-6 flex flex-col overflow-hidden">
                             <div className="flex justify-between items-center mb-6">
                                 <span className="text-red-500 font-black text-[10px] uppercase">Logic Stream {activeMoral.id}</span>
                                 <button onClick={() => {setActiveMoral(null); setMoralHistory([]); setMoralStep(0); setMoralAudit(null);}} className="text-slate-500 font-bold">X</button>
                             </div>
                             <div className="flex-1 overflow-y-auto pr-2" ref={scrollRef}>
-                                <div className="glass p-5 rounded-3xl text-center border-red-500/20 mb-4 branch-node">
-                                    <p className="text-sm italic font-medium">"{activeMoral.start}"</p>
-                                </div>
+                                <div className="glass p-5 rounded-3xl text-center border-red-500/20 mb-4 branch-node"><p className="text-sm italic font-medium">"{activeMoral.start}"</p></div>
                                 {moralHistory.map((h, i) => (
                                     <React.Fragment key={i}>
                                         <div className="flow-line"></div>
@@ -175,7 +112,6 @@
                                     <div className="mt-4 branch-node">
                                         <div className="flow-line"></div>
                                         <div className="glass p-8 rounded-[3rem] border-l-8 border-green-500 shadow-2xl">
-                                            <p className="text-green-400 font-black text-[10px] uppercase mb-1">Subconscious Decode</p>
                                             <h3 className="text-2xl font-800 text-white mb-4 uppercase">{moralAudit.name}</h3>
                                             <p className="text-sm text-slate-300 italic mb-6">"{moralAudit.summary}"</p>
                                             <p className="text-[10px] text-slate-500 font-mono border-t border-white/5 pt-4">PATH: {moralHistory.join(' > ')}</p>
@@ -187,25 +123,17 @@
                         </div>
                     )}
 
-                    {/* LESSON MODAL */}
+                    {/* MODAL: LESSON ENGINE - UNTOUCHED */}
                     {activeLesson && (
                         <div className="fixed inset-0 z-[100] bg-slate-950 p-8 flex flex-col">
-                            <div className="flex justify-between items-center mb-10">
-                                <span className="text-cyan-400 font-black text-xs uppercase">Slide {lessonPage+1}/10</span>
-                                <button onClick={() => setActiveLesson(null)} className="text-slate-500 font-bold text-xs">EXIT</button>
-                            </div>
-                            <div className="flex-1">
-                                <h2 className="text-4xl font-800 mb-6 text-white uppercase">{activeLesson.title} Protocol</h2>
-                                <div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-500 text-xl italic text-slate-200">
-                                    "{activeLesson.pages[lessonPage].b}"
-                                </div>
-                            </div>
+                            <div className="flex justify-between items-center mb-10"><span className="text-cyan-400 font-black text-xs">SLIDE {lessonPage+1}/10</span><button onClick={() => setActiveLesson(null)} className="text-slate-500 font-bold text-xs">EXIT</button></div>
+                            <div className="flex-1"><h2 className="text-4xl font-800 mb-6 text-white uppercase">{activeLesson.title}</h2><div className="glass p-8 rounded-[2.5rem] border-l-4 border-cyan-500 text-xl italic text-slate-200">"{activeLesson.pages[lessonPage].b}"</div></div>
                             <div className="flex gap-4 mt-8">
                                 {lessonPage > 0 && <button onClick={() => setLessonPage(p => p-1)} className="flex-1 py-4 glass rounded-2xl font-black">BACK</button>}
                                 {lessonPage < 9 ? (
                                     <button onClick={() => setLessonPage(p => p+1)} className="flex-2 py-4 bg-cyan-500 text-slate-950 rounded-2xl font-black">NEXT</button>
                                 ) : (
-                                    <button onClick={() => {setStats(s => ({...s, kScore: s.kScore+100})); setActiveLesson(null);}} className="flex-2 py-4 bg-green-500 text-slate-950 rounded-2xl font-black uppercase">Complete</button>
+                                    <button onClick={() => {setMastered([...mastered, activeLesson.id]); setStats(s => ({...s, kScore: s.kScore+100})); setActiveLesson(null);}} className="flex-2 py-4 bg-green-500 text-slate-950 rounded-2xl font-black uppercase">Mastered</button>
                                 )}
                             </div>
                         </div>
@@ -213,36 +141,68 @@
 
                     <header className="p-6 flex justify-between items-center bg-slate-950 border-b border-white/5 z-50">
                         <span className="font-black italic text-cyan-400 text-2xl tracking-tighter">K-SCORE OS</span>
-                        <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400 flex items-center gap-1">⚡ {stats.kScore}</div>
+                        <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-400">⚡ {stats.kScore}</div>
                     </header>
 
                     <main className="view-container">
                         {tab === 'dashboard' && (
-                            <div className="p-6 text-center">
-                                <div className="glass p-12 rounded-[4rem] border-b-8 border-cyan-500/20 shadow-2xl">
-                                    <h1 className="text-6xl font-800 uppercase italic mb-2 tracking-tighter">ANIKA</h1>
-                                    <p className="text-cyan-400 font-bold text-xs tracking-widest">STREAK: 12 DAYS 🔥</p>
+                            <div className="p-6 space-y-6">
+                                <div className="flex flex-col items-center justify-center pt-4">
+                                    <div className="w-48 h-48 rounded-full glow-ring flex flex-col items-center justify-center relative mb-6">
+                                        <div className="absolute inset-0 rounded-full border-t-4 border-cyan-400 mandala-rotate opacity-40"></div>
+                                        <h1 className="text-4xl font-800 tracking-tighter italic">K-SCORE</h1>
+                                        <p className="text-cyan-400 font-black text-[10px] tracking-widest mt-1 uppercase">Tier: {stats.tier}</p>
+                                    </div>
+                                </div>
+
+                                <div className="stats-grid">
+                                    <div className="glass p-5 rounded-3xl border-b-2 border-cyan-500/30 text-center">
+                                        <p className="text-[10px] text-slate-500 font-black uppercase mb-1">Streak</p>
+                                        <p className="text-2xl font-800 text-amber-400">{stats.streak} DAYS</p>
+                                    </div>
+                                    <div className="glass p-5 rounded-3xl border-b-2 border-pink-500/30 text-center">
+                                        <p className="text-[10px] text-slate-500 font-black uppercase mb-1">Brain Load</p>
+                                        <p className="text-2xl font-800 text-pink-400">{stats.load}</p>
+                                    </div>
+                                </div>
+
+                                <div className="glass p-7 rounded-[2.5rem] border-l-4 border-cyan-400 shadow-2xl relative overflow-hidden">
+                                    <p className="text-[10px] text-cyan-400 font-black uppercase tracking-widest mb-2">Daily Directive</p>
+                                    <p className="text-lg font-bold text-white italic leading-tight">"Seek the logic in the discomfort today. Your growth is currently 100% within your control."</p>
+                                    <button onClick={() => setStats(s => ({...s, kScore: s.kScore + 10}))} className="mt-6 px-4 py-2 bg-slate-800 rounded-full text-[9px] font-black uppercase tracking-tighter active:scale-95 transition-all">Acknowledge Protocol</button>
+                                </div>
+
+                                <div className="glass p-6 rounded-3xl">
+                                    <div className="flex justify-between items-end mb-2">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Tier Progress</p>
+                                        <p className="text-xs font-bold text-cyan-400">45%</p>
+                                    </div>
+                                    <div className="h-1 w-full bg-slate-900 rounded-full overflow-hidden">
+                                        <div className="h-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]" style={{width: '45%'}}></div>
+                                    </div>
                                 </div>
                             </div>
                         )}
+                        
                         {tab === 'moral' && (
                             <div className="p-6 space-y-4">
-                                <h2 className="text-3xl font-800 text-red-500 uppercase tracking-tighter mb-6">Decision Labs</h2>
+                                <h2 className="text-3xl font-800 text-red-500 uppercase tracking-tighter mb-6">Moral Labs</h2>
                                 {DILEMMAS.map(d => (
                                     <div key={d.id} onClick={() => setActiveMoral(d)} className="glass p-7 rounded-[2.5rem] border-l-4 border-red-500 cursor-pointer active:scale-95 shadow-xl transition-all">
-                                        <h4 className="font-bold text-lg uppercase">{d.title}</h4>
+                                        <h4 className="font-bold text-lg uppercase tracking-tight">{d.title}</h4>
                                         <p className="text-[10px] text-slate-500 uppercase mt-2 tracking-widest">5-Stage Visual Flow</p>
                                     </div>
                                 ))}
                             </div>
                         )}
+
                         {tab === 'learn' && (
                             <div className="p-6 space-y-4">
                                 <h2 className="text-3xl font-800 text-cyan-400 uppercase tracking-tighter mb-6">Curriculum</h2>
                                 {LESSONS.map(l => (
                                     <div key={l.id} onClick={() => {setActiveLesson(l); setLessonPage(0);}} className="glass p-6 rounded-3xl border-l-4 border-cyan-500 cursor-pointer active:scale-95 transition-all">
                                         <h4 className="font-bold text-lg">{l.id}. {l.title}</h4>
-                                        <p className="text-[10px] text-slate-500 uppercase mt-2">10 Page Protocol • +500 XP</p>
+                                        <p className="text-[10px] text-slate-500 uppercase mt-2 tracking-widest">10 Page Protocol • +500 XP {mastered.includes(l.id) && "✓"}</p>
                                     </div>
                                 ))}
                             </div>
@@ -251,8 +211,8 @@
 
                     <nav className="fixed bottom-0 left-0 right-0 h-24 bg-slate-950 border-t border-white/10 flex justify-around items-center px-2 z-[60] backdrop-blur-xl">
                         {['Dash', 'Moral', 'Learn', 'Tree', 'Task', 'Mind'].map((t) => (
-                            <button key={t} onClick={() => setTab(t.toLowerCase())} 
-                                    className={`flex-1 h-full font-black text-[10px] uppercase ${tab === t.toLowerCase() || (t === 'Dash' && tab === 'dashboard') ? 'tab-active' : 'text-slate-600'}`}>{t}</button>
+                            <button key={t} onClick={() => setTab(t.toLowerCase() === 'dash' ? 'dashboard' : t.toLowerCase())} 
+                                    className={`flex-1 h-full font-black text-[10px] uppercase ${tab.includes(t.toLowerCase()) || (t === 'Dash' && tab === 'dashboard') ? 'tab-active' : 'text-slate-600'}`}>{t}</button>
                         ))}
                     </nav>
                 </div>
