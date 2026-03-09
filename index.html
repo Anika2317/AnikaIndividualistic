@@ -37,8 +37,8 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // UPDATED: Using a direct relative path for local development
-        const LOGO_DATA = "./1.png";
+        // HOSTED LOGO URL - This will work in any browser instantly
+        const LOGO_URL = "https://img.icons8.com/fluency/144/brain.png";
 
         const ALL_SKILLS = [{id:1,title:"Empathy",icon:"♥",summary:"Map external internalities.",sub:"Mirror Neurons"},{id:2,title:"Strategic Logic",icon:"⚛",summary:"First Principles thinking.",sub:"Quantum Reasoning"},{id:3,title:"Iron Discipline",icon:"🛡",summary:"Subordination of impulse.",sub:"Neural Override"},{id:4,title:"Mind Regulation",icon:"≋",summary:"Stimulus-response buffer.",sub:"Cortisol Control"},{id:5,title:"Total Integrity",icon:"⚓",summary:"Absolute alignment.",sub:"Radical Honesty"},{id:6,title:"Loyalty",icon:"🤝",summary:"Commitment to the tribe.",sub:"Bonding Protocol"},{id:7,title:"Fortitude",icon:"⛰",summary:"Endurance under pressure.",sub:"Pain Tolerance"},{id:8,title:"Intuition",icon:"👁",summary:"Pattern recognition.",sub:"Heuristics"},{id:9,title:"Meta-Learning",icon:"📚",summary:"Learning how to learn.",sub:"Rapid Acquisition"},{id:10,title:"Socratic Inquiry",icon:"❓",summary:"Relentless questioning.",sub:"Truth Seeking"},{id:11,title:"Shadow Insight",icon:"🌑",summary:"Integrating repressed self.",sub:"Jungian Analysis"},{id:12,title:"Kinetic Flow",icon:"🌀",summary:"Frictionless execution.",sub:"Peak State"},{id:13,title:"Dopamine Control",icon:"⚡",summary:"System reclamation.",sub:"Boredom Mastery"},{id:14,title:"Focus Depth",icon:"🎯",summary:"Variable locking.",sub:"Monotasking"},{id:15,title:"Presence",icon:"🕯",summary:"Total immersion.",sub:"Zero Point"},{id:16,title:"Self-Sovereignty",icon:"👑",summary:"Internal validation.",sub:"Autonomy"},{id:17,title:"Stoic Resolve",icon:"🏛",summary:"Event vs Judgment.",sub:"Ataraxia"},{id:18,title:"Vision",icon:"🔭",summary:"10-year mapping.",sub:"Long-path Logic"},{id:19,title:"Adaptability",icon:"🦎",summary:"OS rewriting.",sub:"Neuroplasticity"},{id:20,title:"Courage",icon:"🦁",summary:"Acting through fear.",sub:"Risk Analysis"},{id:21,title:"Pragmatism",icon:"🛠",summary:"What works.",sub:"Outcome Focus"},{id:22,title:"Asceticism",icon:"❄",summary:"Power in deprivation.",sub:"Cold Logic"},{id:23,title:"Justice",icon:"⚖",summary:"Objective truth weighing.",sub:"Equity Protocol"},{id:24,title:"Willpower",icon:"🔥",summary:"Raw fuel.",sub:"Drive Matrix"}];
 
@@ -75,7 +75,6 @@
             {id:'t8', pillar:"Discipline", focus:"Mental Health", title:'Digital Sunset', science:'Improves sleep quality.', xp:30}
         ];
 
-        /* --- APP ENGINE --- */
         function App() {
             const [stats, setStats] = useState(() => JSON.parse(localStorage.getItem('kScoreStats_v3')) || { kScore: 0, streak: 0, tier: "Adept" });
             const [synergy, setSynergy] = useState(() => JSON.parse(localStorage.getItem('synergy_v3')) || { Logic: 5, Empathy: 5, Discipline: 5, Integrity: 5 });
@@ -105,9 +104,15 @@
                     const lastSync = new Date(lastDate);
                     const diffTime = Math.abs(now - lastSync);
                     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    if (diffDays > 1) { updatedStreak = 1; } 
-                    else if (today !== lastDate) { updatedStreak += 1; }
-                } else { updatedStreak = 1; }
+                    
+                    if (diffDays > 1) {
+                        updatedStreak = 1; 
+                    } else if (today !== lastDate) {
+                        updatedStreak += 1;
+                    }
+                } else {
+                    updatedStreak = 1;
+                }
 
                 setLastDate(today);
                 setIsSyncing(true);
@@ -120,7 +125,7 @@
 
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative bg-white">
-                    {/* OVERLAYS */}
+                    
                     {activeLesson && (
                         <div className="fixed inset-0 z-[200] bg-white p-8 flex flex-col">
                             <div className="flex justify-between items-center mb-10"><span className="text-cyan-700 font-black text-xs uppercase">Protocol {lessonPage+1}/10</span><span className="focus-tag">{activeLesson.focus}</span></div>
@@ -146,14 +151,20 @@
                     {activeSkill && (
                         <div className="fixed inset-0 z-[300] bg-white/95 flex items-center justify-center p-6 backdrop-blur-md">
                             <div className="glass p-8 rounded-[3rem] border border-cyan-100 w-full text-center shadow-xl">
-                                <span className="text-6xl mb-6 block">{activeSkill.icon}</span><h3 className="text-3xl font-800 text-slate-900 mb-4 uppercase">{activeSkill.title}</h3><p className="text-slate-600 italic mb-6 leading-relaxed">"{activeSkill.summary}"</p><div className="p-4 bg-slate-50 rounded-2xl mb-8 text-slate-800 font-bold">{activeSkill.sub}</div><button onClick={() => setActiveSkill(null)} className="w-full py-4 bg-slate-100 rounded-2xl font-black uppercase text-xs text-slate-900">RETURN</button>
+                                <span className="text-6xl mb-6 block">
+                                    <img src={LOGO_URL} className="w-24 h-24 mx-auto" />
+                                </span>
+                                <h3 className="text-3xl font-800 text-slate-900 mb-4 uppercase">{activeSkill.title}</h3>
+                                <p className="text-slate-600 italic mb-6 leading-relaxed">"{activeSkill.summary}"</p>
+                                <div className="p-4 bg-slate-50 rounded-2xl mb-8 text-slate-800 font-bold">{activeSkill.sub}</div>
+                                <button onClick={() => setActiveSkill(null)} className="w-full py-4 bg-slate-100 rounded-2xl font-black uppercase text-xs text-slate-900">RETURN</button>
                             </div>
                         </div>
                     )}
 
                     <header className="p-6 flex justify-between items-center bg-white border-b border-slate-100 z-50">
                         <div className="flex flex-col">
-                            <img src={LOGO_DATA} alt="K-SCORE" className="h-10 w-auto mb-1 object-contain self-start" />
+                            <img src={LOGO_URL} alt="K-SCORE" className="h-10 w-auto mb-1 object-contain self-start" />
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Think Therefore Become</span>
                         </div>
                         <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-600">⚡ {stats.kScore}</div>
@@ -166,7 +177,7 @@
                                     <div className="w-40 h-40 rounded-full glow-ring flex flex-col items-center justify-center relative bg-slate-50 overflow-hidden">
                                         <div className="absolute inset-0 rounded-full border-t-4 border-cyan-500 mandala-rotate opacity-20"></div>
                                         <div className="w-24 h-24 flex items-center justify-center z-10">
-                                            <img src={LOGO_DATA} alt="Logo" className="max-w-full max-h-full object-contain" />
+                                            <img src={LOGO_URL} alt="Logo" className="max-w-full max-h-full object-contain" />
                                         </div>
                                         <p className="absolute bottom-6 text-cyan-600 font-black text-[9px] uppercase tracking-widest z-10">{stats.tier}</p>
                                     </div>
