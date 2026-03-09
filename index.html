@@ -37,8 +37,8 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // USING A RELIABLE PLACEHOLDER LINK TO BYPASS BROWSER SECURITY ERRORS
-        const LOGO_DATA = "https://img.icons8.com/color/144/brain.png";
+        // UPDATED: Using a direct relative path for local development
+        const LOGO_DATA = "./1.png";
 
         const ALL_SKILLS = [{id:1,title:"Empathy",icon:"♥",summary:"Map external internalities.",sub:"Mirror Neurons"},{id:2,title:"Strategic Logic",icon:"⚛",summary:"First Principles thinking.",sub:"Quantum Reasoning"},{id:3,title:"Iron Discipline",icon:"🛡",summary:"Subordination of impulse.",sub:"Neural Override"},{id:4,title:"Mind Regulation",icon:"≋",summary:"Stimulus-response buffer.",sub:"Cortisol Control"},{id:5,title:"Total Integrity",icon:"⚓",summary:"Absolute alignment.",sub:"Radical Honesty"},{id:6,title:"Loyalty",icon:"🤝",summary:"Commitment to the tribe.",sub:"Bonding Protocol"},{id:7,title:"Fortitude",icon:"⛰",summary:"Endurance under pressure.",sub:"Pain Tolerance"},{id:8,title:"Intuition",icon:"👁",summary:"Pattern recognition.",sub:"Heuristics"},{id:9,title:"Meta-Learning",icon:"📚",summary:"Learning how to learn.",sub:"Rapid Acquisition"},{id:10,title:"Socratic Inquiry",icon:"❓",summary:"Relentless questioning.",sub:"Truth Seeking"},{id:11,title:"Shadow Insight",icon:"🌑",summary:"Integrating repressed self.",sub:"Jungian Analysis"},{id:12,title:"Kinetic Flow",icon:"🌀",summary:"Frictionless execution.",sub:"Peak State"},{id:13,title:"Dopamine Control",icon:"⚡",summary:"System reclamation.",sub:"Boredom Mastery"},{id:14,title:"Focus Depth",icon:"🎯",summary:"Variable locking.",sub:"Monotasking"},{id:15,title:"Presence",icon:"🕯",summary:"Total immersion.",sub:"Zero Point"},{id:16,title:"Self-Sovereignty",icon:"👑",summary:"Internal validation.",sub:"Autonomy"},{id:17,title:"Stoic Resolve",icon:"🏛",summary:"Event vs Judgment.",sub:"Ataraxia"},{id:18,title:"Vision",icon:"🔭",summary:"10-year mapping.",sub:"Long-path Logic"},{id:19,title:"Adaptability",icon:"🦎",summary:"OS rewriting.",sub:"Neuroplasticity"},{id:20,title:"Courage",icon:"🦁",summary:"Acting through fear.",sub:"Risk Analysis"},{id:21,title:"Pragmatism",icon:"🛠",summary:"What works.",sub:"Outcome Focus"},{id:22,title:"Asceticism",icon:"❄",summary:"Power in deprivation.",sub:"Cold Logic"},{id:23,title:"Justice",icon:"⚖",summary:"Objective truth weighing.",sub:"Equity Protocol"},{id:24,title:"Willpower",icon:"🔥",summary:"Raw fuel.",sub:"Drive Matrix"}];
 
@@ -120,7 +120,7 @@
 
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative bg-white">
-                    
+                    {/* OVERLAYS */}
                     {activeLesson && (
                         <div className="fixed inset-0 z-[200] bg-white p-8 flex flex-col">
                             <div className="flex justify-between items-center mb-10"><span className="text-cyan-700 font-black text-xs uppercase">Protocol {lessonPage+1}/10</span><span className="focus-tag">{activeLesson.focus}</span></div>
@@ -205,7 +205,7 @@
                                         const index = i < 8 ? i : i - 8;
                                         const radius = i < 8 ? 115 : 175;
                                         const angle = (index * (360 / (i < 8 ? 8 : 16)) - 90) * (Math.PI / 180);
-                                        return ( <div key={data.id} onClick={() => setActiveSkill(data)} style={{ transform: `translate(${Math.cos(angle)*radius}px, ${Math.sin(angle)*radius}px)` }} className="absolute glass w-10 h-10 rounded-xl flex items-center justify-center border border-slate-100 hover:border-cyan-500 active:scale-90 shadow-sm"><span className="text-xl">{data.icon}</span></div> );
+                                        return ( <div key={data.id} onClick={() => setActiveSkill(data)} style={{ transform: `translate(${Math.cos(angle)*radius}px, ${Math.sin(angle)*radius}px)` }} className="absolute glass w-10 h-10 rounded-xl flex items-center justify-center border border-slate-100 shadow-sm"><span className="text-xl">{data.icon}</span></div> );
                                     })}
                                 </div>
                             </div>
