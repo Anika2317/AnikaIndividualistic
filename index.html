@@ -37,7 +37,6 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        /* --- IMMUTABLE DATA CORE --- */
         const ALL_SKILLS = [{id:1,title:"Empathy",icon:"♥",summary:"Map external internalities.",sub:"Mirror Neurons"},{id:2,title:"Strategic Logic",icon:"⚛",summary:"First Principles thinking.",sub:"Quantum Reasoning"},{id:3,title:"Iron Discipline",icon:"🛡",summary:"Subordination of impulse.",sub:"Neural Override"},{id:4,title:"Mind Regulation",icon:"≋",summary:"Stimulus-response buffer.",sub:"Cortisol Control"},{id:5,title:"Total Integrity",icon:"⚓",summary:"Absolute alignment.",sub:"Radical Honesty"},{id:6,title:"Loyalty",icon:"🤝",summary:"Commitment to the tribe.",sub:"Bonding Protocol"},{id:7,title:"Fortitude",icon:"⛰",summary:"Endurance under pressure.",sub:"Pain Tolerance"},{id:8,title:"Intuition",icon:"👁",summary:"Pattern recognition.",sub:"Heuristics"},{id:9,title:"Meta-Learning",icon:"📚",summary:"Learning how to learn.",sub:"Rapid Acquisition"},{id:10,title:"Socratic Inquiry",icon:"❓",summary:"Relentless questioning.",sub:"Truth Seeking"},{id:11,title:"Shadow Insight",icon:"🌑",summary:"Integrating repressed self.",sub:"Jungian Analysis"},{id:12,title:"Kinetic Flow",icon:"🌀",summary:"Frictionless execution.",sub:"Peak State"},{id:13,title:"Dopamine Control",icon:"⚡",summary:"System reclamation.",sub:"Boredom Mastery"},{id:14,title:"Focus Depth",icon:"🎯",summary:"Variable locking.",sub:"Monotasking"},{id:15,title:"Presence",icon:"🕯",summary:"Total immersion.",sub:"Zero Point"},{id:16,title:"Self-Sovereignty",icon:"👑",summary:"Internal validation.",sub:"Autonomy"},{id:17,title:"Stoic Resolve",icon:"🏛",summary:"Event vs Judgment.",sub:"Ataraxia"},{id:18,title:"Vision",icon:"🔭",summary:"10-year mapping.",sub:"Long-path Logic"},{id:19,title:"Adaptability",icon:"🦎",summary:"OS rewriting.",sub:"Neuroplasticity"},{id:20,title:"Courage",icon:"🦁",summary:"Acting through fear.",sub:"Risk Analysis"},{id:21,title:"Pragmatism",icon:"🛠",summary:"What works.",sub:"Outcome Focus"},{id:22,title:"Asceticism",icon:"❄",summary:"Power in deprivation.",sub:"Cold Logic"},{id:23,title:"Justice",icon:"⚖",summary:"Objective truth weighing.",sub:"Equity Protocol"},{id:24,title:"Willpower",icon:"🔥",summary:"Raw fuel.",sub:"Drive Matrix"}];
 
         const DILEMMAS = [
@@ -73,7 +72,6 @@
             {id:'t8', pillar:"Discipline", focus:"Mental Health", title:'Digital Sunset', science:'Improves sleep quality.', xp:30}
         ];
 
-        /* --- APP ENGINE --- */
         function App() {
             const [stats, setStats] = useState(() => JSON.parse(localStorage.getItem('kScoreStats_v3')) || { kScore: 0, streak: 0, tier: "Adept" });
             const [synergy, setSynergy] = useState(() => JSON.parse(localStorage.getItem('synergy_v3')) || { Logic: 5, Empathy: 5, Discipline: 5, Integrity: 5 });
@@ -118,7 +116,6 @@
 
             return (
                 <div className="max-w-md mx-auto h-screen flex flex-col relative bg-white">
-                    {/* OVERLAYS HIDDEN FOR BREVITY - UNCHANGED */}
                     {activeLesson && (
                         <div className="fixed inset-0 z-[200] bg-white p-8 flex flex-col">
                             <div className="flex justify-between items-center mb-10"><span className="text-cyan-700 font-black text-xs uppercase">Protocol {lessonPage+1}/10</span><span className="focus-tag">{activeLesson.focus}</span></div>
@@ -150,7 +147,7 @@
                     <header className="p-6 flex justify-between items-center bg-white border-b border-slate-100 z-50">
                         <div className="flex flex-col">
                             <img src="./1.png" alt="K-SCORE" className="h-10 w-auto mb-1 object-contain self-start" />
-                            <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">the gap between where you are and where you're going</span>
+                            <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">Think Therefore Become</span>
                         </div>
                         <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-600">⚡ {stats.kScore}</div>
                     </header>
@@ -190,7 +187,6 @@
                                 <button onClick={() => {localStorage.clear(); window.location.reload();}} className="w-full py-2 text-[8px] font-black text-slate-300 uppercase">Emergency Reset Memory</button>
                             </div>
                         )}
-                        {/* OTHER TABS - UNCHANGED */}
                         {tab === 'tree' && (
                             <div className="h-full w-full flex flex-col items-center justify-center relative min-h-[550px] overflow-hidden">
                                 <div className="absolute w-full h-full flex items-center justify-center scale-90 sm:scale-100">
