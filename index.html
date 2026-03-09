@@ -16,25 +16,19 @@
         .mandala-rotate-rev { animation: rotate-rev 80s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes rotate-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-        
-        /* Updated to #23422f */
-        .tab-active { color: #23422f !important; border-top: 3px solid #23422f; }
+        .tab-active { color: #0891b2 !important; border-top: 3px solid #0891b2; }
         .view-container { height: calc(100vh - 160px); overflow-y: auto; overflow-x: hidden; padding-bottom: 60px; -webkit-overflow-scrolling: touch; }
-        .flow-line { width: 2px; background: linear-gradient(to bottom, #ef4444, #23422f); height: 30px; margin: 0 auto; }
+        .flow-line { width: 2px; background: linear-gradient(to bottom, #ef4444, #0891b2); height: 30px; margin: 0 auto; }
         .branch-node { animation: nodePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes nodePop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        
-        /* Glow Ring updated to #23422f */
-        .glow-ring { border: 2px solid #23422f; box-shadow: 0 0 20px rgba(35, 66, 47, 0.1); }
+        .glow-ring { border: 2px solid #0891b2; box-shadow: 0 0 20px rgba(8, 145, 178, 0.1); }
         .node-pulse { animation: pulse 3s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(35, 66, 47, 0.4); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(35, 66, 47, 0); } 100% { transform: scale(1); } }
-        
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.4); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(8, 145, 178, 0); } 100% { transform: scale(1); } }
         .streak-sync { animation: streakPop 1.2s forwards; color: #f59e0b !important; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
         @keyframes streakPop { 0% { transform: scale(1); } 50% { transform: scale(1.6); } 100% { transform: scale(1); } }
-        
-        .load-bar { background: linear-gradient(to top, #23422f, #ef4444); transition: height 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .focus-tag { font-size: 8px; font-weight: 800; text-transform: uppercase; color: #23422f; background: rgba(35, 66, 47, 0.1); padding: 2px 6px; border-radius: 4px; }
-        .synergy-bar { transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); background: #23422f !important; }
+        .load-bar { background: linear-gradient(to top, #0891b2, #ef4444); transition: height 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .focus-tag { font-size: 8px; font-weight: 800; text-transform: uppercase; color: #0891b2; background: rgba(8, 145, 178, 0.1); padding: 2px 6px; border-radius: 4px; }
+        .synergy-bar { transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .vertical-text { writing-mode: vertical-rl; transform: rotate(180deg); }
     </style>
 </head>
@@ -63,7 +57,7 @@
         ];
 
         const LESSON_MAPPING = {"Stoicism":"Discipline","Logic":"Logic","Socratic":"Logic","Cognitive":"Logic","Shadow":"Empathy","Impulse":"Discipline","Atomic":"Discipline","Dopamine":"Discipline","Buffer":"Discipline","Thinking":"Logic","Values":"Integrity","Honesty":"Integrity","Identity":"Integrity","Integration":"Logic"};
-        const LESSONS = Object.keys(LESSON_MAPPING).map((title, i) => ({ id: i + 1, title, pillar: LESSON_MAPPING[title], focus: title, pages: Array.from({length: 10}, (_, p) => ({ h: `${title} | Phase 0${p+1}`, b: `Deep neural restructuring module for ${title}. Focus on level 1 alignment.` })) }));
+        const LESSONS = Object.keys(LESSON_MAPPING).map((title, i) => ({ id: i + 1, title, pillar: LESSON_MAPPING[title], focus: title, pages: Array.from({length: 10}, (_, p) => ({ h: `${title} | Phase 0${p+1}`, b: `Deep neural restructuring module for ${title}. Focus on level 1 architectural alignment.` })) }));
 
         const AFFIRMATIONS = [{t:"Stoicism",b:"I am the mountain. Chaos blows, I remain unmoved."},{t:"Logic",b:"I rebuild reality from first principles."},{t:"Socratic",b:"My questions are the keys to my expansion."},{t:"Cognitive",b:"Triggers are data, not commands."},{t:"Shadow",b:"I own my darkness to become a force."},{t:"Impulse",b:"I own the gap between stimulus and response."},{t:"Atomic",b:"1% better today is 37x better by the end."},{t:"Dopamine",b:"I choose deep satisfaction over cheap dopamine."},{t:"Buffer",b:"My mind is a fortress."},{t:"Thinking",b:"I am the observer, not the thought."},{t:"Values",b:"I do not bargain with my non-negotiables."},{t:"Honesty",b:"Truth is my simplest weapon."},{t:"Identity",b:"I act as the version that has already won."},{t:"Integration",b:"Logic, Empathy, and Discipline as one."}];
 
@@ -106,7 +100,7 @@
                 if (lastDate) {
                     const lastSync = new Date(lastDate);
                     const diffTime = Math.abs(now - lastSync);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
                     if (diffDays > 1) { updatedStreak = 1; } 
                     else if (today !== lastDate) { updatedStreak += 1; }
                 } else { updatedStreak = 1; }
@@ -124,12 +118,11 @@
                 <div className="max-w-md mx-auto h-screen flex flex-col relative bg-white">
                     {activeLesson && (
                         <div className="fixed inset-0 z-[200] bg-white p-8 flex flex-col">
-                            <div className="flex justify-between items-center mb-10"><span className="text-[#23422f] font-black text-xs uppercase">Protocol {lessonPage+1}/10</span><span className="focus-tag">{activeLesson.focus}</span></div>
-                            <div className="flex-1"><h2 className="text-4xl font-800 mb-6 text-slate-900 uppercase tracking-tighter leading-none">{activeLesson.pages[lessonPage].h}</h2><div className="glass p-8 rounded-[2rem] border-l-4 border-[#23422f] italic text-slate-700">"{activeLesson.pages[lessonPage].b}"</div></div>
-                            <div className="flex gap-4 mt-8">{lessonPage > 0 && <button onClick={() => setLessonPage(p => p - 1)} className="flex-1 py-5 glass rounded-2xl font-black text-slate-900">BACK</button>}{lessonPage < 9 ? ( <button onClick={() => setLessonPage(p => p + 1)} className="flex-2 py-5 bg-[#23422f] text-white rounded-2xl font-black">NEXT</button> ) : ( <button onClick={() => {triggerSync(500, activeLesson.pillar, 'lessons', activeLesson.id); setActiveLesson(null);}} className="flex-2 py-5 bg-[#23422f] text-white rounded-2xl font-black">MASTERY</button> )}</div>
+                            <div className="flex justify-between items-center mb-10"><span className="text-cyan-700 font-black text-xs uppercase">Protocol {lessonPage+1}/10</span><span className="focus-tag">{activeLesson.focus}</span></div>
+                            <div className="flex-1"><h2 className="text-4xl font-800 mb-6 text-slate-900 uppercase tracking-tighter leading-none">{activeLesson.pages[lessonPage].h}</h2><div className="glass p-8 rounded-[2rem] border-l-4 border-cyan-600 italic text-slate-700">"{activeLesson.pages[lessonPage].b}"</div></div>
+                            <div className="flex gap-4 mt-8">{lessonPage > 0 && <button onClick={() => setLessonPage(p => p - 1)} className="flex-1 py-5 glass rounded-2xl font-black text-slate-900">BACK</button>}{lessonPage < 9 ? ( <button onClick={() => setLessonPage(p => p + 1)} className="flex-2 py-5 bg-cyan-600 text-white rounded-2xl font-black">NEXT</button> ) : ( <button onClick={() => {triggerSync(500, activeLesson.pillar, 'lessons', activeLesson.id); setActiveLesson(null);}} className="flex-2 py-5 bg-green-600 text-white rounded-2xl font-black">MASTERY</button> )}</div>
                         </div>
                     )}
-
                     {activeMoral && (
                         <div className="fixed inset-0 z-[100] bg-white p-6 flex flex-col">
                             <div className="flex justify-between items-center mb-6"><span className="text-red-600 font-black text-[10px] uppercase">Moral Lab</span><button onClick={() => setActiveMoral(null)} className="font-bold text-slate-400">X</button></div>
@@ -143,10 +136,9 @@
                             </div>
                         </div>
                     )}
-
                     {activeSkill && (
                         <div className="fixed inset-0 z-[300] bg-white/95 flex items-center justify-center p-6 backdrop-blur-md">
-                            <div className="glass p-8 rounded-[3rem] border border-[#23422f]/20 w-full text-center shadow-xl">
+                            <div className="glass p-8 rounded-[3rem] border border-cyan-100 w-full text-center shadow-xl">
                                 <span className="text-6xl mb-6 block">{activeSkill.icon}</span><h3 className="text-3xl font-800 text-slate-900 mb-4 uppercase">{activeSkill.title}</h3><p className="text-slate-600 italic mb-6 leading-relaxed">"{activeSkill.summary}"</p><div className="p-4 bg-slate-50 rounded-2xl mb-8 text-slate-800 font-bold">{activeSkill.sub}</div><button onClick={() => setActiveSkill(null)} className="w-full py-4 bg-slate-100 rounded-2xl font-black uppercase text-xs text-slate-900">RETURN</button>
                             </div>
                         </div>
@@ -154,8 +146,8 @@
 
                     <header className="p-6 flex justify-between items-center bg-white border-b border-slate-100 z-50">
                         <div className="flex flex-col">
-                            <span className="font-black italic text-[#23422f] text-2xl tracking-tighter leading-none">K-SCORE</span>
-                            <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">Think Therefore Become</span>
+                            <img src="1.png" alt="K-SCORE" className="h-10 w-auto mb-1 object-contain self-start" />
+                            <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">the gap between where you are and where you're going</span>
                         </div>
                         <div className="glass px-3 py-1 rounded-full text-[11px] font-black text-amber-600">⚡ {stats.kScore}</div>
                     </header>
@@ -164,10 +156,10 @@
                         {tab === 'dashboard' && (
                             <div className="space-y-6">
                                 <div className="flex items-center gap-6">
-                                    <div className="w-40 h-40 rounded-full glow-ring flex flex-col items-center justify-center relative bg-slate-50">
-                                        <div className="absolute inset-0 rounded-full border-t-4 border-[#23422f] mandala-rotate opacity-20"></div>
-                                        <h1 className="text-3xl font-800 italic text-slate-900">K-SCORE</h1>
-                                        <p className="text-[#23422f] font-black text-[9px] uppercase tracking-widest">{stats.tier}</p>
+                                    <div className="w-40 h-40 rounded-full glow-ring flex flex-col items-center justify-center relative bg-slate-50 overflow-hidden">
+                                        <div className="absolute inset-0 rounded-full border-t-4 border-cyan-500 mandala-rotate opacity-20"></div>
+                                        <img src="1.png" alt="Center Logo" className="w-24 h-24 object-contain z-10" />
+                                        <p className="absolute bottom-6 text-cyan-600 font-black text-[9px] uppercase tracking-widest z-10">{stats.tier}</p>
                                     </div>
                                     <div className="flex-1 space-y-4">
                                         <div className="glass p-4 rounded-3xl border-l-4 border-amber-400">
@@ -185,44 +177,40 @@
                                         <p className="text-[8px] font-black uppercase text-slate-400 vertical-text mb-2 text-center">Neural Load</p>
                                         <div className="flex-1 w-2 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end"><div className="load-bar" style={{height:`${synergy.Discipline}%`}}></div></div>
                                     </div>
-                                    <div className="col-span-4 glass rounded-3xl p-5 border-b-4 border-[#23422f]/10">
-                                        <p className="text-[10px] font-black uppercase text-[#23422f] mb-4 uppercase">Protocol Synergy</p>
-                                        <div className="space-y-3">{Object.entries(synergy).map(([k, v]) => (<div key={k}><div className="flex justify-between text-[9px] font-bold"><span>{k}</span><span>{v}%</span></div><div className="h-1 bg-slate-50 rounded-full overflow-hidden"><div className="h-full synergy-bar" style={{width:`${v}%`}}></div></div></div>))}</div>
+                                    <div className="col-span-4 glass rounded-3xl p-5 border-b-4 border-cyan-50">
+                                        <p className="text-[10px] font-black uppercase text-cyan-600 mb-4 uppercase">Protocol Synergy</p>
+                                        <div className="space-y-3">{Object.entries(synergy).map(([k, v]) => (<div key={k}><div className="flex justify-between text-[9px] font-bold"><span>{k}</span><span>{v}%</span></div><div className="h-1 bg-slate-50 rounded-full overflow-hidden"><div className="h-full bg-cyan-500 synergy-bar" style={{width:`${v}%`}}></div></div></div>))}</div>
                                     </div>
                                 </div>
+                                <button onClick={() => {localStorage.clear(); window.location.reload();}} className="w-full py-2 text-[8px] font-black text-slate-300 uppercase">Emergency Reset Memory</button>
                             </div>
                         )}
-
                         {tab === 'tree' && (
                             <div className="h-full w-full flex flex-col items-center justify-center relative min-h-[550px] overflow-hidden">
                                 <div className="absolute w-full h-full flex items-center justify-center scale-90 sm:scale-100">
                                     <div className="absolute w-56 h-56 border border-slate-100 rounded-full mandala-rotate"></div>
-                                    <div className="absolute w-[340px] h-[340px] border border-[#23422f]/20 rounded-full mandala-rotate-rev"></div>
-                                    <div className="z-10 w-28 h-28 glass rounded-full flex flex-col items-center justify-center border-2 border-[#23422f] node-pulse bg-white text-slate-900 font-black">CORE</div>
+                                    <div className="absolute w-[340px] h-[340px] border border-cyan-50 rounded-full mandala-rotate-rev"></div>
+                                    <div className="z-10 w-28 h-28 glass rounded-full flex flex-col items-center justify-center border-2 border-cyan-500 node-pulse bg-white text-slate-900 font-black">CORE</div>
                                     {ALL_SKILLS.map((data, i) => {
                                         const index = i < 8 ? i : i - 8;
                                         const radius = i < 8 ? 115 : 175;
                                         const angle = (index * (360 / (i < 8 ? 8 : 16)) - 90) * (Math.PI / 180);
-                                        return ( <div key={data.id} onClick={() => setActiveSkill(data)} style={{ transform: `translate(${Math.cos(angle)*radius}px, ${Math.sin(angle)*radius}px)` }} className="absolute glass w-10 h-10 rounded-xl flex items-center justify-center border border-slate-100 hover:border-[#23422f] active:scale-90 shadow-sm"><span className="text-xl">{data.icon}</span></div> );
+                                        return ( <div key={data.id} onClick={() => setActiveSkill(data)} style={{ transform: `translate(${Math.cos(angle)*radius}px, ${Math.sin(angle)*radius}px)` }} className="absolute glass w-10 h-10 rounded-xl flex items-center justify-center border border-slate-100 hover:border-cyan-500 active:scale-90 shadow-sm"><span className="text-xl">{data.icon}</span></div> );
                                     })}
                                 </div>
                             </div>
                         )}
-
                         {tab === 'moral' && (
                             <div className="space-y-4"><h2 className="text-3xl font-800 text-red-600 uppercase tracking-tighter mb-6">Moral Labs</h2>{DILEMMAS.map(d => ( <div key={d.id} onClick={() => setActiveMoral(d)} className={`glass p-7 rounded-[2.5rem] border-l-4 border-red-500 cursor-pointer relative ${completed.dilemmas.includes(d.id) ? 'opacity-40 grayscale' : ''}`}><div className="absolute top-4 right-6 focus-tag" style={{color:'#dc2626', background:'rgba(220,38,38,0.1)'}}>{d.focus}</div><h4 className="font-bold text-lg uppercase text-slate-900">{d.title}</h4><p className="text-[10px] text-slate-400 uppercase mt-2">{completed.dilemmas.includes(d.id) ? 'SYNCED' : '5-Stage Flow'}</p></div> ))}</div>
                         )}
-
                         {tab === 'learn' && (
-                            <div className="space-y-4"><h2 className="text-3xl font-800 text-[#23422f] uppercase tracking-tighter mb-6">Curriculum</h2>{LESSONS.map(l => ( <div key={l.id} onClick={() => {setActiveLesson(l); setLessonPage(0);}} className={`glass p-6 rounded-3xl border-l-4 border-[#23422f] cursor-pointer relative ${completed.lessons.includes(l.id) ? 'opacity-40 grayscale' : ''}`}><div className="absolute top-4 right-6 focus-tag">{l.focus}</div><h4 className="font-bold text-lg uppercase text-slate-900">{l.title}</h4><p className="text-[10px] text-slate-400 uppercase">{completed.lessons.includes(l.id) ? 'Mastered' : '10 Page Protocol'}</p></div> ))}</div>
+                            <div className="space-y-4"><h2 className="text-3xl font-800 text-cyan-600 uppercase tracking-tighter mb-6">Curriculum</h2>{LESSONS.map(l => ( <div key={l.id} onClick={() => {setActiveLesson(l); setLessonPage(0);}} className={`glass p-6 rounded-3xl border-l-4 border-cyan-500 cursor-pointer relative ${completed.lessons.includes(l.id) ? 'opacity-40 grayscale' : ''}`}><div className="absolute top-4 right-6 focus-tag">{l.focus}</div><h4 className="font-bold text-lg uppercase text-slate-900">{l.title}</h4><p className="text-[10px] text-slate-400 uppercase">{completed.lessons.includes(l.id) ? 'Mastered' : '10 Page Protocol'}</p></div> ))}</div>
                         )}
-
                         {tab === 'task' && (
-                            <div className="space-y-6"><h2 className="text-3xl font-800 text-[#23422f] uppercase tracking-tighter mb-6">Daily Protocol</h2>{TASKS.map(task => ( <div key={task.id} onClick={() => !completed.tasks.includes(task.id) && triggerSync(task.xp, task.pillar, 'tasks', task.id)} className={`glass p-7 rounded-[2.5rem] border-l-4 relative ${completed.tasks.includes(task.id) ? 'border-[#23422f] bg-[#23422f]/5 opacity-50' : 'border-slate-200 bg-white'}`}><div className="absolute top-4 right-6 focus-tag">{task.focus}</div><h4 className={`font-bold text-lg uppercase ${completed.tasks.includes(task.id) ? 'line-through text-slate-400' : 'text-slate-900'}`}>{task.title}</h4><div className="text-[#23422f] font-black text-xs mt-1">+{task.xp} XP</div><div className="p-4 bg-slate-50 rounded-2xl text-slate-600 mt-3 text-[11px] italic">🧠 {task.science}</div></div> ))}</div>
+                            <div className="space-y-6"><h2 className="text-3xl font-800 text-cyan-600 uppercase tracking-tighter mb-6">Daily Protocol</h2>{TASKS.map(task => ( <div key={task.id} onClick={() => !completed.tasks.includes(task.id) && triggerSync(task.xp, task.pillar, 'tasks', task.id)} className={`glass p-7 rounded-[2.5rem] border-l-4 relative ${completed.tasks.includes(task.id) ? 'border-green-500 bg-green-50 opacity-50' : 'border-slate-200 bg-white'}`}><div className="absolute top-4 right-6 focus-tag">{task.focus}</div><h4 className={`font-bold text-lg uppercase ${completed.tasks.includes(task.id) ? 'line-through text-slate-400' : 'text-slate-900'}`}>{task.title}</h4><div className="text-cyan-600 font-black text-xs mt-1">+{task.xp} XP</div><div className="p-4 bg-slate-50 rounded-2xl text-slate-600 mt-3 text-[11px] italic">🧠 {task.science}</div></div> ))}</div>
                         )}
-
                         {tab === 'mind' && (
-                            <div className="space-y-4"><h2 className="text-3xl font-800 text-[#23422f] uppercase tracking-tighter mb-6">Neural Affirmations</h2>{AFFIRMATIONS.map((a, i) => ( <div key={i} className="glass p-7 rounded-[2.5rem] border-l-4 border-[#23422f] mb-4"><p className="text-[10px] text-[#23422f] font-black uppercase mb-2">{a.t} Protocol</p><p className="text-lg font-bold text-slate-800 italic">"{a.b}"</p></div> ))}</div>
+                            <div className="space-y-4"><h2 className="text-3xl font-800 text-cyan-600 uppercase tracking-tighter mb-6">Neural Affirmations</h2>{AFFIRMATIONS.map((a, i) => ( <div key={i} className="glass p-7 rounded-[2.5rem] border-l-4 border-cyan-500 mb-4"><p className="text-[10px] text-cyan-600 font-black uppercase mb-2">{a.t} Protocol</p><p className="text-lg font-bold text-slate-800 italic">"{a.b}"</p></div> ))}</div>
                         )}
                     </main>
 
