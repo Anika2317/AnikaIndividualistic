@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Summer 2026 Plan</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 2rem 1rem; }
+  .container { max-width: 720px; margin: 0 auto; }
+  .hero { background: #1a1a2e; color: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
+  .hero h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.25rem; }
+  .hero p { font-size: 14px; opacity: 0.7; }
+  .section { margin-bottom: 2rem; }
+  .section-title { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e0e0e0; }
+  .card { background: white; border: 1px solid #e8e8e8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; transition: box-shadow 0.2s; }
+  .card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .card.urgent { border-left: 3px solid #E24B4A; }
+  .card.done { opacity: 0.5; }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 0.5rem; }
+  .card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; display: flex; align-items: center; gap: 8px; }
+  .checkbox { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .checkbox.checked { background: #1a1a2e; border-color: #1a1a2e; }
+  .checkbox.checked::after { content: '✓'; color: white; font-size: 11px; font-weight: 700; }
+  .card-desc { font-size: 13px; color: #666; line-height: 1.6; margin-left: 26px; }
+  .badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+  .badge-gold { background: #FAEEDA; color: #633806; }
+  .badge-blue { background: #E6F1FB; color: #0C447C; }
+  .badge-gray { background: #F1EFE8; color: #444441; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 0.5rem 0 0.5rem 26px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: #f5f5f0; color: #888; border: 1px solid #e8e8e8; }
+  .link-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #185FA5; text-decoration: none; border: 1px solid #e8e8e8; border-radius: 6px; padding: 4px 10px; margin-left: 26px; margin-top: 0.25rem; }
+  .link-btn:hover { background: #f5f5f0; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.75rem; }
+  .footer { background: #1a1a2e; color: white; border-radius: 16px; padding: 1.5rem; text-align: center; margin-top: 2rem; }
+  .footer p { font-size: 15px; font-weight: 500; margin-bottom: 0.25rem; }
+  .footer span { font-size: 13px; opacity: 0.6; }
+  .progress-bar { background: #e8e8e8; border-radius: 8px; height: 6px; margin: 0.5rem 0; overflow: hidden; }
+  .progress-fill { background: #1a1a2e; height: 100%; border-radius: 8px; transition: width 0.3s; }
+  .progress-label { font-size: 12px; color: #888; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>My Summer 2026 Plan 🌊</h1>
+    <p>Del Norte High School · 9th Grade · San Diego, CA</p>
+    <div style="margin-top: 1rem;">
+      <div class="progress-label" id="progress-label">0 of 14 tasks completed</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%"></div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🚨 Do right now — urgent</div>
+    <div class="card urgent">
+      <div class="card-header">
+        <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>UCLA NeuroCamp mailing list</div>
+        <span class="badge badge-gold">High value</span>
+      </div>
+      <div class="card-desc">Free 2-week hands-on neuroscience lab. Only 15-20 spots. Brain dissection. Open to 9th graders. Sign up TODAY or miss when apps open.</div>
+      <div class="tags"><span class="tag">Free</span><span class="tag">9th grade ok</span><span class="tag">Hands-on lab</span></div>
+      <a class="link-btn" href="https://bri.ucla.edu" target="_blank">bri.ucla.edu ↗</a>
+    </div>
+    <div class="card urgent">
+      <div class="card-header">
+        <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>UCLA Neuroscience Grand Rounds</div>
+        <span class="badge badge-gold">High value</span>
+      </div>
+      <div class="card-desc">Free monthly virtual seminars. Last Thursday of every month at 6pm. Open to all 9th-12th graders. Can present your own research here eventually.</div>
+      <div class="tags"><span class="tag">Free</span><span class="tag">Virtual</span><span class="tag">Monthly</span></div>
+      <a class="link-btn" href="https://uclahs.az1.qualtrics.com" target="_blank">Register here ↗</a>
+    </div>
+    <div class="card urgent">
+      <div class="card-header">
+        <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>Email a Salk researcher</div>
+        <span class="badge badge-gold">Highest value</span>
+      </div>
+      <div class="card-desc">Can't formally apply yet (need to be 16). But email a researcher NOW. Mention ActivCare, your music & memory project, and interest in mentorship. They'll remember you sophomore year.</div>
+      <div class="tags"><span class="tag">20 mins from you</span><span class="tag">Plant the seed now</span></div>
+      <a class="link-btn" href="https://www.salk.edu" target="_blank">salk.edu — find researchers ↗</a>
+    </div>
+    <div class="card urgent">
+      <div class="card-header">
+        <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>UCLA Alzheimer's Awareness Club</div>
+        <span class="badge badge-blue">Medium value</span>
+      </div>
+      <div class="card-desc">Virtual monthly meetings. Next meeting April 23rd at 6pm. Perfect connection to your ActivCare experience with dementia patients.</div>
+      <div class="tags"><span class="tag">Free</span><span class="tag">Virtual</span><span class="tag">ActivCare connection</span></div>
+      <a class="link-btn" href="https://uclahs.az1.qualtrics.com" target="_blank">Register here ↗</a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🔬 Brain Bee — start preparing now</div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>Sign up for Brain Bee & IYNA Bootcamp</div>
+        <span class="badge badge-gold">High value</span>
+      </div>
+      <div class="card-desc">Local → National → International neuroscience competition. Study Brain Facts book 20 mins daily. Free bootcamp available through IYNA. Competition opens fall 2026.</div>
+      <div class="tags"><span class="tag">National competition</span><span class="tag">Free to enter</span></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:0.5rem; margin-left:26px;">
+        <a class="link-btn" style="margin-left:0" href="https://thebrainbee.org" target="_blank">thebrainbee.org ↗</a>
+        <a class="link-btn" style="margin-left:0" href="https://brainfacts.org" target="_blank">Brain Facts book (free) ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🧪 Research projects — submit to AAN in October</div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>Project 1 — Music & Memory at ActivCare</div>
+        <span class="badge badge-gold">High value</span>
+      </div>
+      <div class="card-desc">Test how music affects memory recall in elderly patients with cognitive decline. You already have access through ActivCare. Connects TAP + ActivCare + neuroscience. Nobody else has this exact project.</div>
+      <div class="tags"><span class="tag">No lab needed</span><span class="tag">ActivCare access</span><span class="tag">AAN submission</span></div>
+      <a class="link-btn" href="https://www.aan.com" target="_blank">AAN Research Prize ↗</a>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>Project 2 — Law & Community impact</div>
+        <span class="badge badge-gold">High value</span>
+      </div>
+      <div class="card-desc">Design a real-world impact project connected to 4S Ranch Sheriff Substation. Identify a real problem. Present findings to law enforcement like that kid in the video.</div>
+      <div class="tags"><span class="tag">Sheriff connection</span><span class="tag">Real world impact</span><span class="tag">AAN submission</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🚀 Your initiatives — build these this summer</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>Launch TAP officially</div>
+          <span class="badge badge-gold">High value</span>
+        </div>
+        <div class="card-desc">First official teen musician performance. Measure your impact — how many teens, how many performances.</div>
+        <div class="tags"><span class="tag">Founder story</span><span class="tag">Leadership</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>Publish 3 TAL episodes</div>
+          <span class="badge badge-gold">High value</span>
+        </div>
+        <div class="card-desc">Neuroscience and mental health focus. Apophenia episode. Cognitive decline episode. Science communication portfolio.</div>
+        <div class="tags"><span class="tag">Science communication</span><span class="tag">Portfolio</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>Start Del Norte Neuroscience Club</div>
+        <span class="badge badge-blue">Medium value</span>
+      </div>
+      <div class="card-desc">If one doesn't exist — you become founder. Host Brain Bee study sessions. Screen TAL episodes. Invite guest speakers.</div>
+      <div class="tags"><span class="tag">Founder</span><span class="tag">School impact</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📅 Sophomore summer — plan ahead now</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>Salk Institute internship</div>
+          <span class="badge badge-gold">Highest value</span>
+        </div>
+        <div class="card-desc">Apply March 1st 2027. Must be 16. $17/hour. World class neuroscience research in La Jolla.</div>
+        <a class="link-btn" href="https://www.salk.edu/education" target="_blank">salk.edu ↗</a>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>UPenn Neuroscience Academy</div>
+          <span class="badge badge-gold">High value</span>
+        </div>
+        <div class="card-desc">3-week summer program at UPenn. Requires bio + chem — you'll have both done. Apply as soon as apps open.</div>
+        <a class="link-btn" href="https://www.sas.upenn.edu/lps/pre-college" target="_blank">upenn.edu ↗</a>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>UCSD REHS Program</div>
+          <span class="badge badge-gold">High value</span>
+        </div>
+        <div class="card-desc">8-week research at UCSD with a real mentor. Poster presentation at the end. Apply sophomore year.</div>
+        <a class="link-btn" href="https://rehs.ucsd.edu" target="_blank">rehs.ucsd.edu ↗</a>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="checkbox" onclick="toggle(this)"></div>Regeneron / ISEF</div>
+          <span class="badge badge-blue">High value</span>
+        </div>
+        <div class="card-desc">Most prestigious high school science competition. Start building your project now to submit sophomore or junior year.</div>
+        <a class="link-btn" href="https://www.societyforscience.org/isef/" target="_blank">societyforscience.org ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>You started today. That's already more than most. 🌊</p>
+    <span>Save this. Come back to it. Execute one thing at a time.</span>
+  </div>
+
+</div>
+
+<script>
+  function toggle(el) {
+    el.classList.toggle('checked');
+    const card = el.closest('.card');
+    card.classList.toggle('done');
+    updateProgress();
+  }
+  function updateProgress() {
+    const total = document.querySelectorAll('.checkbox').length;
+    const done = document.querySelectorAll('.checkbox.checked').length;
+    const pct = Math.round((done/total)*100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = done + ' of ' + total + ' tasks completed';
+  }
+</script>
+</body>
+</html>
